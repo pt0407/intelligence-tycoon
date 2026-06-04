@@ -31,7 +31,12 @@ export async function GET() {
       data: { lastActive: new Date() },
     })
 
-    return NextResponse.json({ player })
+    return NextResponse.json({ 
+      player: {
+        ...player,
+        capital: player.capital.toString(),
+      }
+    })
   } catch (error) {
     console.error('Error fetching player profile:', error)
     return NextResponse.json(

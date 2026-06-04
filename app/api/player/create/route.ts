@@ -77,11 +77,21 @@ export async function POST(request: Request) {
         playerId: player.id,
         actionType: 'PLAYER_CREATED',
         parameters: { username, companyName },
-        afterState: { player },
+        afterState: { 
+          player: {
+            ...player,
+            capital: player.capital.toString(),
+          }
+        },
       },
     })
 
-    return NextResponse.json({ player }, { status: 201 })
+    return NextResponse.json({ 
+      player: {
+        ...player,
+        capital: player.capital.toString(),
+      }
+    }, { status: 201 })
   } catch (error) {
     console.error('Error creating player profile:', error)
     return NextResponse.json(
