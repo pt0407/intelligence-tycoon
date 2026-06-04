@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Player {
+  id             String   @id @default(uuid())
+  userId         String   @unique // Supabase auth user ID
+  username       String   @unique
+  email          String   @unique
+  companyName    String
+  companyLevel   Int      @default(1)
+  reputation     Int      @default(0)
+  capital        BigInt   @default(10000) // Starting capital
+  computeOwned   Int      @default(0) // TFLOPS
+  researchPoints Int      @default(0)
+  createdAt      DateTime @default(now())
+  lastActive     DateTime @default(now())
+  
+  @@index([userId])
+  @@index([username])
+}
+
+model PlayerAction {
+  id            String   @id @default(uuid())
+  playerId      String
+  actionType    String
+  parameters    Json?
+  beforeState   Json?
+  afterState    Json?
+  ipAddress     String?
+  flagged       Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  
+  @@index([playerId])
+  @@index([actionType])
+  @@index([flagged])
+  @@index([createdAt])
+}
