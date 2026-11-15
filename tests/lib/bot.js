@@ -17,6 +17,8 @@ function makeBot(E) {
       () => (s.me.cash > 60 ? newestBuy() : null),
       () => (!s.me.flagship && s.me.cash > 100 ? opts().filter(o => o.key.startsWith('rent:') && !o.locked).sort((a, b) => platYear(b.target) - platYear(a.target))[0] : null),
       () => (s.me.cash > 300 && s.me.pendingDC.length === 0 ? direct('build:us') || direct('build:tx') : null),
+      () => opts().find(o => o.key.startsWith('decide:') && !o.locked) || null,
+      () => (!s.partnership && s.me.cash > 40 ? opts().find(o => o.key === 'partner:starter' && !o.locked) || null : null),
       () => (s.me.cash > 80 ? direct('office') : null),
       () => { const best = (s.candidates ?? []).filter(c => !c.taken && c.fee < s.me.cash - 20).sort((a, b) => b.quality - a.quality)[0]; return best ? opts().find(o => o.key === `hireCand:${best.id}` && !o.locked) || null : null; },
       () => (s.me.cash < 50 ? opts().find(o => o.key.startsWith('strategy_harvest:') && !o.locked) || null : null),

@@ -72,7 +72,7 @@ describe('game code does not hardcode public figures', () => {
 describe('real funding rounds reach the engine', () => {
   test('a reported round is added to the company cash in its year', () => {
     const s = E.newGame('lab', 'T', 1);
-    while (s.year < 2025) E.endYear(s);
+    while (s.year < 2025 && !s.over) E.endYear(s);
     E.endYear(s);
     assert.ok(s.log.some(l => l.year === 2025 && /^Perplexity closes a reported funding round of \$500M\.$/.test(l.text)));
   });

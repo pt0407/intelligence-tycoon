@@ -139,7 +139,7 @@ describe('real-world anchors', () => {
 
   test('OpenAI is held to its reported 2026 valuation', () => {
     const s = E.newGame('lab', 'T', 1);
-    while (s.year < 2026) E.endYear(s);
+    while (s.year < 2026 && !s.over) E.endYear(s);
     E.endYear(s);
     const openai = E.companyById(s, 'openai');
     assert.equal(openai.valuation, 1250000);
@@ -149,7 +149,7 @@ describe('real-world anchors', () => {
 describe('after 2026', () => {
   test('a real rival cannot grow faster than 12 percent a year', () => {
     const s = E.newGame('lab', 'T', 1);
-    while (s.year <= 2027) E.endYear(s);
+    while (s.year <= 2027 && !s.over) E.endYear(s);
     const openai = E.companyById(s, 'openai');
     const v26 = 1250000;
     assert.ok(openai.valuation <= v26 * 1.12 * 1.12 + 1e-6, `valuation ${openai.valuation}`);

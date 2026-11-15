@@ -102,6 +102,13 @@
     return card(`Achievements ${n} of ${ACHIEVEMENTS.length}`, `<ul class="achs">${ACHIEVEMENTS.map(a => `<li class="${a.id in got ? 'on' : ''}"><b>${esc(a.title)}</b><small>${esc(a.text)}</small></li>`).join('')}</ul>`);
   }
 
+  function decisionCard() {
+    const d = S.decision;
+    if (!d) return '';
+    const choice = d.answered ? `<p>Answered: ${esc(d.options.find(o => o.key === d.answered)?.label ?? d.answered)}</p>` : `<div class="acts">${opts.filter(o => o.key.startsWith('decide:')).map(o => `<button class="act" data-act="${o.key}" ${o.locked ? 'disabled' : ''} title="${esc(o.locked || o.name)}"><b>${esc(o.name)}</b><small>${esc(o.desc)}</small>${o.locked ? `<em>${esc(o.locked)}</em>` : ''}</button>`).join('')}</div>`;
+    return card(`Decision: ${esc(d.title)}`, `<p class="muted">${esc(d.text)}</p>${choice}`);
+  }
+
   function foundingCard() {
     const m = S.me;
     return card('Founding story', `<div class="story-card"><b>${esc(m.name)}</b><span class="muted">${esc(m.founder ?? 'Founder')}${m.city ? ` · ${esc(m.city)}` : ''}</span><p>${esc(m.backstory ?? '')}</p></div>`);
@@ -201,6 +208,7 @@
           <h3 class="sub">Products</h3><div class="tags">${me.products.length ? me.products.map(sid => `<span class="tag">${SEGMENTS[sid].name}</span>`).join('') : '<span class="muted">None launched</span>'}</div>`)}
         ${card('Last year', `${row('Revenue', money(me.revenue))}${row('Inference costs', money(me.cogs))}${row('Operating costs', money(costs))}${row('Net cash', money(me.net))}`)}
         ${card('Leaderboard', `<ol class="board">${board.slice(0, 10).map((c, i) => `<li class="${c === me ? 'me' : ''}"><span>${i + 1}. ${esc(c.name)}${c.real ? ' <small class="muted">real</small>' : ''}</span><b>${money(c.valuation)}</b></li>`).join('')}</ol>`)}
+        ${decisionCard()}
         ${foundingCard()}
         ${stakesCard()}
         ${missionsCard()}

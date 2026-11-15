@@ -204,3 +204,55 @@ function assignCandidates(s) {
   }
 }
 function candidateGain(c) { return { research: 1 + c.quality, engineering: 3 * c.quality, sales: c.quality }[c.role]; }
+
+const DECISIONS = [
+  { id: 'bridge', title: 'Investors want a faster plan', text: 'A board member asks for a bridge round, or a slower burn.', default: 'burn', options: [
+    { key: 'bridge', label: 'Take a bridge', desc: 'Cash up 5 percent of valuation. Your stake falls 3 percent.', apply: s => { s.me.cash += 0.05 * s.me.valuation; s.me.stake *= 0.97; } },
+    { key: 'burn', label: 'Cut the burn', desc: 'Morale up 4, reputation up 2.', apply: s => { bump(s.me, 'morale', 4); bump(s.me, 'rep', 2); } },
+  ] },
+  { id: 'poach', title: 'A rival offers your researchers jobs', text: 'Three of your researchers have offers from a bigger lab.', default: 'let', options: [
+    { key: 'match', label: 'Match the offers', desc: 'Cash down 2, morale up 8.', apply: s => { s.me.cash -= 2; bump(s.me, 'morale', 8); } },
+    { key: 'let', label: 'Let them go', desc: 'Lose 3 researchers.', apply: s => { s.me.researchers = Math.max(0, s.me.researchers - 3); } },
+  ] },
+  { id: 'data', title: 'A publisher offers a data deal', text: 'Licensed text would raise data quality and cost money.', default: 'decline', options: [
+    { key: 'license', label: 'Sign the deal', desc: 'Cash down 5, data quality up 8, licensed share up 10.', apply: s => { s.me.cash -= 5; bump(s.me.data, 'q', 8); bump(s.me.data, 'licensed', 10); } },
+    { key: 'decline', label: 'Decline', desc: 'Reputation up 1.', apply: s => { bump(s.me, 'rep', 1); } },
+  ] },
+  { id: 'incident', title: 'A safety report lands on your desk', text: 'Red-team testers found a serious failure mode in your latest model.', default: 'pause', options: [
+    { key: 'pause', label: 'Pause and fix', desc: 'Safety up 8, cash down 3.', apply: s => { bump(s.me, 'safety', 8); s.me.cash -= 3; } },
+    { key: 'ship', label: 'Ship anyway', desc: 'Safety down 4, reputation down 3.', apply: s => { bump(s.me, 'safety', -4); bump(s.me, 'rep', -3); } },
+  ] },
+  { id: 'grant', title: 'A government grant is on offer', text: 'Accepting brings cash and some public scrutiny.', default: 'refuse', options: [
+    { key: 'accept', label: 'Accept the grant', desc: 'Cash up 15, public trust down 1.', apply: s => { s.me.cash += 15; s.w.trust = clamp(s.w.trust - 1, 0, 100); } },
+    { key: 'refuse', label: 'Refuse', desc: 'No change.', apply: () => {} },
+  ] },
+];
+
+function assignDecision(s) {
+  const d = DECISIONS[Math.floor(rand(s) * DECISIONS.length)];
+  s.decision = { id: d.id, title: d.title, text: d.text, default: d.default, options: d.options.map(o => ({ key: o.key, label: o.label, desc: o.desc })), answered: null };
+}
+
+function answerDecision(s, key) {
+  const d = DECISIONS.find(x => x.id === s.decision.id), o = d.options.find(x => x.key === key);
+  o.apply(s);
+  s.decision.answered = key;
+  return o.label;
+}
+
+function resolveDecision(s, news) {
+  if (!s.decision || s.decision.answered) return;
+  const d = DECISIONS.find(x => x.id === s.decision.id), o = d.options.find(x => x.key === d.default);
+  o.apply(s);
+  s.decision.answered = d.default;
+  news.push(`No answer to "${d.title}". ${o.label} was chosen for you.`);
+}
+
+function expirePartnership(s, news) {
+  const p = s.partnership;
+  if (!p || s.year < p.until) return;
+  s.me.rented[p.pid] = Math.max(0, (s.me.rented[p.pid] ?? 0) - p.racks);
+  s.me.partner = 0;
+  s.partnership = null;
+  news.push('Your cloud deal ends. The rented racks go back to the partner.');
+}

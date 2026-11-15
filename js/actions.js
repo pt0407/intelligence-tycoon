@@ -165,6 +165,24 @@ const ACTIONS = [
     },
   },
   {
+    id: 'partner', each: 'partner', group: 'Compute', name: (s, k) => `Sign a ${PARTNER_TIERS[k].name} cloud deal: ${PARTNER_TIERS[k].racks} racks for ${Math.round(PARTNER_TIERS[k].share * 100)} percent of revenue`,
+    desc: 'Rented racks for two years, then the deal ends. The partner keeps the revenue share while it lasts.', cost: () => 0,
+    check: s => (s.partnership ? 'Already on a cloud deal' : (bestNvidia(s.me, s.year) ? null : 'No platform available')),
+    run: (s, k) => {
+      const tier = PARTNER_TIERS[k], pid = bestNvidia(s.me, s.year).id;
+      s.me.rented[pid] = (s.me.rented[pid] ?? 0) + tier.racks;
+      s.me.partner = tier.share;
+      s.partnership = { tier: k, pid, racks: tier.racks, until: s.year + 2 };
+      return `Signed the ${tier.name} cloud deal. It ends in ${s.year + 2}.`;
+    },
+  },
+  {
+    id: 'decide', each: 'decision', group: 'Decisions', name: (s, k) => s.decision?.options.find(o => o.key === k)?.label ?? k,
+    desc: (s, k) => s.decision?.options.find(o => o.key === k)?.desc ?? '', cost: () => 0,
+    check: s => (s.decision?.answered ? 'Already decided this year' : null),
+    run: (s, k) => `Decided: ${answerDecision(s, k)}.`,
+  },
+  {
     id: 'office', group: 'Talent', name: s => `Upgrade office to ${OFFICES[nextOffice(s)].name} (${money(OFFICES[nextOffice(s)].cost)})`,
     desc: (s) => `Team output x${OFFICES[nextOffice(s)].teamMult}. Rent ${money(OFFICES[nextOffice(s)].rent)} a year.`,
     cost: s => OFFICES[nextOffice(s)].cost,
@@ -205,7 +223,7 @@ function targetsOf(a, s) {
   return {
     seg: Object.keys(SEGMENTS), rival: activeRivals(s).map(r => r.id), region: REGIONS.map(r => r.id),
     size: Object.keys(TRAIN), tier: ['free', 'standard', 'premium'], star: s.stars.map(st => st.id),
-    platform: platformsFor(s.me, s.year).map(p => p.id), candidate: (s.candidates ?? []).map(c => c.id),
+    platform: platformsFor(s.me, s.year).map(p => p.id), candidate: (s.candidates ?? []).map(c => c.id), partner: Object.keys(PARTNER_TIERS), decision: (s.decision?.options ?? []).map(o => o.key),
   }[a.each] ?? [null];
 }
 

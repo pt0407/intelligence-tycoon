@@ -35,6 +35,8 @@ function endYear(s) {
   macroStep(s);
   closeDeals(s, news);
   resolveOffers(s, news);
+  resolveDecision(s, news);
+  expirePartnership(s, news);
   for (const c of active(s)) for (const rd of c.realRounds) if (rd.year === y) { c.cash += rd.amountUsdM; news.push(`${c.name} closes a reported funding round of ${money(rd.amountUsdM)}.`); }
   runEvents(s, news);
   syncStars(s);
@@ -106,7 +108,7 @@ function endYear(s) {
     after: { valuation: me.valuation, cash: me.cash, rank: rankOf(s), revenue: me.revenue, net: me.net, cap: flagCapOf(me), frontier: flagCapOf(frontierOf(s)), frontierName: frontierOf(s).name, stake: me.stake, index: w.index, rate: w.rate, hype: w.hype, trust: w.trust },
   };
   if (me.status !== 'active' || y >= END_YEAR) { s.over = true; s.verdict = verdictFor(s); }
-  else { s.year = y + 1; s.ap = AP_PER_YEAR + me.mods.ap; resetYear(s); assignMissions(s); assignCandidates(s); }
+  else { s.year = y + 1; s.ap = AP_PER_YEAR + me.mods.ap; resetYear(s); assignMissions(s); assignCandidates(s); assignDecision(s); }
   return report;
 }
 
