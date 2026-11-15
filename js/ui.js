@@ -16,6 +16,22 @@
 
   function showScreen(id) { for (const el of document.querySelectorAll('.screen')) el.hidden = el.id !== id; }
 
+  function runsList() { try { return JSON.parse(localStorage.getItem('it-runs') || '[]'); } catch (e) { return []; } }
+
+  function recordRun() {
+    if (S.recorded) return;
+    S.recorded = true;
+    const me = S.me, rank = rankOf(S), board = active(S).length;
+    const runs = [{ name: me.name, path: PATHS[S.path].name, scenario: SCENARIOS[S.scenario ?? 'base'].name, title: S.verdict.title, rank, of: board, valuation: me.valuation, year: S.year, goals: Object.keys(S.goalsDone).length, goalTotal: PATHS[S.path].goals.length, at: new Date().toISOString().slice(0, 10) }, ...runsList()].slice(0, 10);
+    try { localStorage.setItem('it-runs', JSON.stringify(runs)); } catch (e) { }
+  }
+
+  function runsCard() {
+    const runs = runsList();
+    if (!runs.length) return '';
+    return `<section class="runs"><h3>Recent runs</h3><ol>${runs.map(r => `<li><b>${esc(r.name)}</b> <span class="muted">${esc(r.path)} · ${esc(r.scenario)}</span><span class="run-result">${esc(r.title)}, #${r.rank} of ${r.of}, ${money(r.valuation)}, ${r.goals}/${r.goalTotal} objectives</span><small class="muted">${r.at}</small></li>`).join('')}</ol><button class="ghost" id="clear-runs">Clear history</button></section>`;
+  }
+
   function renderStart() {
     showScreen('start');
     $('#start').innerHTML = `
@@ -37,6 +53,7 @@
         <button class="primary big" id="found">Found company</button>
         ${localStorage.getItem('it-save') ? '<button class="ghost" id="continue-save">Continue saved game</button>' : ''}
         <button class="ghost" id="help-start">How it works</button>
+        ${runsCard()}
       </div>`;
   }
 
@@ -268,6 +285,7 @@
 
   function renderEnd() {
     showScreen('end');
+    recordRun();
     const v = S.verdict;
     $('#end').innerHTML = `<div class="end">
       <h1>${esc(v.title)}</h1>
@@ -291,12 +309,13 @@
   document.addEventListener('input', e => { if (e.target.id === 'company-name') companyName = e.target.value; });
 
   document.addEventListener('click', e => {
-    const t = e.target.closest('[data-path],[data-act],[data-tab],[data-scenario],#found,#end-year,#continue,#again,#help,#help-start,#close-help,#continue-save,#save');
+    const t = e.target.closest('[data-path],[data-act],[data-tab],[data-scenario],#found,#end-year,#continue,#again,#help,#help-start,#close-help,#continue-save,#save,#clear-runs');
     if (!t || t.disabled) return;
     if (t.dataset.path) { pathId = t.dataset.path; renderStart(); }
     else if (t.dataset.scenario) { scenarioId = t.dataset.scenario; renderStart(); }
     else if (t.id === 'found') newGame();
     else if (t.id === 'continue-save') loadGame();
+    else if (t.id === 'clear-runs') { localStorage.removeItem('it-runs'); renderStart(); }
     else if (t.id === 'save') { saveGame(); t.textContent = 'Saved'; }
     else if (t.dataset.tab) { tab = t.dataset.tab; renderGame(); }
     else if (t.dataset.act) { Engine.act(S, t.dataset.act); renderGame(); }
