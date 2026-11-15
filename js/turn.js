@@ -85,6 +85,7 @@ function endYear(s) {
   }
   for (const c of active(s)) c.valuation = valuationOf(c, w);
   for (const c of active(s)) applyHistory(s, c);
+  for (const c of active(s)) if (c !== me && y >= HISTORY_END && c.lastValuation > 0) c.valuation = Math.min(c.valuation, c.lastValuation * 1.12);
   w.frontierE = Math.max(1e-9, ...active(s).map(c => effCompute(s, c, 1)));
   PATHS[s.path].goals.forEach((gl, i) => { if (!(i in s.goalsDone) && me.status === 'active' && gl.check(s)) { s.goalsDone[i] = y; news.push(`Objective complete: ${gl.text}`); } });
   s.history.push({ year: y, valuation: me.valuation, revenue: me.revenue, cap: flagCapOf(me), frontier: flagCapOf(frontierOf(s)), rank: rankOf(s), index: w.index, rate: w.rate, portfolio: portfolioValue(s) });
