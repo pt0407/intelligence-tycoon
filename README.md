@@ -1,41 +1,30 @@
 # Intelligence Tycoon
 
-A browser-based multiplayer AI business simulation game where players build AI companies, manage resources, and compete in a dynamic economy.
+Found an AI company in 2016 and try to end up the most valuable one by 2035. Each turn is a year. You manage compute, chips, data centers, researchers, models, products, funding rounds, the IPO, and the regulators, while rivals do the same.
 
-## Tech Stack
+## Run it
 
-- **Frontend:** Next.js 14, TypeScript, Tailwind CSS, shadcn/ui
-- **Backend:** Next.js API Routes, Supabase, Prisma
-- **Database:** PostgreSQL (Supabase)
-- **Auth:** Supabase Auth
-- **Real-time:** Supabase Realtime
+No build step. Open `index.html` in a browser, or serve the folder:
 
-## Getting Started
-
-1. Clone the repository
-2. Copy `.env.example` to `.env.local` and fill in your Supabase credentials
-3. Install dependencies: `npm install`
-4. Run database migrations: `npx prisma migrate dev`
-5. Start development server: `npm run dev`
-6. Open [http://localhost:3000](http://localhost:3000)
-
-## Project Structure
-
-- `/app` - Next.js app router pages and API routes
-- `/components` - React components
-- `/lib` - Utility functions and configurations
-- `/prisma` - Database schema and migrations
-- `/types` - TypeScript type definitions
-
-## Development
-
-```bash
-npm run dev      # Start development server
-npm run build    # Build for production
-npm run start    # Start production server
-npm run lint     # Run ESLint
+```
+python3 -m http.server 8000
 ```
 
-## License
+Then go to http://localhost:8000.
 
-MIT
+To run the balance sim in Node (plays each pathway with a simple bot):
+
+```
+node tests/sim.js
+```
+
+## Notes
+
+- Six pathways (academic lab, garage startup, big tech skunkworks, open-source collective, chip maker, robotics). Each has its own starting team, bonuses, drawbacks, and objectives.
+- The "How it works" button in the game explains the mechanics.
+- Smoke-tested in headless Chromium: all tabs, actions, year-ends, and the final screen run with no console errors.
+- Balance is a first pass. The sim bot is naive, so treat the numbers as a starting point.
+- Nothing saves between sessions yet.
+- Company and rival names are fictional.
+
+Built with plain HTML, CSS, and JavaScript. The code was written with AI help, and I'm tuning it by hand.
