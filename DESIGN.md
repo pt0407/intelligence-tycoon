@@ -1,40 +1,45 @@
-# Design system: trading desk
+# Design system: liquid glass
 
-## Palette
+## Ground
 
-- Ground: #0b0c0d. Panels: #111315. Raised row: #171a1d.
-- Hairlines: #22262b (panel edges), #1a1d21 (row dividers).
-- Text: #d8dde3 primary, #8b939c secondary. Secondary text is tinted from the ground, not pure grey, and meets 4.5:1 on panels.
-- Accent (you, selection, the single live value): amber #e0a526.
-- Up: #5fb37a. Down and errors: #d9534f. Used only on figures that moved, never as decoration.
-- Selection: #26313d.
+A deep field, #070a14, with four soft colour sources drifting slowly behind everything: indigo, sky, rose and teal at low opacity. The field is the backdrop that glass needs to refract. It moves very slowly and stops under reduced motion.
+
+## Glass
+
+- Panel fill: a top-lit gradient from rgba(255,255,255,0.10) to rgba(255,255,255,0.03).
+- Blur: backdrop-filter blur(22px) saturate(160%). Shadows carry an offset and a soft blur.
+- Edge: 1px rgba(255,255,255,0.16) border, with an inner top highlight, inset 0 1px 0 rgba(255,255,255,0.28).
+- Radius: 20px for panels and the ticker, 12px for tiles and controls, 999px only for tags.
+- Fallback: without backdrop-filter support, panels become a solid #121626 at 92% opacity.
 
 ## Type
 
-- IBM Plex Sans (self-hosted, OFL) for everything written: 400 body, 600 headings and labels.
-- IBM Plex Mono (self-hosted, OFL) only for figures in tables and the ticker. Never as a "tech" costume.
-- Figures always use tabular numerals.
-- Body 13px, dense. Headings 11px uppercase with 0.08em tracking, set as panel labels. Display 28px for the verdict only.
+- IBM Plex Sans (self-hosted, OFL): 400 body, 600 headings and labels.
+- IBM Plex Mono (self-hosted, OFL): figures in tables and the ticker only.
+- Ink: #f1f4fb. Secondary ink: rgba(226,232,245,0.74). Both meet 4.5:1 on the glass over the darkest field.
+- Figures use tabular numerals.
 
-## Structure
+## Colour
 
-- No rounded cards. Panels are rectangles with a 1px hairline. Radius 2px on controls, 0 on panels.
-- No shadows. Elevation is the hairline and the ground colour.
-- Sections are separated by rules and a labelled header row, not by space alone.
-- Lists and figures use ruled rows with right-aligned tabular numbers.
+- Accent (you, the active tab, selection): #9ee8ff, ice blue. One accent only.
+- Up: #6ee7b7. Down and errors: #fca5a5.
+- Text never sits on the bright parts of the colour field. The field stays dark behind all text.
 
 ## Components
 
-- Ticker: one bar across the top with the year, company vitals and the index as ruled cells. No progress bar. The year is the largest text.
-- Tabs: text tabs on a ruled bar. The active tab has an amber underline.
-- Buttons: ghost (hairline) by default. Primary is amber text on the ground, no filled colour block.
-- Bars: a 2px line showing share or capability, not a rounded pill.
-- Charts: a thin line in text colour, with the event labels set beside it.
+- Ticker: a floating glass bar, sticky, inset 12px from the edges, with the year as the largest figure.
+- Tabs: pill-shaped glass segments. The active tab gets a brighter fill and the accent text.
+- Buttons: glass tiles. Primary is a brighter glass tile with ice-blue text. On press they scale to 0.98 (transform only).
+- Rows and tables stay flat inside a glass panel. Glass is never nested inside glass.
+- Bars: 3px rules with rounded ends.
 
 ## Motion
 
-Only the year change: a short fade on the ticker figure. Everything respects prefers-reduced-motion.
+- The colour field drifts over about 40 seconds. Transform only.
+- Modal: fade and rise, 220ms, ease-out.
+- Hover and focus colour changes: 180ms.
+- Everything stops under prefers-reduced-motion. Reduced transparency makes the glass solid.
 
-## Focus and selection
+## Focus
 
-Focus ring: 1px amber outline, 2px offset. Selection uses the selection colour above.
+A 2px ice-blue outline with a 2px offset on every interactive element.

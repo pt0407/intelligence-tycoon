@@ -4,11 +4,11 @@ Intelligence Tycoon is a browser strategy game. You found an AI company in 2016 
 
 ## Users
 
-Finance and tech readers. They expect real numbers, sources and dense tables. They want the data at the front, the sources one click away, and no decoration that gets in the way of comparing figures.
+Finance and tech readers. They expect real numbers, sources and dense tables. They want the data at the front, the sources one click away, and figures that are easy to compare.
 
 ## Surface
 
-A single-page game. The main screen is a trading-desk layout: a ticker strip for the year and company vitals, a tab bar, a dense main area, and a log. The end screen reads like a closing report.
+A single-page game. The main screen floats glass panels over a slow-moving colour field: a ticker for the year and company vitals, a tab bar, a main area of tables and controls, and a log. The end screen is a closing report on the same surface.
 
 ## Purpose
 
@@ -18,8 +18,12 @@ Make the mechanics legible: why your valuation moved, what a rack costs in megaw
 
 Plain, precise, a little dry. Controls name their action. Numbers carry units. Estimates are labelled as estimates. No marketing words.
 
+## Direction (updated)
+
+Glassmorphism, liquid-glass finish. The owner chose this over the earlier trading-desk look. The glass carries the layering: panels float above the colour field and the ticker floats above the content. Glass is not decoration on top of plain panels; it marks which surface is in front.
+
 ## Anti-references
 
-- Generic dark SaaS dashboards: navy panels, gradient timelines, five identical stat tiles, soft shadows, green accents.
-- Gamified neon and glow.
+- Flat, hairline-ruled panels with no depth.
+- Neon glow, gradient text, and glass with no backdrop behind it.
 - Decorative charts with no data behind them.
