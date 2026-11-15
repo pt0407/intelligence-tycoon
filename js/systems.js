@@ -257,6 +257,11 @@ function expirePartnership(s, news) {
   news.push('Your cloud deal ends. The rented racks go back to the partner.');
 }
 
+function askBand(c) {
+  if (c.ask == null) return null;
+  return { low: Math.max(0.5, c.ask - 0.1), high: c.ask + 0.1 };
+}
+
 function reactToStakes(s, news) {
   for (const [rid, pct] of Object.entries(s.me.investments)) {
     const r = companyById(s, rid);
