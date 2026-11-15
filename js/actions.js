@@ -153,6 +153,18 @@ const ACTIONS = [
     run: (s, rid) => scheduleDeal(s, 'buycompute', companyById(s, rid), computePrice(s, rid)),
   },
   {
+    id: 'hireCand', each: 'candidate', group: 'Talent', name: (s, id) => `Hire ${candOf(s, id).name} (${candOf(s, id).role}, quality ${candOf(s, id).quality}/5)`,
+    desc: (s, id) => `Fee ${money(candOf(s, id).fee)}. Adds ${candidateGain(candOf(s, id))} ${candOf(s, id).role === 'research' ? 'researchers' : candOf(s, id).role === 'engineering' ? 'engineers' : 'sales reps'}. Candidates leave at year end.`,
+    cost: (s, id) => candOf(s, id).fee,
+    check: (s, id) => (candOf(s, id).taken ? 'Already hired' : null),
+    run: (s, id) => {
+      const c = candOf(s, id), g = candidateGain(c);
+      c.taken = true;
+      if (c.role === 'research') s.me.researchers += g; else if (c.role === 'engineering') s.me.engineers += g; else s.me.sales += g;
+      return `Hired ${c.name} as ${c.role}.`;
+    },
+  },
+  {
     id: 'office', group: 'Talent', name: s => `Upgrade office to ${OFFICES[nextOffice(s)].name} (${money(OFFICES[nextOffice(s)].cost)})`,
     desc: (s) => `Team output x${OFFICES[nextOffice(s)].teamMult}. Rent ${money(OFFICES[nextOffice(s)].rent)} a year.`,
     cost: s => OFFICES[nextOffice(s)].cost,
@@ -181,6 +193,7 @@ const ACTIONS = [
 
 function rackFleetValue(c, s) { return 0.3 * clusterValue(c, s); }
 function clusterValue(c, s) { return Object.entries(c.fleet).reduce((t, [id, n]) => t + n * rackPrice(s, platOf(c, id)), 0); }
+const candOf = (s, id) => (s.candidates ?? []).find(c => c.id === id);
 const nextOffice = s => Math.min(OFFICES.length - 1, (s.me.offices ?? 0) + 1);
 function acqPrice(s, rid) { const r = companyById(s, rid); return r.valuation * 0.9 * r.discount; }
 function acquihirePrice(s, rid) { return companyById(s, rid).researchers * 1.2; }
@@ -192,7 +205,7 @@ function targetsOf(a, s) {
   return {
     seg: Object.keys(SEGMENTS), rival: activeRivals(s).map(r => r.id), region: REGIONS.map(r => r.id),
     size: Object.keys(TRAIN), tier: ['free', 'standard', 'premium'], star: s.stars.map(st => st.id),
-    platform: platformsFor(s.me, s.year).map(p => p.id),
+    platform: platformsFor(s.me, s.year).map(p => p.id), candidate: (s.candidates ?? []).map(c => c.id),
   }[a.each] ?? [null];
 }
 

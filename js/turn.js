@@ -106,7 +106,7 @@ function endYear(s) {
     after: { valuation: me.valuation, cash: me.cash, rank: rankOf(s), revenue: me.revenue, net: me.net, cap: flagCapOf(me), frontier: flagCapOf(frontierOf(s)), frontierName: frontierOf(s).name, stake: me.stake, index: w.index, rate: w.rate, hype: w.hype, trust: w.trust },
   };
   if (me.status !== 'active' || y >= END_YEAR) { s.over = true; s.verdict = verdictFor(s); }
-  else { s.year = y + 1; s.ap = AP_PER_YEAR + me.mods.ap; resetYear(s); assignMissions(s); }
+  else { s.year = y + 1; s.ap = AP_PER_YEAR + me.mods.ap; resetYear(s); assignMissions(s); assignCandidates(s); }
   return report;
 }
 

@@ -12,7 +12,7 @@ const MISSION_POOL = [
 const COUNTED = {
   hireRes: ['hires', 5], hireEng: ['hires', 5], train: ['trains', 1], launch: ['launches', 1], stake: ['stakes', 1],
   bidLow: ['deals', 1], bidFair: ['deals', 1], bidHigh: ['deals', 1], acquihire: ['deals', 1], buycompute: ['deals', 1],
-  raise: ['raises', 1], paper: ['papers', 1], post: ['posts', 1],
+  raise: ['raises', 1], paper: ['papers', 1], post: ['posts', 1], hireCand: ['hires', 1],
 };
 
 function countAction(s, key) {

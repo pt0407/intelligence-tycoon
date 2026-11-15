@@ -194,3 +194,13 @@ function aiTurn(s, r, news) {
     }
   }
 }
+
+const ROLES = ['research', 'engineering', 'sales'];
+function assignCandidates(s) {
+  s.candidates = [];
+  for (let i = 0; i < 4; i++) {
+    const quality = 1 + Math.floor(rand(s) * 5);
+    s.candidates.push({ id: `c${s.year}-${i}`, name: makeFounder(s), role: ROLES[Math.floor(rand(s) * ROLES.length)], quality, fee: 0.2 * quality, taken: false });
+  }
+}
+function candidateGain(c) { return { research: 1 + c.quality, engineering: 3 * c.quality, sales: c.quality }[c.role]; }

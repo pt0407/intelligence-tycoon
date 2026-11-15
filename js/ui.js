@@ -252,6 +252,7 @@
         ${card('Star researchers', `${S.stars.filter(st => st.owner === 'me').map(st => row(st.name, `ability ${st.ability.toFixed(1)}`)).join('') || '<p class="muted">None on your team.</p>'}
           <h3 class="sub">Everyone else</h3>${S.stars.filter(st => st.owner !== 'me').map(st => row(st.name, st.owner ? companyById(S, st.owner).name : 'Free agent')).join('')}
           <p class="muted">Star researchers are fictional. Real labs' staffing isn't public.</p>`)}
+        ${card('Candidates this year', `<p class="muted">Candidates leave at year end. Higher quality brings more output for the fee.</p>${(S.candidates ?? []).map(c => row(esc(c.name), `${c.role} · quality ${c.quality}/5 · ${c.taken ? 'hired' : money(c.fee)}`)).join('') || '<p class="muted">No candidates this year.</p>'}`)}
         ${card('Talent actions', acts(mine))}
       </div>`;
     }

@@ -55,3 +55,9 @@ The autoplay runs games across worker threads. It reports bankruptcies, median r
 - Fictional stars and fictional startups. Real companies are shown with public figures, and estimates are marked.
 
 Built with plain HTML, CSS, and JavaScript. The code was written with AI help, and I'm tuning the balance by hand.
+
+## Balance notes
+
+- Early game: fine-tuning gives at least capability 28, so every pathway ships a product in year one. Before this, the Academic Lab and Robotics runs never shipped.
+- Late game: the post-2026 growth bound for real companies (12 percent a year, in `data/real.json`) was tested at 1.05, 1.12 and 1.25. Changing it moved the player's median rank by only a few points, within noise on six seeds, so it stays at 1.12.
+- Office, review, strategy and candidate numbers are game estimates, not data. They have not been playtested by a person.

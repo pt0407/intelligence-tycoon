@@ -15,10 +15,11 @@ function newGame(pathId, name, seed = 1, scenario = 'base', identity = null) {
   const s = {
     year: START_YEAR, path: pathId, scenario, w, me, rivals, stars: STARS.map(x => ({ ...x })), ap: AP_PER_YEAR + me.mods.ap,
     stats: { papers: 0, rounds: 0, openReleases: 0, profitYears: 0, launched: {}, ipo: 0 },
-    goalsDone: {}, achievements: {}, deals: [], offers: [], missions: [], yr: {}, log: [{ year: START_YEAR, text: `${name} is founded as a ${p.name.toLowerCase()}.` }], history: [], rs: seed, over: false, verdict: null,
+    goalsDone: {}, achievements: {}, deals: [], offers: [], missions: [], candidates: [], yr: {}, log: [{ year: START_YEAR, text: `${name} is founded as a ${p.name.toLowerCase()}.` }], history: [], rs: seed, over: false, verdict: null,
   };
   syncStars(s);
   assignMissions(s);
+  assignCandidates(s);
   for (const c of active(s)) { c.valuation = valuationOf(c, w); applyHistory(s, c); }
   w.frontierE = Math.max(1e-9, ...active(s).map(c => effCompute(s, c, 1)));
   return s;
