@@ -17,15 +17,24 @@ TABS = ["overview", "hardware", "research", "talent", "products", "finance", "po
 MAX_ACTIONS_PER_YEAR = 6
 
 
+ACTION_TABS = ["overview", "talent", "products", "hardware", "research", "rivals", "deals", "finance"]
+
+
 def take_actions(pg, report, year):
-    for _ in range(MAX_ACTIONS_PER_YEAR):
-        buttons = pg.locator("[data-act]:not([disabled])")
-        if buttons.count() == 0:
+    taken = 0
+    for tab in ACTION_TABS:
+        if taken >= MAX_ACTIONS_PER_YEAR:
             return
-        key = buttons.first.get_attribute("data-act")
-        buttons.first.click()
-        report["actions"].append({"year": year, "key": key})
-        pg.wait_for_timeout(20)
+        pg.click(f"[data-tab='{tab}']")
+        while taken < MAX_ACTIONS_PER_YEAR:
+            buttons = pg.locator("[data-act]:not([disabled])")
+            if buttons.count() == 0:
+                break
+            key = buttons.first.get_attribute("data-act")
+            buttons.first.click()
+            report["actions"].append({"year": year, "tab": tab, "key": key})
+            taken += 1
+            pg.wait_for_timeout(20)
 
 
 def check_layout(pg, report, year, tab):

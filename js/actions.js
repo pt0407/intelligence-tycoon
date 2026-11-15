@@ -9,7 +9,7 @@ const ACTIONS = [
   { id: 'hireEng', group: 'Talent', name: () => 'Hire 5 engineers', desc: 'Fee $0.1M each. Salary $0.2M/yr each. Engineers add product polish.', cost: s => 0.5 * s.me.mods.hire, run: s => { s.me.engineers += 5; return 'Hired 5 engineers.'; } },
   { id: 'hireSales', group: 'Talent', name: () => 'Hire 5 sales reps', desc: 'Enterprise deals scale with reps and flagship quality.', cost: s => 0.5 * s.me.mods.hire, run: s => { s.me.sales += 5; return 'Hired 5 sales reps.'; } },
   { id: 'payRaise', group: 'Talent', name: () => 'Company-wide pay raise', desc: 'Morale +6. Costs roughly a tenth of a year of your team.', cost: s => 0.1 * (s.me.researchers + s.me.engineers), run: s => { bump(s.me, 'morale', 6); return 'Pay raise rolled out. Morale is up.'; } },
-  { id: 'equity', group: 'Talent', name: () => 'Equity refresh', desc: 'Morale +10. Dilutes your stake by 1 percent.', cost: () => 0, check: s => (s.me.stake < 0.1 ? 'Too little stake left to dilute' : null), run: s => { bump(s.me, 'morale', 10); s.me.stake *= 0.99; return 'Equity refresh granted. Your stake shrinks a little.'; } },
+  { id: 'equity', group: 'Talent', name: () => 'Equity refresh', desc: 'Morale +10. Dilutes your stake by 1 percent.', cost: () => 0, check: s => (s.yr.equity ? 'Already refreshed this year' : s.me.stake < 0.1 ? 'Too little stake left to dilute' : null), run: s => { bump(s.me, 'morale', 10); s.me.stake *= 0.99; (s.yr.equity = true); return 'Equity refresh granted. Your stake shrinks a little.'; } },
   {
     id: 'star', each: 'star', group: 'Talent', name: (s, id) => { const st = s.stars.find(x => x.id === id); return st.owner ? `Poach ${st.name}` : `Recruit ${st.name}`; },
     desc: (s, id) => { const st = s.stars.find(x => x.id === id); return `Star researcher, ability ${st.ability.toFixed(1)}. ${st.owner ? `Under contract with ${companyById(s, st.owner).name}.` : 'Free agent.'}`; },
@@ -179,7 +179,7 @@ const ACTIONS = [
   {
     id: 'decide', each: 'decision', group: 'Decisions', name: (s, k) => s.decision?.options.find(o => o.key === k)?.label ?? k,
     desc: (s, k) => s.decision?.options.find(o => o.key === k)?.desc ?? '', cost: () => 0,
-    check: s => (s.decision?.answered ? 'Already decided this year' : null),
+    check: (s, k) => (s.decision?.answered ? 'Already decided this year' : (s.decision?.options.find(o => o.key === k)?.cost ?? 0) > s.me.cash ? 'Not enough cash for this option' : null),
     run: (s, k) => `Decided: ${answerDecision(s, k)}.`,
   },
   {

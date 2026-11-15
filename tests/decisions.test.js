@@ -51,6 +51,25 @@ describe('decision cards', () => {
   });
 });
 
+describe('decision cash', () => {
+  test('an option that costs cash is locked when the company cannot pay', () => {
+    const s = E.newGame('garage', 'T', 1);
+    s.ap = 5;
+    s.me.cash = 1;
+    s.decision = { id: 'data', title: 'd', text: '', default: 'decline', options: E.DECISIONS.find(d => d.id === 'data').options.map(o => ({ key: o.key, label: o.label, desc: o.desc, cost: o.cost ?? 0 })), answered: null };
+    assert.equal(E.options(s).find(o => o.key === 'decide:license').locked, 'Not enough cash for this option');
+  });
+
+  test('an unanswered card never takes the company below zero cash', () => {
+    const s = E.newGame('garage', 'T', 1);
+    s.me.cash = 2;
+    s.decision = { id: 'incident', title: 'i', text: '', default: 'pause', options: [], answered: null };
+    E.resolveDecision(s, []);
+    assert.ok(s.me.cash >= 0, `cash ${s.me.cash}`);
+    assert.equal(s.decision.answered, 'ship');
+  });
+});
+
 describe('cloud partnerships', () => {
   test('a cloud deal adds rented racks and a revenue share', () => {
     const s = E.newGame('lab', 'T', 5);

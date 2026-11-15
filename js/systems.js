@@ -211,15 +211,15 @@ const DECISIONS = [
     { key: 'burn', label: 'Cut the burn', desc: 'Morale up 4, reputation up 2.', apply: s => { bump(s.me, 'morale', 4); bump(s.me, 'rep', 2); } },
   ] },
   { id: 'poach', title: 'A rival offers your researchers jobs', text: 'Three of your researchers have offers from a bigger lab.', default: 'let', options: [
-    { key: 'match', label: 'Match the offers', desc: 'Cash down 2, morale up 8.', apply: s => { s.me.cash -= 2; bump(s.me, 'morale', 8); } },
+    { key: 'match', label: 'Match the offers', desc: 'Cash down 2, morale up 8.', cost: 2, apply: s => { s.me.cash -= 2; bump(s.me, 'morale', 8); } },
     { key: 'let', label: 'Let them go', desc: 'Lose 3 researchers.', apply: s => { s.me.researchers = Math.max(0, s.me.researchers - 3); } },
   ] },
   { id: 'data', title: 'A publisher offers a data deal', text: 'Licensed text would raise data quality and cost money.', default: 'decline', options: [
-    { key: 'license', label: 'Sign the deal', desc: 'Cash down 5, data quality up 8, licensed share up 10.', apply: s => { s.me.cash -= 5; bump(s.me.data, 'q', 8); bump(s.me.data, 'licensed', 10); } },
+    { key: 'license', label: 'Sign the deal', desc: 'Cash down 5, data quality up 8, licensed share up 10.', cost: 5, apply: s => { s.me.cash -= 5; bump(s.me.data, 'q', 8); bump(s.me.data, 'licensed', 10); } },
     { key: 'decline', label: 'Decline', desc: 'Reputation up 1.', apply: s => { bump(s.me, 'rep', 1); } },
   ] },
   { id: 'incident', title: 'A safety report lands on your desk', text: 'Red-team testers found a serious failure mode in your latest model.', default: 'pause', options: [
-    { key: 'pause', label: 'Pause and fix', desc: 'Safety up 8, cash down 3.', apply: s => { bump(s.me, 'safety', 8); s.me.cash -= 3; } },
+    { key: 'pause', label: 'Pause and fix', desc: 'Safety up 8, cash down 3.', cost: 3, apply: s => { bump(s.me, 'safety', 8); s.me.cash -= 3; } },
     { key: 'ship', label: 'Ship anyway', desc: 'Safety down 4, reputation down 3.', apply: s => { bump(s.me, 'safety', -4); bump(s.me, 'rep', -3); } },
   ] },
   { id: 'grant', title: 'A government grant is on offer', text: 'Accepting brings cash and some public scrutiny.', default: 'refuse', options: [
@@ -230,7 +230,7 @@ const DECISIONS = [
 
 function assignDecision(s) {
   const d = DECISIONS[Math.floor(rand(s) * DECISIONS.length)];
-  s.decision = { id: d.id, title: d.title, text: d.text, default: d.default, options: d.options.map(o => ({ key: o.key, label: o.label, desc: o.desc })), answered: null };
+  s.decision = { id: d.id, title: d.title, text: d.text, default: d.default, options: d.options.map(o => ({ key: o.key, label: o.label, desc: o.desc, cost: o.cost ?? 0 })), answered: null };
 }
 
 function answerDecision(s, key) {
@@ -242,9 +242,11 @@ function answerDecision(s, key) {
 
 function resolveDecision(s, news) {
   if (!s.decision || s.decision.answered) return;
-  const d = DECISIONS.find(x => x.id === s.decision.id), o = d.options.find(x => x.key === d.default);
+  const d = DECISIONS.find(x => x.id === s.decision.id);
+  let o = d.options.find(x => x.key === d.default);
+  if ((o.cost ?? 0) > s.me.cash) o = d.options.find(x => !x.cost) ?? o;
   o.apply(s);
-  s.decision.answered = d.default;
+  s.decision.answered = o.key;
   news.push(`No answer to "${d.title}". ${o.label} was chosen for you.`);
 }
 
