@@ -2,8 +2,8 @@ const ART_W = 1200, ART_H = 220;
 
 function hueOf(name) { let h = 0; for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 360; return h; }
 function monogram(name) {
-  const parts = name.replace(/\(.*?\)/g, '').trim().split(/\s+/);
-  return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase();
+  const first = name.replace(/\(.*?\)/g, '').trim().split(/\s+/)[0] ?? '';
+  return first.slice(0, 2).toUpperCase();
 }
 
 const artEsc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -27,6 +27,7 @@ function racksScene(S) {
 }
 
 function barsScene(S) {
+  if (S.history.length < 2) return `<line x1="60" y1="${ART_H - 40}" x2="${ART_W - 60}" y2="${ART_H - 40}" stroke="rgba(255,255,255,0.2)" stroke-width="2"/><circle class="pulse" cx="${ART_W / 2}" cy="${ART_H / 2}" r="10" fill="#9ee8ff"/>`;
   const h = S.history.length ? S.history.map(x => Math.log10(Math.max(1, x.valuation))) : [0, 1];
   const max = Math.max(...h, 1), n = Math.max(h.length, 2), w = ART_W / n;
   return h.map((v, i) => { const bh = Math.max(4, (v / max) * 170); return `<rect class="grow" style="animation-delay:${i * 0.03}s" x="${i * w + w * 0.15}" y="${ART_H - bh - 20}" width="${w * 0.7}" height="${bh}" rx="6" fill="rgba(158,232,255,${0.25 + 0.6 * (i / n)})"/>`; }).join('');
