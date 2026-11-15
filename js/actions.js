@@ -1,7 +1,7 @@
 const regionById = id => REGIONS.find(r => r.id === id);
 const TIER_TEXT = { free: 'More users, half the revenue per user.', standard: 'Balanced pricing.', premium: 'Fewer users, 1.6x revenue per user.' };
 const platFree = (s, pid) => (platformsFor(s.me, s.year).find(p => p.id === pid).tf >= 0);
-const rackPrice = (s, p) => p.rackM * s.w.priceShock * s.me.mods.compute;
+const rackPrice = (s, p) => p.rackM * s.w.priceShock * s.me.mods.compute * (1 + 0.5 * s.w.memTight);
 
 const ACTIONS = [
   { id: 'hireRes', group: 'Talent', name: () => 'Recruit 5 researchers', desc: 'Fee $0.4M each. Salary $0.35M/yr each.', cost: s => 2 * s.me.mods.hire, run: s => { s.me.researchers += 5; return 'Recruited 5 researchers.'; } },

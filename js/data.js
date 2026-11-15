@@ -34,10 +34,19 @@ const PLATFORMS = [
 ];
 
 const REGIONS = [
-  { id: 'us', name: 'US Southeast', price: 80, queue: 3, permit: 0.2 },
-  { id: 'tx', name: 'Texas Plains', price: 55, queue: 2, permit: 0.1 },
-  { id: 'nordic', name: 'Nordic Hydro', price: 45, queue: 4, permit: 0.15 },
+  { id: 'us', name: 'US Southeast (PJM-like)', price: 90, queue: 3, permit: 0.2 },
+  { id: 'tx', name: 'Texas (ERCOT)', price: 75, queue: 2, permit: 0.1 },
+  { id: 'nordic', name: 'Sweden North (hydro)', price: 50, queue: 4, permit: 0.15 },
+  { id: 'gulf', name: 'Saudi Arabia (sovereign)', price: 54, queue: 2, permit: 0.25 },
 ];
+
+const SCENARIOS = {
+  base: { name: 'Base history', blurb: 'The real timeline as far as public data goes, then the simulation.' },
+  exportBan: { name: 'Export ban', blurb: 'Newest NVIDIA chips are restricted from 2026 for everyone except government partners.' },
+  slowdown: { name: 'AI slowdown', blurb: 'Demand cools from 2026. Hype drops, algorithms stall, the index falls by a fifth.' },
+  powerCrunch: { name: 'Power crunch', blurb: 'Grids tighten: energy prices spike and campus queues grow by two years.' },
+  fastRoadmap: { name: 'Fast roadmap', blurb: 'Algorithmic progress runs about 30 percent faster from 2024 on.' },
+};
 
 const ROUNDS = [
   { name: 'Seed', pct: 0.1, need: () => true, ask: 'nothing' },

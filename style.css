@@ -224,3 +224,8 @@ input { font: inherit; color: inherit; background: #111827; border: 1px solid #2
 .anchor small { display: block; color: #9fb0cc; font-size: 12px; }
 .rival small { display: block; }
 .rbtns button { white-space: nowrap; }
+
+.scenarios { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin: 0 0 18px; }
+.scen { text-align: left; background: #0e1626; border: 1px solid #22314f; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; color: inherit; }
+.scen small { color: #7d8ba3; font-size: 12px; line-height: 1.35; }
+.scen.on { border-color: #3dd68c; box-shadow: 0 0 0 1px #3dd68c inset; }

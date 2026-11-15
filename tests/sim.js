@@ -49,7 +49,7 @@ function bot(s) {
 const PLAT_YEAR = id => (id ? (Engine.PLATFORMS || []).find(p => p.id === id)?.year ?? 0 : 0);
 
 function runPath(pathId, seed, doNothing = false) {
-  const s = Engine.newGame(pathId, 'Test Co', seed);
+  const s = Engine.newGame(pathId, 'Test Co', seed, process.env.SCENARIO || 'base');
   const rows = [];
   while (!s.over) {
     if (!doNothing) bot(s);

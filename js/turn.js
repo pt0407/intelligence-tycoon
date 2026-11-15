@@ -1,6 +1,7 @@
 function macroStep(s) {
   const w = s.w, y = s.year, growth = TAM[Math.min(yi(y) + 1, TAM.length - 1)] / TAM[yi(y)];
-  w.mult = y >= 2026 ? Math.max(0.4, 1 - 0.04 * (y - 2026)) : 1;
+  w.mult = y >= 2026 ? Math.max(0.3, 1 - 0.08 * (y - 2026)) : 1;
+  w.memTight = clamp(w.memTight + (clamp(0.2 + (w.hype - 0.8) * 0.5, 0, 1) - w.memTight) * 0.4, 0, 1);
   w.rate = clamp(w.rate + (3 - w.rate) * 0.15 + (rand(s) - 0.5) * 0.5, 0, 8);
   w.index = clamp(w.index * (1 + 0.05 + (w.hype - 1) * 0.1 - (w.rate - 3) * 0.015 + (rand(s) - 0.5) * 0.12), 30, 220);
   w.hype = clamp(w.hype + (growth - 1.4) * 0.2 + (rand(s) - 0.5) * 0.1 - w.recession * 0.05, 0.4, 1.8);

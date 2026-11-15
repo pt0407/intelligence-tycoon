@@ -12,7 +12,7 @@
   const REG_NAMES = ['None', 'Voluntary guidelines', 'Binding rules', 'Licensing regime'];
   const SRC = 'docs/research.md';
 
-  let S = null, pathId = 'lab', companyName = 'Your AI Co', tab = 'overview', opts = [];
+  let S = null, pathId = 'lab', companyName = 'Your AI Co', tab = 'overview', opts = [], scenarioId = 'base';
 
   function showScreen(id) { for (const el of document.querySelectorAll('.screen')) el.hidden = el.id !== id; }
 
@@ -23,6 +23,7 @@
         <h1>Intelligence Tycoon</h1>
         <p class="lede">2016 to 2035. Found an AI company and race the real ones: OpenAI, Anthropic, NVIDIA, xAI and the rest. History runs on real numbers until 2026. After that, it's up to you.</p>
         <label class="name">Company name <input id="company-name" value="${esc(companyName)}" maxlength="28"></label>
+        <div class="scenarios">${Object.entries(SCENARIOS).map(([id, sc]) => `<button class="scen${id === scenarioId ? ' on' : ''}" data-scenario="${id}" title="${esc(sc.blurb)}"><b>${esc(sc.name)}</b><small>${esc(sc.blurb)}</small></button>`).join('')}</div>
         <div class="paths">${Object.entries(PATHS).map(([id, p]) => `
           <div class="path${id === pathId ? ' selected' : ''}" data-path="${id}" tabindex="0" role="button">
             <h3>${p.name}</h3>
@@ -175,7 +176,7 @@
 
     if (tab === 'market') {
       html = `<div class="grid2">
-        ${card('Capex and supply (public reports)', `${row('Amazon 2026 capex', '~$220B')}${row('Alphabet 2026 capex', '$195-205B')}${row('Microsoft 2026 capex (calendar)', '~$170B')}${row('Meta 2026 capex', '$135-145B')}${row('Big four 2026 combined', '~$730B (vs ~$410B 2025)')}${row('China AI capex 2026 (RHG est.)', '~932B yuan ($139B)')}${row('Alibaba capex, quarter to Jun 2026', '$9.98B, +75% y/y')}${row('CoreWeave 2026 capex guidance', '$37-39B')}${row('CoreWeave backlog (Sept 2026)', '$132.5B')}${row('TSMC CoWoS, end 2026 (est.)', '~130k wafers/mo')}<p class="muted">Sources in docs/research.md.</p>`)}
+        ${card('Capex and supply (public reports)', `${row('Amazon 2026 capex', '~$220B')}${row('Alphabet 2026 capex', '$195-205B')}${row('Microsoft 2026 capex (calendar)', '~$170B')}${row('Meta 2026 capex', '$135-145B')}${row('Big four 2026 combined', '~$730B (vs ~$410B 2025)')}${row('China AI capex 2026 (RHG est.)', '~932B yuan ($139B)')}${row('Alibaba capex, quarter to Jun 2026', '$9.98B, +75% y/y')}${row('CoreWeave 2026 capex guidance', '$37-39B')}${row('CoreWeave backlog (Sept 2026)', '$132.5B')}${row('TSMC CoWoS, end 2026 (est.)', '~130k wafers/mo')}${row('DRAM revenue, Q3 2026', '~$200B (+369% y/y, Counterpoint)')}${row('DDR5 16Gb contract price', '$8.70 (Oct 2025) to $48 (Sept 2026)')}${row('Memory tightness in game', `${Math.round(S.w.memTight * 100)}% (raises rack prices up to 50%)`)}<p class="muted">Sources in docs/research.md.</p>`)}
         ${card('Real anchors', `<p class="muted">Valuations and revenue from public reports through 2026. Before 2026 each real company follows its anchors. After 2026 the simulation takes over.</p>
           ${S.rivals.filter(r => r.real).map(r => `<div class="anchor"><b>${esc(r.name)}</b><small class="muted">founded ${r.founded}${r.status !== 'active' ? ` · ${r.status}` : ''}</small>
             <small>${r.anchors?.val ? 'Valuation: ' + Object.entries(r.anchors.val).map(([y, v]) => `${y} ${money(v)}`).join(' · ') : ''}</small>
@@ -278,7 +279,7 @@
 
   function newGame() {
     const seed = Math.floor(Math.random() * 1e9) + 1;
-    S = Engine.newGame(pathId, (companyName || '').trim().slice(0, 28) || 'Untitled AI', seed);
+    S = Engine.newGame(pathId, (companyName || '').trim().slice(0, 28) || 'Untitled AI', seed, scenarioId);
     tab = 'overview';
     renderGame();
   }
@@ -286,9 +287,10 @@
   document.addEventListener('input', e => { if (e.target.id === 'company-name') companyName = e.target.value; });
 
   document.addEventListener('click', e => {
-    const t = e.target.closest('[data-path],[data-act],[data-tab],#found,#end-year,#continue,#again,#help,#help-start,#close-help,#continue-save,#save');
+    const t = e.target.closest('[data-path],[data-act],[data-tab],[data-scenario],#found,#end-year,#continue,#again,#help,#help-start,#close-help,#continue-save,#save');
     if (!t || t.disabled) return;
     if (t.dataset.path) { pathId = t.dataset.path; renderStart(); }
+    else if (t.dataset.scenario) { scenarioId = t.dataset.scenario; renderStart(); }
     else if (t.id === 'found') newGame();
     else if (t.id === 'continue-save') loadGame();
     else if (t.id === 'save') { saveGame(); t.textContent = 'Saved'; }

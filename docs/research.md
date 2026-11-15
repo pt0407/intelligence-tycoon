@@ -107,3 +107,25 @@ Caveats:
 - Private Chinese labs publish no accounts. DeepSeek's reported 82.9 percent API gross margin came via The Information and is unconfirmed.
 - Valuations for Perplexity and Cohere are reported or in progress, not closed.
 - The game drops the Cohere anchor below 2026 so it doesn't appear in history before it existed as a $36B company.
+
+## Memory and power (added 14 Nov 2026)
+
+Memory:
+- Counterpoint: global DRAM revenue rose 369 percent year on year in Q3 2026 to nearly $200B, mostly from price, not volume.
+- Counterpoint: DRAM prices went from 20 to 30 cents per gigabit to about $2 per gigabit. HBM4 heading toward $4 per gigabit.
+- Contract price of a 16Gb DDR5 chip: $8.70 (Oct 2025) to $48 (Sept 2026), per Fortune.
+- TrendForce: 2Q26 DRAM industry revenue about $154.7B, up 59.5 percent quarter on quarter. Samsung 39.4 percent share, SK hynix 24.9 percent.
+- Samsung wants up to 70 percent of capacity in multi-year contracts (Semafor, Nikkei).
+- Game uses a memory tightness index that rises with hype, and it raises rack prices by up to 50 percent. This is a game mechanic, not a published index.
+
+Power, delivered cost in $/MWh (PGIQ 2026 ratings, EIA industrial prices):
+- Sweden North (Lulea): $35 to 65. The game uses 50.
+- ERCOT West (Texas): $42 to 80. ERCOT Central: $55 to 95. The game's Texas figure is 75 for the central band.
+- PJM / Northern Virginia: report gives no band in the table. The game's US Southeast figure of 90 is an estimate.
+- Saudi Arabia: $50 to 58. The game uses 54.
+- Ireland: $130 to 180. Japan East: $135 to 190. Netherlands: $108 to 150. Great Britain: $118 to 168.
+- EIA US industrial average, Jan to Jun 2026: 8.89 cents per kWh. Industrial averages are a benchmark, not a data center tariff.
+- IEA: US wholesale prices forecast down about 10 percent y/y in H2 2026. EU up about 25 percent, Nordic H1 2026 up more than 130 percent.
+
+Scenario switches (game mechanics, not forecasts):
+- Export ban, AI slowdown, power crunch, fast roadmap. Each one is an illustrative what-if, not a prediction.

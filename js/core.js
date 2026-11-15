@@ -25,7 +25,7 @@ function newWorld() {
   return {
     rate: 3, index: 100, hype: 1, algo: 1, wage: 1, priceShock: 1, demand: 1, dataCost: 1,
     trust: 50, shortage: 0.2, exportControl: false, regLevel: 0, gridStress: 0, recession: 0,
-    copyrightHeat: 0, frontierE: 1, energyShock: 1, mult: 1,
+    copyrightHeat: 0, frontierE: 1, energyShock: 1, mult: 1, memTight: 0.2,
   };
 }
 
