@@ -8,7 +8,8 @@
     "test": "node --test tests/*.test.js",
     "autoplay": "node tests/autoplay.js",
     "autoplay:all": "node tests/autoplay.js --seeds=8",
-    "sim": "node tests/sim.js"
+    "sim": "node tests/sim.js",
+    "test:browser": "python3 tests/browser_autoplay.py"
   },
   "engines": {
     "node": ">=20"
