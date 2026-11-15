@@ -26,7 +26,7 @@
         <div class="scenarios">${Object.entries(SCENARIOS).map(([id, sc]) => `<button class="scen${id === scenarioId ? ' on' : ''}" data-scenario="${id}" title="${esc(sc.blurb)}"><b>${esc(sc.name)}</b><small>${esc(sc.blurb)}</small></button>`).join('')}</div>
         <div class="paths">${Object.entries(PATHS).map(([id, p]) => `
           <div class="path${id === pathId ? ' selected' : ''}" data-path="${id}" tabindex="0" role="button">
-            <h3>${p.name}</h3>
+            <h2>${p.name}</h2>
             <p class="blurb">${p.blurb}</p>
             <p class="meta">${money(p.start.cash)} cash · ${p.start.researchers} researchers · ${sumVals(p.start.fleet)} racks</p>
             <ul class="pros">${p.pros.map(x => `<li>${x}</li>`).join('')}</ul>
@@ -176,6 +176,7 @@
 
     if (tab === 'market') {
       html = `<div class="grid2">
+        ${card('Logos and credits', `<div class="credits">${[['anthropic', 'Anthropic', 'Public domain, via Wikimedia Commons'], ['deepseek', 'DeepSeek', 'MIT, via Wikimedia Commons'], ['mistral', 'Mistral AI', 'Public domain, via Wikimedia Commons'], ['nvidia', 'NVIDIA', 'Apache-2.0, per Wikimedia Commons metadata']].map(([k, n, l]) => `<div class="credit"><img src="${LOGOS[k]}" alt="${n} logo"><small>${n}. ${l}.</small></div>`).join('')}</div><p class="muted">Logos are trademarks of their owners and are shown only to identify the companies.</p>`)}
         ${card('Capex and supply (public reports)', `${row('Amazon 2026 capex', '~$220B')}${row('Alphabet 2026 capex', '$195-205B')}${row('Microsoft 2026 capex (calendar)', '~$170B')}${row('Meta 2026 capex', '$135-145B')}${row('Big four 2026 combined', '~$730B (vs ~$410B 2025)')}${row('China AI capex 2026 (RHG est.)', '~932B yuan ($139B)')}${row('Alibaba capex, quarter to Jun 2026', '$9.98B, +75% y/y')}${row('CoreWeave 2026 capex guidance', '$37-39B')}${row('CoreWeave backlog (Sept 2026)', '$132.5B')}${row('TSMC CoWoS, end 2026 (est.)', '~130k wafers/mo')}${row('DRAM revenue, Q3 2026', '~$200B (+369% y/y, Counterpoint)')}${row('DDR5 16Gb contract price', '$8.70 (Oct 2025) to $48 (Sept 2026)')}${row('Memory tightness in game', `${Math.round(S.w.memTight * 100)}% (raises rack prices up to 50%)`)}<p class="muted">Sources in docs/research.md.</p>`)}
         ${card('Real anchors', `<p class="muted">Valuations and revenue from public reports through 2026. Before 2026 each real company follows its anchors. After 2026 the simulation takes over.</p>
           ${S.rivals.filter(r => r.real).map(r => `<div class="anchor"><b>${esc(r.name)}</b><small class="muted">founded ${r.founded}${r.status !== 'active' ? ` · ${r.status}` : ''}</small>
@@ -193,12 +194,14 @@
     $('#content').innerHTML = html;
   }
 
+  const LOGOS = { anthropic: 'assets/anthropic.svg', deepseek: 'assets/deepseek.svg', mistral: 'assets/mistral.svg', nvidia: 'assets/nvidia.svg' };
+
   function rivalRow(c) {
     const by = Object.fromEntries(opts.map(o => [o.key, o]));
     const po = by[`poach:${c.id}`], ac = by[`acquire:${c.id}`], inv = by[`invest:${c.id}`];
     const b = o => (o ? `${o.locked ? 'disabled' : ''} title="${esc(o.locked || o.name)}"` : 'disabled');
     return `<div class="rival">
-      <div><b>${esc(c.name)}</b>${c.real ? ' <small class="muted">real</small>' : ''}<small>${esc(c.type)} · ${money(c.valuation)} · cap ${Math.round(flagCapOf(c))} · ${totalRacksOf(c)} racks · ${c.products.length} products${c.public ? ' · public' : ''}</small></div>
+      <div>${LOGOS[c.id] ? `<img class="logo" src="${LOGOS[c.id]}" alt="">` : ''}<b>${esc(c.name)}</b>${c.real ? ' <small class="muted">real</small>' : ''}<small>${esc(c.type)} · ${money(c.valuation)} · cap ${Math.round(flagCapOf(c))} · ${totalRacksOf(c)} racks · ${c.products.length} products${c.public ? ' · public' : ''}</small></div>
       <div class="rbtns">
         <button data-act="invest:${c.id}" ${b(inv)}>Stake 5%</button>
         <button data-act="poach:${c.id}" ${b(po)}>Poach</button>

@@ -52,7 +52,7 @@ input { font: inherit; color: inherit; background: #111827; border: 1px solid #2
 }
 .path:hover { border-color: #3a4f75; transform: translateY(-1px); }
 .path.selected { border-color: #3dd68c; box-shadow: 0 0 0 1px #3dd68c inset; }
-.path h3 { color: #f1f5fb; font-size: 16px; text-transform: none; letter-spacing: 0; }
+.path h2 { color: #f1f5fb; font-size: 16px; text-transform: none; letter-spacing: 0; }
 .path .blurb { color: #9fb0cc; min-height: 58px; }
 .path .meta { color: #6ea8ff; font-weight: 600; }
 .path .pros li { color: #7fe0a8; list-style: none; margin-left: -18px; }
@@ -229,3 +229,11 @@ input { font: inherit; color: inherit; background: #111827; border: 1px solid #2
 .scen { text-align: left; background: #0e1626; border: 1px solid #22314f; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; color: inherit; }
 .scen small { color: #7d8ba3; font-size: 12px; line-height: 1.35; }
 .scen.on { border-color: #3dd68c; box-shadow: 0 0 0 1px #3dd68c inset; }
+
+p, li { text-wrap: pretty; }
+h1, h2, h3 { text-wrap: balance; }
+.logo { height: 16px; width: auto; max-width: 96px; object-fit: contain; vertical-align: middle; margin-right: 8px; filter: brightness(0) invert(0.9); }
+.credits { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.credit { background: #0e1626; border: 1px solid #22314f; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.credit img { height: 28px; width: auto; max-width: 100%; object-fit: contain; filter: brightness(0) invert(0.9); }
+.credit small { color: #9fb0cc; font-size: 12px; }
