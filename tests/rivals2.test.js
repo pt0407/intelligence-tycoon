@@ -48,6 +48,14 @@ describe('verdict peer rank', () => {
     assert.equal(v.title, 'Dominant');
   });
 
+  test('the verdict text states the peer rank', () => {
+    const s = E.newGame('garage', 'T', 1);
+    s.year = E.END_YEAR;
+    s.me.status = 'active';
+    const v = E.verdictFor(s);
+    assert.match(v.text, /and #\d+ among independent labs\./);
+  });
+
   test('the verdict is finite and defined for a finished game', () => {
     const s = E.newGame('bigtech', 'T', 2);
     while (!s.over) E.endYear(s);

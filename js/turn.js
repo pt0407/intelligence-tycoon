@@ -125,7 +125,7 @@ function verdictFor(s) {
   const top = board[0] === me ? '' : ` ${board[0].name} leads at ${money(board[0].valuation)}.`;
   const peers = [me, ...board.filter(c => c !== me && c.type !== 'Big tech AI division')].sort((x, y) => y.valuation - x.valuation);
   const peerRank = peers.indexOf(me) + 1;
-  const summary = `Finished ${END_YEAR} at #${rank} of ${board.length} with a valuation of ${money(me.valuation)}.${top} ${me.public ? `Listed since ${me.ipoYear}.` : 'Still private.'}`;
+  const summary = `Finished ${END_YEAR} at #${rank} of ${board.length} with a valuation of ${money(me.valuation)}, and #${peerRank} among independent labs.${top} ${me.public ? `Listed since ${me.ipoYear}.` : 'Still private.'}`;
   if (rank === 1 && me.valuation >= 2 * second) return { title: 'Dominant', text: summary };
   if (rank === 1) return { title: 'Most valuable AI company', text: summary };
   if (peerRank === 1) return { title: 'Top independent lab', text: summary };
