@@ -35,7 +35,7 @@ function makeCompany(o) {
     cash: o.cash, stake: o.stake ?? 1, valuation: 0, lastValuation: 0, revenue: 0, cogs: 0, net: 0, lastNet: 0,
     researchers: o.researchers, engineers: o.engineers, sales: o.sales ?? 0, morale: o.morale ?? 60,
     execs: { cfo: false, cro: false }, starAbility: 0,
-    fleet: { ...(o.fleet ?? {}) }, rented: {}, boughtYear: 0, dcs: (o.dcs ?? []).map(d => ({ ...d })), pendingDC: [],
+    fleet: { ...(o.fleet ?? {}) }, rented: {}, leased: {}, boughtYear: 0, dcs: (o.dcs ?? []).map(d => ({ ...d })), pendingDC: [],
     customPlatforms: [], asic: null, ppa: false, ads: false, sovereign: false, investments: {},
     data: { q: o.data, licensed: 0 }, rep: o.rep, safety: o.safety, dist: o.dist,
     flagship: null, training: null, algo: 1, licensed: false,
@@ -55,7 +55,7 @@ function totalRacksOf(c, kind = 'all') {
   const o = sumVals(c.fleet), r = sumVals(c.rented);
   return kind === 'owned' ? o : kind === 'rented' ? r : o + r;
 }
-function ownedMW(c) { return Object.entries(c.fleet).reduce((t, [id, n]) => t + n * platOf(c, id).kw / 1000, 0); }
+function ownedMW(c) { return [...Object.entries(c.fleet), ...Object.entries(c.leased)].reduce((t, [id, n]) => t + n * platOf(c, id).kw / 1000, 0); }
 function capacityMW(c) { return c.mods.noMW ? Infinity : c.dcs.reduce((t, d) => t + d.mw, 0); }
 function energyRate(c, w) {
   const mw = c.dcs.reduce((t, d) => t + d.mw, 0);
@@ -64,7 +64,7 @@ function energyRate(c, w) {
 }
 function facilityPerMW(y) { return y < 2022 ? 12 : y < 2024 ? 16 : 20; }
 function perfTotal(c) {
-  return Object.entries({ ...c.fleet, ...c.rented }).reduce((t, [id, n]) => t + n * platOf(c, id).tf * RACK_GPUS, 0);
+  return [...Object.entries(c.fleet), ...Object.entries(c.rented)].reduce((t, [id, n]) => t + n * platOf(c, id).tf * RACK_GPUS, 0);
 }
 function polishOf(c) { return Math.min(10, c.engineers / 10); }
 function weightOf(c) { return (flagCapOf(c) + polishOf(c)) ** 2 * (0.5 + c.dist / 100) * TIER_W[c.pricing]; }
@@ -98,7 +98,7 @@ function revenueOf(s, c, product) {
   const core = product * (1 - c.partner - c.mods.parent) * (c.open ? 0.85 : 1) * c.mods.revenue * (c.ads && c.products.includes('chat') ? 1.06 : 1);
   const enterprise = c.flagship ? c.sales * TAM[yi(y)] * 0.0004 * (flagCapOf(c) / 100) * (c.execs.cro ? 1.2 : 1) : 0;
   const gov = c.gov >= y ? 40 * Math.pow(1.2, yi(y)) : 0;
-  const lease = c.mods.lease * Object.entries(c.fleet).reduce((t, [id, n]) => t + n * platOf(c, id).rackM, 0) * 0.1;
+  const lease = c.mods.lease * Object.entries(c.fleet).reduce((t, [id, n]) => t + n * platOf(c, id).rackM, 0) * 0.1 + Object.entries(c.leased).reduce((t, [id, n]) => t + n * platOf(c, id).rackM * 0.7, 0);
   const grants = c.mods.grants ? c.mods.grants + c.rep / 25 : 0;
   return core + enterprise + gov + lease + grants;
 }

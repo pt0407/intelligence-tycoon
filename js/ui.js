@@ -97,7 +97,7 @@
           ${row('Chip allocation left', allocLeft(me, S.w, S.year))}${row('Chip shortage', pct(S.w.shortage))}
           ${row('Export controls', S.w.exportControl ? (me.mods.gov ? 'Exempt (domestic partner)' : 'Newest NVIDIA chips blocked') : 'Off')}
           ${row('Energy price', `$${Math.round(energyRate(me, S.w) / 0.01095)}/MWh`)}${row('Custom chip', me.customPlatforms.length ? me.customPlatforms.map(p => p.name).join(', ') : me.asic ? `in design, ready ${me.asic.ready}` : 'none')}
-          <h3 class="sub">Fleet</h3>${fleetRows(me)}
+          <h3 class="sub">Fleet</h3>${fleetRows(me)}${Object.entries(me.leased).filter(([, n]) => n > 0).map(([id, n]) => row(`${platOf(me, id).name} leased out`, `${n} racks`)).join('')}
           <h3 class="sub">Campuses</h3>${me.dcs.map(d => row(regionById(d.region).name, `${d.mw} MW`)).join('') || '<p class="muted">No owned campuses. Rent racks or build one.</p>'}
           ${me.pendingDC.map(b => row(`${regionById(b.region).name}${b.smr ? ' (SMR)' : ''} building`, `online ${b.ready}`)).join('')}`)}
         ${card('Hardware catalog', `<div class="catalog"><table><tr><th>Platform</th><th>Year</th><th>TFLOPS/GPU</th><th>HBM GB</th><th>Rack $M</th><th>kW</th><th>Source</th></tr>

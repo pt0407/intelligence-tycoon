@@ -30,7 +30,10 @@ const SCRIPTED = {
     s => { s.w.hype += 0.05; return 'Vera Rubin NVL72 racks ship to cloud providers. Gigawatt campuses start to come online.'; },
     s => { s.w.index *= 0.9; s.w.hype = Math.max(0.4, s.w.hype - 0.15); return 'Big AI stocks sell off as investors question infrastructure spending. Capex guidance holds, but the mood changes.'; },
   ],
-  2027: [s => { s.w.gridStress = 2; return 'Power grid crunch. Utilities push new data center hookups back a year.'; }],
+  2027: [
+    s => { s.w.gridStress = 2; return 'Power grid crunch. Utilities push new data center hookups back a year.'; },
+    s => { const ls = ['openai', 'anthropic'].map(id => companyById(s, id)).filter(c => c && c.status === 'active' && !c.public); for (const c of ls) { c.public = true; c.ipoYear = s.year; } return ls.length ? `${ls.map(c => c.name).join(' and ')} list on public markets.` : null; },
+  ],
   2028: [s => { s.w.hype = Math.max(0.4, s.w.hype - 0.4); s.w.index *= 0.85; return 'AI market correction. Valuations reset and the IPO window narrows.'; }],
   2031: [s => { if (s.w.regLevel < 2) return null; s.w.regLevel = 3; return 'A licensing regime starts. Frontier training needs a government license.'; }],
   2033: [s => { s.w.wage *= 1.1; return 'Talent shortage again. Senior researcher salaries climb another 10 percent.'; }],
