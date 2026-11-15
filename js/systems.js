@@ -89,13 +89,29 @@ function resolveOffers(s, news) {
   }
 }
 
+const STRATEGY = {
+  hold: { label: 'Hold', share: DIVIDEND_SHARE, toMe: 1, reinvest: 0, desc: 'Keep the stake and take the normal dividend.' },
+  harvest: { label: 'Harvest', share: 0.5, toMe: 1, reinvest: 0, desc: 'Take a bigger dividend, half of the company profit.' },
+  grow: { label: 'Grow', share: DIVIDEND_SHARE, toMe: 0.2, reinvest: 0.8, desc: 'Send 80 percent of the dividend back into the company.' },
+};
+const strategyOf = (s, rid) => s.me.strategy?.[rid] ?? 'hold';
+
+function strategyBlock(s, rid, k) {
+  if (held(s, rid) <= 0) return 'Needs a stake first';
+  if (strategyOf(s, rid) === k) return `Already on ${STRATEGY[k].label.toLowerCase()}`;
+  if (s.yr.strategySet?.[rid]) return 'Strategy already changed this year';
+  return null;
+}
+
 function payDividends(s, news) {
   let total = 0;
   s.lastDividend = 0;
   for (const [rid, pct] of Object.entries(s.me.investments)) {
     const r = companyById(s, rid);
     if (!r || r.status !== 'active' || r.net <= 0) continue;
-    total += pct * r.net * DIVIDEND_SHARE;
+    const k = STRATEGY[strategyOf(s, rid)], gross = pct * r.net * k.share;
+    total += gross * k.toMe;
+    r.cash += gross * k.reinvest;
   }
   if (total > 0) { s.me.cash += total; s.lastDividend = total; news.push(`Dividends from your stakes: +${money(total)}.`); }
 }

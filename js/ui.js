@@ -109,7 +109,7 @@
 
   function stakesCard() {
     const held = Object.entries(S.me.investments).filter(([, v]) => v > 0);
-    const rows = held.map(([rid, v]) => { const r = companyById(S, rid); return row(esc(r?.name ?? rid), `${Math.round(v * 100)}% · ${money((r?.valuation ?? 0) * v)}`); }).join('');
+    const rows = held.map(([rid, v]) => { const r = companyById(S, rid); return row(esc(r?.name ?? rid), `${Math.round(v * 100)}% · ${STRATEGY[strategyOf(S, rid)].label} · ${money((r?.valuation ?? 0) * v)}`); }).join('');
     return card('Stakes', `${rows || '<p class="muted">No stakes yet. Buy 5 percent slices on the Rivals or Deals tab.</p>'}${S.lastDividend ? row('Dividends last year', `+${money(S.lastDividend)}`) : ''}`);
   }
 

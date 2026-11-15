@@ -159,6 +159,24 @@ const ACTIONS = [
     check: s => (s.me.offices >= OFFICES.length - 1 ? 'Already at the top office' : null),
     run: s => { s.me.offices += 1; return `Moved into ${OFFICES[s.me.offices].name}.`; },
   },
+  {
+    id: 'strategy_hold', each: 'rival', group: 'Deals', name: (s, rid) => `${STRATEGY.hold.label} ${companyById(s, rid).name}`,
+    desc: STRATEGY.hold.desc, cost: () => 0,
+    check: (s, rid) => strategyBlock(s, rid, 'hold'),
+    run: (s, rid) => { (s.me.strategy ??= {})[rid] = 'hold'; (s.yr.strategySet ??= {})[rid] = true; return `${companyById(s, rid).name} is now on ${STRATEGY.hold.label.toLowerCase()}.`; },
+  },
+  {
+    id: 'strategy_harvest', each: 'rival', group: 'Deals', name: (s, rid) => `${STRATEGY.harvest.label} ${companyById(s, rid).name}`,
+    desc: STRATEGY.harvest.desc, cost: () => 0,
+    check: (s, rid) => strategyBlock(s, rid, 'harvest'),
+    run: (s, rid) => { (s.me.strategy ??= {})[rid] = 'harvest'; (s.yr.strategySet ??= {})[rid] = true; return `${companyById(s, rid).name} is now on ${STRATEGY.harvest.label.toLowerCase()}.`; },
+  },
+  {
+    id: 'strategy_grow', each: 'rival', group: 'Deals', name: (s, rid) => `${STRATEGY.grow.label} ${companyById(s, rid).name}`,
+    desc: STRATEGY.grow.desc, cost: () => 0,
+    check: (s, rid) => strategyBlock(s, rid, 'grow'),
+    run: (s, rid) => { (s.me.strategy ??= {})[rid] = 'grow'; (s.yr.strategySet ??= {})[rid] = true; return `${companyById(s, rid).name} is now on ${STRATEGY.grow.label.toLowerCase()}.`; },
+  },
 ];
 
 function rackFleetValue(c, s) { return 0.3 * clusterValue(c, s); }
