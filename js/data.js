@@ -136,7 +136,7 @@ const PATHS = {
   },
 };
 
-const RIVAL_TEMPLATES = [
+const RIVAL_TEMPLATES_BASE = [
   {
     id: 'openai', name: 'OpenAI', type: 'Frontier lab (capped-profit)', real: true, founded: 2015, cash: 120, researchers: 25, engineers: 15, sales: 5,
     fleet: { p100: 40 }, dcs: [{ region: 'us', mw: 5 }], data: 70, rep: 80, safety: 65, dist: 30, morale: 70, growth: 0.6, growthRes: 0.1,
@@ -201,6 +201,53 @@ const RIVAL_TEMPLATES = [
     targets: ['api', 'code'], mods: { talent: 1.0, compute: 0.8, parent: 0.05, gov: true, alloc: 1.2, noMW: true, hype: 0.15 },
   },
 ];
+
+const RIVAL_EXTRA = [
+  {
+    id: 'deepseek', name: 'DeepSeek', type: 'Open-weights lab (China)', real: true, founded: 2023, cash: 500, researchers: 60, engineers: 40, sales: 5,
+    fleet: { h100: 40 }, dcs: [{ region: 'nordic', mw: 30 }], data: 60, rep: 70, safety: 45, dist: 40, morale: 75, growth: 0.6, growthRes: 0.1,
+    targets: ['api', 'chat', 'code'], mods: { talent: 1.1, noMW: true, openSource: 2 },
+    anchors: { val: { 2026: 89000 } },
+  },
+  {
+    id: 'moonshot', name: 'Moonshot AI (Kimi)', type: 'Frontier lab (China)', real: true, founded: 2023, cash: 300, researchers: 40, engineers: 30, sales: 3,
+    fleet: { h100: 20 }, dcs: [], data: 55, rep: 60, safety: 45, dist: 35, morale: 70, growth: 0.5, growthRes: 0.1,
+    targets: ['chat', 'api'], mods: { talent: 1.05, noMW: true },
+    anchors: { val: { 2025: 4300, 2026: 35000 } },
+  },
+  {
+    id: 'zhipu', name: 'Zhipu AI (Z.ai)', type: 'Frontier lab (China, listed in Hong Kong 2026)', real: true, founded: 2019, cash: 200, researchers: 50, engineers: 40, sales: 5,
+    fleet: { a100: 30 }, dcs: [], data: 55, rep: 60, safety: 50, dist: 30, morale: 70, growth: 0.5, growthRes: 0.08,
+    targets: ['chat', 'api', 'code'], mods: { talent: 1.0, noMW: true },
+    anchors: { val: { 2026: 7300 } },
+  },
+  {
+    id: 'cursor', name: 'Cursor (Anysphere)', type: 'AI coding tools', real: true, founded: 2022, cash: 200, researchers: 30, engineers: 80, sales: 20,
+    fleet: {}, dcs: [], data: 60, rep: 65, safety: 40, dist: 50, morale: 75, growth: 0.5, growthRes: 0.1,
+    targets: ['code', 'agents'], mods: { talent: 1.0, noMW: true, hype: 1.1 },
+    anchors: { val: { 2025: 29300, 2026: 60000 }, rev: { 2026: 2000 } },
+  },
+  {
+    id: 'perplexity', name: 'Perplexity', type: 'AI answer engine and agents', real: true, founded: 2022, cash: 100, researchers: 25, engineers: 40, sales: 15,
+    fleet: {}, dcs: [], data: 55, rep: 55, safety: 45, dist: 45, morale: 70, growth: 0.4, growthRes: 0.08,
+    targets: ['chat', 'agents'], mods: { talent: 1.0, noMW: true },
+    anchors: { val: { 2024: 9000, 2025: 20000, 2026: 30000 }, rev: { 2025: 200, 2026: 750 } },
+  },
+  {
+    id: 'cohere', name: 'Cohere', type: 'Enterprise and sovereign AI (Canada)', real: true, founded: 2019, cash: 300, researchers: 40, engineers: 50, sales: 40,
+    fleet: { a100: 60 }, dcs: [{ region: 'nordic', mw: 20 }], data: 60, rep: 60, safety: 55, dist: 30, morale: 70, growth: 0.4, growthRes: 0.06,
+    targets: ['api', 'agents'], mods: { talent: 1.0, noMW: true },
+    anchors: { val: { 2026: 26000 } },
+  },
+  {
+    id: 'coreweave', name: 'CoreWeave', type: 'Neocloud (GPU cloud, public)', real: true, founded: 2017, public: true, ipoYear: 2025, cash: 1500, researchers: 5, engineers: 600, sales: 100,
+    fleet: {}, leased: { h100: 3000, gb200: 2000 }, dcs: [{ region: 'us', mw: 300 }, { region: 'tx', mw: 200 }], data: 20, rep: 70, safety: 40, dist: 60, morale: 65, growth: 0.6, growthRes: 0.02,
+    targets: [], mods: { talent: 0.3, lease: 7, noMW: true },
+    anchors: { val: { 2026: 29300 }, rev: { 2025: 5131, 2026: 13150 } },
+  },
+];
+
+const RIVAL_TEMPLATES = [...RIVAL_TEMPLATES_BASE, ...RIVAL_EXTRA];
 
 const STARS = [
   { id: 's1', name: 'Ines Varga', ability: 1.6, owner: 'openai' },

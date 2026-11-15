@@ -85,3 +85,25 @@ Dated real events the game uses, all sourced from the research above or widely r
 
 - Named individual researchers. Stars in the game are fictional, to avoid implying real people's moves.
 - Revenue for NVIDIA. Its valuation is anchored, but its revenue comes from the simulation.
+
+## Added 14 Nov 2026
+
+| Company | Founded | Valuation anchors ($B) | Revenue anchors ($M) | Source / caveat |
+| --- | --- | --- | --- | --- |
+| DeepSeek | 2023 | 2026: 89 (about 500B yuan pre-money, ~$15B raise, Oct 2026) | | TechCrunch, CNBC, Reuters Oct 2026. Earlier round $50B (June). Private; no audited accounts. |
+| Moonshot AI (Kimi) | 2023 | 2025: 4.3; 2026: 35 (Bloomberg, July) | | 36Kr, Bloomberg. HK IPO filing reported Sept 2026. Unaudited. |
+| Zhipu AI (Z.ai) | 2019 | 2026: 7.3 (HK listing, Jan 2026; price moves imply higher) | | ICMI, 36Kr. Listed. Run-rate claims are not audited. |
+| Cursor (Anysphere) | 2022 | 2025: 29.3 (Nov); 2026: 50 (July), 60 (SpaceX deal, Feb 2026 option) | 2026: 2,000 (annualized, Feb) | TechCrunch, Dealroom, Bloomberg. The game uses 60 for the acquisition-value anchor. |
+| Perplexity | 2022 | 2024: 9; 2025: 20 (Sept, $20.39B); 2026: 30 (reported talks, not closed) | 2025: 200; 2026: 750 (annualized, Aug) | StockAnalysis, Reuters/The Information. The $30B figure is reported and not closed. |
+| Cohere | 2019 | 2026: 36 (CAD 35.7B, Series E initial close, Oct 2026) | | CBC, Globe and Mail, Cohere release. Round not fully closed. |
+| CoreWeave (public) | 2017 | 2026: 29 (market cap, Nov 2026) | 2025: 5,131 actual; 2026: 13,150 guidance midpoint | CoreWeave Q3 2026 release. Backlog $132.5B. Leased racks modeled as 5,000 for the game. |
+
+Chinese capex and supply:
+- Alibaba capex, quarter to June 2026: $9.98B, up 75 percent year on year (company filing, via safeguard.sh).
+- China AI infrastructure capex 2026: about 932B yuan ($139B), roughly 15 to 20 percent of US (Rhodium Group, Sept 2026).
+- Big four US hyperscaler capex 2026: about $730B (valueaddvc, Nov 2026, company guidance as of Oct 29).
+
+Caveats:
+- Private Chinese labs publish no accounts. DeepSeek's reported 82.9 percent API gross margin came via The Information and is unconfirmed.
+- Valuations for Perplexity and Cohere are reported or in progress, not closed.
+- The game drops the Cohere anchor below 2026 so it doesn't appear in history before it existed as a $36B company.

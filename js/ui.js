@@ -34,6 +34,7 @@
           </div>`).join('')}
         </div>
         <button class="primary big" id="found">Found company</button>
+        ${localStorage.getItem('it-save') ? '<button class="ghost" id="continue-save">Continue saved game</button>' : ''}
         <button class="ghost" id="help-start">How it works</button>
       </div>`;
   }
@@ -55,6 +56,7 @@
         ${chip('Actions', `${S.ap} left`, '', `outflow ${money(me.revenue - me.net)}/yr`)}
       </div>
       <button class="ghost" id="help">How it works</button>
+      <button class="ghost" id="save">Save</button>
       <button class="primary" id="end-year">End ${S.year} →</button>`;
   }
 
@@ -173,6 +175,7 @@
 
     if (tab === 'market') {
       html = `<div class="grid2">
+        ${card('Capex and supply (public reports)', `${row('Amazon 2026 capex', '~$220B')}${row('Alphabet 2026 capex', '$195-205B')}${row('Microsoft 2026 capex (calendar)', '~$170B')}${row('Meta 2026 capex', '$135-145B')}${row('Big four 2026 combined', '~$730B (vs ~$410B 2025)')}${row('China AI capex 2026 (RHG est.)', '~932B yuan ($139B)')}${row('Alibaba capex, quarter to Jun 2026', '$9.98B, +75% y/y')}${row('CoreWeave 2026 capex guidance', '$37-39B')}${row('CoreWeave backlog (Sept 2026)', '$132.5B')}${row('TSMC CoWoS, end 2026 (est.)', '~130k wafers/mo')}<p class="muted">Sources in docs/research.md.</p>`)}
         ${card('Real anchors', `<p class="muted">Valuations and revenue from public reports through 2026. Before 2026 each real company follows its anchors. After 2026 the simulation takes over.</p>
           ${S.rivals.filter(r => r.real).map(r => `<div class="anchor"><b>${esc(r.name)}</b><small class="muted">founded ${r.founded}${r.status !== 'active' ? ` · ${r.status}` : ''}</small>
             <small>${r.anchors?.val ? 'Valuation: ' + Object.entries(r.anchors.val).map(([y, v]) => `${y} ${money(v)}`).join(' · ') : ''}</small>
@@ -270,6 +273,9 @@
     </div>`;
   }
 
+  function saveGame() { try { localStorage.setItem('it-save', JSON.stringify(S)); } catch (e) { } }
+  function loadGame() { const raw = localStorage.getItem('it-save'); if (!raw) return false; S = JSON.parse(raw); tab = 'overview'; renderGame(); return true; }
+
   function newGame() {
     const seed = Math.floor(Math.random() * 1e9) + 1;
     S = Engine.newGame(pathId, (companyName || '').trim().slice(0, 28) || 'Untitled AI', seed);
@@ -280,13 +286,15 @@
   document.addEventListener('input', e => { if (e.target.id === 'company-name') companyName = e.target.value; });
 
   document.addEventListener('click', e => {
-    const t = e.target.closest('[data-path],[data-act],[data-tab],#found,#end-year,#continue,#again,#help,#help-start,#close-help');
+    const t = e.target.closest('[data-path],[data-act],[data-tab],#found,#end-year,#continue,#again,#help,#help-start,#close-help,#continue-save,#save');
     if (!t || t.disabled) return;
     if (t.dataset.path) { pathId = t.dataset.path; renderStart(); }
     else if (t.id === 'found') newGame();
+    else if (t.id === 'continue-save') loadGame();
+    else if (t.id === 'save') { saveGame(); t.textContent = 'Saved'; }
     else if (t.dataset.tab) { tab = t.dataset.tab; renderGame(); }
     else if (t.dataset.act) { Engine.act(S, t.dataset.act); renderGame(); }
-    else if (t.id === 'end-year') { const r = Engine.endYear(S); renderGame(); showReport(r, S.over); }
+    else if (t.id === 'end-year') { const r = Engine.endYear(S); saveGame(); renderGame(); showReport(r, S.over); }
     else if (t.id === 'continue') { $('#modal').hidden = true; if (S.over) renderEnd(); }
     else if (t.id === 'again') renderStart();
     else if (t.id === 'help' || t.id === 'help-start') showHelp();

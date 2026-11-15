@@ -25,7 +25,7 @@ function newWorld() {
   return {
     rate: 3, index: 100, hype: 1, algo: 1, wage: 1, priceShock: 1, demand: 1, dataCost: 1,
     trust: 50, shortage: 0.2, exportControl: false, regLevel: 0, gridStress: 0, recession: 0,
-    copyrightHeat: 0, frontierE: 1, energyShock: 1,
+    copyrightHeat: 0, frontierE: 1, energyShock: 1, mult: 1,
   };
 }
 
@@ -35,12 +35,12 @@ function makeCompany(o) {
     cash: o.cash, stake: o.stake ?? 1, valuation: 0, lastValuation: 0, revenue: 0, cogs: 0, net: 0, lastNet: 0,
     researchers: o.researchers, engineers: o.engineers, sales: o.sales ?? 0, morale: o.morale ?? 60,
     execs: { cfo: false, cro: false }, starAbility: 0,
-    fleet: { ...(o.fleet ?? {}) }, rented: {}, leased: {}, boughtYear: 0, dcs: (o.dcs ?? []).map(d => ({ ...d })), pendingDC: [],
+    fleet: { ...(o.fleet ?? {}) }, rented: {}, leased: { ...(o.leased ?? {}) }, boughtYear: 0, dcs: (o.dcs ?? []).map(d => ({ ...d })), pendingDC: [],
     customPlatforms: [], asic: null, ppa: false, ads: false, sovereign: false, investments: {},
     data: { q: o.data, licensed: 0 }, rep: o.rep, safety: o.safety, dist: o.dist,
     flagship: null, training: null, algo: 1, licensed: false,
     products: [], pricing: 'standard', gov: 0, lobbyUntil: 0, lawsuits: 0,
-    rounds: [], raisedYear: -1, debt: 0, public: false, ipoYear: 0, lossYears: 0, open: false, partner: 0,
+    rounds: [], raisedYear: -1, debt: 0, public: !!o.public, ipoYear: o.ipoYear ?? 0, lossYears: 0, open: false, partner: 0,
     commitments: [], growth: o.growth ?? 0, growthRes: o.growthRes ?? 0, targets: [...(o.targets ?? [])], discount: 1,
     mods: { ...DEFAULT_MODS, ...(o.mods ?? {}) },
   };
@@ -71,15 +71,16 @@ function weightOf(c) { return (flagCapOf(c) + polishOf(c)) ** 2 * (0.5 + c.dist 
 function valuationOf(c, w) {
   const team = 3 + c.researchers * 2 + c.engineers * 0.3 + c.starAbility * 80;
   const tech = flagCapOf(c) ** 2 * 0.2;
-  return Math.max(0, (team + tech + Math.max(0, c.revenue) * (c.public ? 15 : 20)) * w.hype * (w.index / 100) * c.mods.hype);
+  return Math.max(0, (team + tech + Math.max(0, c.revenue) * (c.public ? 15 : 20)) * w.hype * (w.index / 100) * c.mods.hype * w.mult);
 }
 
 function anchorAt(map, y, before) {
   if (!map) return null;
+  if (map[y] !== undefined) return map[y];
   const ks = Object.keys(map).map(Number).sort((a, b) => a - b);
-  if (y < ks[0]) return before ?? map[ks[0]];
-  if (y >= ks[ks.length - 1]) return map[ks[ks.length - 1]];
-  const i = ks.findIndex(k => k >= y), a = ks[i - 1], b = ks[i], t = (y - a) / (b - a);
+  if (y < ks[0]) return before;
+  if (y > ks[ks.length - 1]) return map[ks[ks.length - 1]];
+  const i = ks.findIndex(k => k > y), a = ks[i - 1], b = ks[i], t = (y - a) / (b - a);
   return Math.exp(Math.log(map[a]) + t * (Math.log(map[b]) - Math.log(map[a])));
 }
 function inHistory(c, y) { return c.real && c.anchors && y <= HISTORY_END; }

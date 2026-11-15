@@ -79,7 +79,8 @@ function spawnStartup(s, extra = {}) {
 function aiTurn(s, r, news) {
   const y = s.year, w = s.w, p = bestNvidia(r, y);
   const cost = p.rackM * w.priceShock;
-  const n = Math.min(allocLeft(r, w, y), Math.max(1, Math.round(totalRacksOf(r) * r.growth)), Math.floor(Math.max(0, r.cash) * 0.4 / cost));
+  const pace = y >= HISTORY_END ? 0.25 : 1;
+  const n = Math.min(allocLeft(r, w, y), Math.max(1, Math.round(totalRacksOf(r) * r.growth * pace)), Math.floor(Math.max(0, r.cash) * 0.4 / cost));
   if (n > 0) { r.fleet[p.id] = (r.fleet[p.id] ?? 0) + n; r.cash -= n * cost; r.boughtYear += n; }
   if (!r.training && totalRacksOf(r) > 0) r.training = r.cash > 30 ? 'medium' : 'small';
   r.researchers *= 1 + r.growthRes;
