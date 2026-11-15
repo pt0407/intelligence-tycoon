@@ -34,6 +34,7 @@ function endYear(s) {
   activateRivals(s, news);
   macroStep(s);
   closeDeals(s, news);
+  reactToStakes(s, news);
   resolveOffers(s, news);
   resolveDecision(s, news);
   expirePartnership(s, news);

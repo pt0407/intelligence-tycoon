@@ -256,3 +256,13 @@ function expirePartnership(s, news) {
   s.partnership = null;
   news.push('Your cloud deal ends. The rented racks go back to the partner.');
 }
+
+function reactToStakes(s, news) {
+  for (const [rid, pct] of Object.entries(s.me.investments)) {
+    const r = companyById(s, rid);
+    if (!r || r.status !== 'active' || pct < STAKE_SLICE - 1e-9) continue;
+    const before = r.ask ?? 1;
+    r.ask = Math.min(1.5, before + 0.02 * (pct / STAKE_SLICE));
+    if (before < 1.2 && r.ask >= 1.2) news.push(`${r.name}'s board takes a defensive posture. Buyouts now cost more.`);
+  }
+}
