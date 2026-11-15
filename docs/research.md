@@ -129,3 +129,16 @@ Power, delivered cost in $/MWh (PGIQ 2026 ratings, EIA industrial prices):
 
 Scenario switches (game mechanics, not forecasts):
 - Export ban, AI slowdown, power crunch, fast roadmap. Each one is an illustrative what-if, not a prediction.
+
+## Images (added 14 Nov 2026)
+
+| File | Subject | License | Author |
+| --- | --- | --- | --- |
+| assets/anthropic.svg | Anthropic logo | Public domain (Wikimedia Commons) | Anthropic |
+| assets/deepseek.svg | DeepSeek logo | MIT (Wikimedia Commons) | DeepSeek |
+| assets/mistral.svg | Mistral AI logo | Public domain (Wikimedia Commons) | Mistral AI vector: Pantarch |
+| assets/nvidia.svg | NVIDIA logo | Apache-2.0 (Wikimedia Commons metadata) | NVIDIA |
+| assets/tpu_v4.png | Google TPU v4 | CC BY 4.0 | Jouppi, Kurian, Li, Ma, Nagarajan et al. |
+| assets/tpu_v3.jpg | Google TPU v3 | CC BY-SA 4.0 | Zinskauf |
+
+Logos are trademarks of their owners, shown only to identify the companies.

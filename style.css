@@ -237,3 +237,8 @@ h1, h2, h3 { text-wrap: balance; }
 .credit { background: #0e1626; border: 1px solid #22314f; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
 .credit img { height: 28px; width: auto; max-width: 100%; object-fit: contain; filter: brightness(0) invert(0.9); }
 .credit small { color: #9fb0cc; font-size: 12px; }
+
+.photo { margin: 0; background: #0e1626; border: 1px solid #22314f; border-radius: 12px; overflow: hidden; }
+.photo img { display: block; width: 100%; height: 150px; object-fit: cover; }
+.photo figcaption { padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+.photo figcaption small { color: #9fb0cc; font-size: 12px; }

@@ -106,6 +106,7 @@
         ${card('Hardware catalog', `<div class="catalog"><table><tr><th>Platform</th><th>Year</th><th>TFLOPS/GPU</th><th>HBM GB</th><th>Rack $M</th><th>kW</th><th>Source</th></tr>
           ${PLATFORMS.map(p => `<tr class="${p.year <= S.year ? '' : 'future'}"><td>${esc(p.name)}${p.cloudOnly ? ' <small class="muted">cloud only</small>' : ''}</td><td>${p.year}</td><td>${p.tf.toLocaleString()}</td><td>${p.mem}</td><td>${p.rackM}</td><td>${p.kw}</td><td class="muted">${esc(p.src)}</td></tr>`).join('')}
           </table><p class="muted">A rack is 72 GPUs. Rack prices are compute and networking only. Rubin and later numbers are estimates or roadmap, see ${SRC}.</p></div>`)}
+        ${card('Photos', `<div class="credits">${[['assets/tpu_v4.png', 'Google TPU v4', 'CC BY 4.0, Jouppi et al., via Wikimedia Commons'], ['assets/tpu_v3.jpg', 'Google TPU v3', 'CC BY-SA 4.0, Zinskauf, via Wikimedia Commons']].map(([src, n, l]) => `<figure class="photo"><img src="${src}" alt="${n}"><figcaption><b>${n}</b><small>${l}</small></figcaption></figure>`).join('')}</div>`)}
         ${card('Campus economics', `<p class="muted">Campus build cost is $${facilityPerMW(S.year)}M per MW at today's rates (AI-optimized, Turner and Townsend 2025 benchmark $20M+). A 100 MW campus costs about $${facilityPerMW(S.year) * MW_PER_BLOCK}M before chips. Grid queues are 2 to 4 years.</p>
           ${REGIONS.map(r => row(r.name, `$${r.price}/MWh, queue ${queueYears(S, r)} yrs, build $${dcCost(r, S).toFixed(0)}M`)).join('')}`)}
         ${card('Buy, rent and build', acts(mine))}
