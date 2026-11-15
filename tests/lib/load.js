@@ -6,7 +6,7 @@ const EXPORTS = [
   'PATHS', 'SCENARIOS', 'REGIONS', 'PLATFORMS', 'TAM', 'SEGMENTS', 'HISTORY_END', 'END_YEAR', 'START_YEAR',
   'money', 'active', 'activeRivals', 'rankOf', 'frontierOf', 'companyById', 'flagCapOf', 'totalRacksOf', 'ownedMW',
   'capacityMW', 'energyRate', 'platOf', 'perfTotal', 'effCompute', 'anchorAt', 'valuationOf', 'allocLeft',
-  'exportBlocked', 'antitrustBlocks', 'weightOf', 'marketShares', 'portfolioValue', 'verdictFor', 'endYear', 'ACHIEVEMENTS', 'checkAchievements', 'nextAchievement', 'closeDeals', 'scheduleDeal', 'resolveOffers', 'payDividends', 'assignMissions', 'evalMissions', 'makeIdentity', 'rollIdentity', 'CONTROL', 'VOLUME_CAP', 'STAKE_SLICE',
+  'exportBlocked', 'antitrustBlocks', 'weightOf', 'marketShares', 'portfolioValue', 'verdictFor', 'endYear', 'ACHIEVEMENTS', 'checkAchievements', 'nextAchievement', 'closeDeals', 'scheduleDeal', 'resolveOffers', 'payDividends', 'costsOf', 'revenueOf', 'reviewScore', 'reviewMult', 'OFFICES', 'assignMissions', 'evalMissions', 'makeIdentity', 'rollIdentity', 'CONTROL', 'VOLUME_CAP', 'STAKE_SLICE',
 ];
 
 function load() {

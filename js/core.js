@@ -38,7 +38,7 @@ function makeCompany(o) {
     fleet: { ...(o.fleet ?? {}) }, rented: { ...(o.rented ?? {}) }, leased: { ...(o.leased ?? {}) }, realRounds: o.realRounds ?? [], boughtYear: 0, dcs: (o.dcs ?? []).map(d => ({ ...d })), pendingDC: [],
     customPlatforms: [], asic: null, ppa: false, ads: false, sovereign: false, investments: {},
     data: { q: o.data, licensed: 0 }, rep: o.rep, safety: o.safety, dist: o.dist,
-    flagship: null, training: null, algo: 1, licensed: false, founder: o.founder ?? null, city: o.city ?? null, backstory: o.backstory ?? null,
+    flagship: null, training: null, algo: 1, licensed: false, offices: 0, founder: o.founder ?? null, city: o.city ?? null, backstory: o.backstory ?? null,
     products: [], pricing: 'standard', gov: 0, lobbyUntil: 0, lawsuits: 0,
     rounds: [], raisedYear: -1, debt: 0, public: !!o.public, ipoYear: o.ipoYear ?? 0, lossYears: 0, open: false, partner: 0,
     commitments: [], growth: o.growth ?? 0, growthRes: o.growthRes ?? 0, targets: [...(o.targets ?? [])], discount: 1,
@@ -96,7 +96,7 @@ function grossRevenue(s, cs) {
 
 function revenueOf(s, c, product) {
   const y = s.year, w = s.w;
-  const core = product * (1 - c.partner - c.mods.parent) * (c.open ? 0.85 : 1) * c.mods.revenue * (c.ads && c.products.includes('chat') ? 1.06 : 1);
+  const core = product * reviewMult(c) * (1 - c.partner - c.mods.parent) * (c.open ? 0.85 : 1) * c.mods.revenue * (c.ads && c.products.includes('chat') ? 1.06 : 1);
   const enterprise = c.flagship ? c.sales * TAM[yi(y)] * 0.0004 * (flagCapOf(c) / 100) * (c.execs.cro ? 1.2 : 1) : 0;
   const gov = c.gov >= y ? 40 * Math.pow(1.2, yi(y)) : 0;
   const lease = c.mods.lease * Object.entries(c.fleet).reduce((t, [id, n]) => t + n * platOf(c, id).rackM, 0) * 0.1 + Object.entries(c.leased).reduce((t, [id, n]) => t + n * platOf(c, id).rackM * 0.7, 0);
@@ -114,8 +114,14 @@ function costsOf(s, c) {
   const overhead = (2 + heads * 0.01) * burn;
   const commit = c.commitments.filter(k => k.until >= y).reduce((t, k) => t + k.amount, 0);
   const compliance = w.regLevel >= 2 && c.lobbyUntil < y ? c.revenue * 0.02 * (w.regLevel - 1) : 0;
-  return payroll + energy + rent + data + interest + overhead + commit + compliance;
+  return payroll + energy + rent + data + interest + overhead + commit + compliance + OFFICES[c.offices ?? 0].rent;
 }
+
+function reviewScore(c) {
+  const cap = clamp(flagCapOf(c), 0, 100) / 100, polish = polishOf(c) / 10, safety = clamp(c.safety, 0, 100) / 100;
+  return Math.round((0.5 * cap + 0.25 * polish + 0.25 * safety) * 100);
+}
+function reviewMult(c) { return 0.6 + reviewScore(c) / 250; }
 
 function companyById(s, id) { return id === 'me' ? s.me : s.rivals.find(r => r.id === id); }
 function activeRivals(s) { return s.rivals.filter(r => r.status === 'active'); }

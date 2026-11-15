@@ -7,7 +7,7 @@ function exportBlocked(s, c, p) { return s.w.exportControl && p.vendor === 'NVID
 function starMult(c) { return 1 + 0.06 * c.starAbility; }
 function dataFactor(c) { return 0.6 + c.data.q / 250; }
 function effCompute(s, c, share) {
-  return perfTotal(c) * share * dataFactor(c) * s.w.algo * c.algo * starMult(c) * (1 + c.researchers / 25) * c.mods.talent;
+  return perfTotal(c) * share * dataFactor(c) * s.w.algo * c.algo * starMult(c) * (1 + c.researchers / 25) * c.mods.talent * OFFICES[c.offices ?? 0].teamMult;
 }
 function capOf(s, E) { return 100 * (1 - Math.exp(-E / (0.8 * s.w.frontierE))); }
 function trainCost(s, c, size) { return TRAIN[size].share * ownedMW(c) * energyRate(c, s.w) + c.researchers * 0.05; }

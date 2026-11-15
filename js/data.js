@@ -49,6 +49,14 @@ const TRAIN = {
   frontier: { name: 'Frontier run', share: 1 },
 };
 
+const OFFICES = [
+  { name: 'Garage', cost: 0, rent: 0, teamMult: 1 },
+  { name: 'Campus floor', cost: 4, rent: 0.3, teamMult: 1.1 },
+  { name: 'Lab floor', cost: 10, rent: 0.8, teamMult: 1.25 },
+  { name: 'Research park', cost: 25, rent: 2, teamMult: 1.4 },
+  { name: 'Global HQ', cost: 60, rent: 5, teamMult: 1.6 },
+];
+
 const DEFAULT_MODS = { ap: 0, talent: 1, compute: 1, burn: 1, launch: 1, hype: 1, dist: 1, hire: 1, openSource: 1, revenue: 1, lease: 0, parent: 0, grants: 0, veto: false, gov: false, alloc: 1, noMW: false, unlock: {} };
 
 const PATHS = {

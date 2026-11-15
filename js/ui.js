@@ -246,7 +246,7 @@
       const attrition = clamp((60 - me.morale) / 400, 0, 0.12);
       html = `<div class="grid2">
         ${card('Team', `${row('Researchers', Math.round(me.researchers))}${row('Engineers', Math.round(me.engineers))}${row('Sales', Math.round(me.sales))}
-          ${row('Chief Financial Officer', me.execs.cfo ? 'Hired' : 'Missing')}${row('Chief Revenue Officer', me.execs.cro ? 'Hired' : 'Missing')}
+          ${row('Office', `${OFFICES[me.offices ?? 0].name} · team x${OFFICES[me.offices ?? 0].teamMult}`)}${row('Chief Financial Officer', me.execs.cfo ? 'Hired' : 'Missing')}${row('Chief Revenue Officer', me.execs.cro ? 'Hired' : 'Missing')}
           <h3 class="sub">Morale ${Math.round(me.morale)}</h3>${bar(me.morale, 100, me.morale < 40 ? 'warn' : 'good')}
           <p class="muted">Expected attrition: about ${pct(attrition)} of researchers a year.</p>`)}
         ${card('Star researchers', `${S.stars.filter(st => st.owner === 'me').map(st => row(st.name, `ability ${st.ability.toFixed(1)}`)).join('') || '<p class="muted">None on your team.</p>'}
@@ -262,7 +262,7 @@
         ${card('Market share by segment', Object.keys(SEGMENTS).map(sid => `<div class="mrow"><span>${SEGMENTS[sid].name} <small class="muted">unlock ${unlockOf(me, sid)}</small></span>
           ${shares[sid].length ? `<div class="stack">${shares[sid].map(x => `<i class="${x.id === 'me' ? 'me' : ''}" style="width:${x.share * 100}%" title="${esc(x.name)} ${pct(x.share)}"></i>`).join('')}</div><div class="mshare">${shares[sid].slice(0, 3).map(x => `${esc(x.name)} <b>${pct(x.share)}</b>`).join(' · ')}</div>` : '<div class="mshare">No sellers yet</div>'}</div>`).join('') + `<p class="muted">Pricing tier: ${me.pricing}.</p>`)}
         ${card('Your products', `${me.products.map(sid => row(SEGMENTS[sid].name, `${Math.round(flagCapOf(me) + polishOf(me))} quality`)).join('') || '<p class="muted">Nothing launched yet.</p>'}
-          ${row('Enterprise sales reps', Math.round(me.sales))}${row('Distribution', Math.round(me.dist))}${row('Reputation', Math.round(me.rep))}${row('Ads', me.ads ? 'Live' : 'Off')}`)}
+          ${row('Product review', `${reviewScore(me)} / 100 · revenue x${reviewMult(me).toFixed(2)}`)}${row('Enterprise sales reps', Math.round(me.sales))}${row('Distribution', Math.round(me.dist))}${row('Reputation', Math.round(me.rep))}${row('Ads', me.ads ? 'Live' : 'Off')}`)}
         ${card('Product actions', acts(mine))}
       </div>`;
     }

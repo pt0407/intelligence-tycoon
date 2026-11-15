@@ -17,6 +17,7 @@ function makeBot(E) {
       () => (s.me.cash > 60 ? newestBuy() : null),
       () => (!s.me.flagship && s.me.cash > 100 ? opts().filter(o => o.key.startsWith('rent:') && !o.locked).sort((a, b) => platYear(b.target) - platYear(a.target))[0] : null),
       () => (s.me.cash > 300 && s.me.pendingDC.length === 0 ? direct('build:us') || direct('build:tx') : null),
+      () => (s.me.cash > 80 ? direct('office') : null),
       () => (s.me.cash > 25 ? direct('hireRes') : null),
       () => (s.me.cash > 20 ? direct('hireEng') : null),
       () => (s.me.flagship && s.me.cash > 30 ? direct('post') : null),

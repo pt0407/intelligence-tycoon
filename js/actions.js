@@ -152,10 +152,18 @@ const ACTIONS = [
     check: (s, rid) => dealBlock(s, rid) ?? (sumVals(companyById(s, rid).fleet) < 1 ? 'No owned racks to buy' : null) ?? (capacityMW(s.me) - ownedMW(s.me) < fleetMW(companyById(s, rid)) ? 'Needs free megawatts for these racks' : null) ?? (s.me.cash < 1 ? 'Needs cash' : null),
     run: (s, rid) => scheduleDeal(s, 'buycompute', companyById(s, rid), computePrice(s, rid)),
   },
+  {
+    id: 'office', group: 'Talent', name: s => `Upgrade office to ${OFFICES[nextOffice(s)].name} (${money(OFFICES[nextOffice(s)].cost)})`,
+    desc: (s) => `Team output x${OFFICES[nextOffice(s)].teamMult}. Rent ${money(OFFICES[nextOffice(s)].rent)} a year.`,
+    cost: s => OFFICES[nextOffice(s)].cost,
+    check: s => (s.me.offices >= OFFICES.length - 1 ? 'Already at the top office' : null),
+    run: s => { s.me.offices += 1; return `Moved into ${OFFICES[s.me.offices].name}.`; },
+  },
 ];
 
 function rackFleetValue(c, s) { return 0.3 * clusterValue(c, s); }
 function clusterValue(c, s) { return Object.entries(c.fleet).reduce((t, [id, n]) => t + n * rackPrice(s, platOf(c, id)), 0); }
+const nextOffice = s => Math.min(OFFICES.length - 1, (s.me.offices ?? 0) + 1);
 function acqPrice(s, rid) { const r = companyById(s, rid); return r.valuation * 0.9 * r.discount; }
 function acquihirePrice(s, rid) { return companyById(s, rid).researchers * 1.2; }
 function computePrice(s, rid) { return clusterValue(companyById(s, rid), s) * 0.8; }
