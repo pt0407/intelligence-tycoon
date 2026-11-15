@@ -40,7 +40,7 @@ h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: 
 p { margin: 6px 0; text-wrap: pretty; }
 ul, ol { margin: 6px 0; padding-left: 18px; }
 li { margin: 3px 0; text-wrap: pretty; }
-button { font: inherit; color: inherit; cursor: pointer; }
+button { font: inherit; color: inherit; cursor: pointer; transition: background-color 160ms ease-out, color 160ms ease-out, border-color 160ms ease-out; }
 button:disabled { cursor: not-allowed; opacity: 0.4; }
 input { font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--hair); border-radius: 2px; padding: 7px 9px; }
 
@@ -80,14 +80,14 @@ button:focus-visible, input:focus-visible, .path:focus-visible, .scen:focus-visi
 .name input { text-transform: none; letter-spacing: 0; font-size: 13px; }
 
 .scenarios { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0; margin: 0 0 22px; border-top: 1px solid var(--hair); border-left: 1px solid var(--hair); }
-.scen { text-align: left; background: transparent; border: 0; border-right: 1px solid var(--hair); border-bottom: 1px solid var(--hair); padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; color: inherit; }
+.scen { cursor: pointer; transition: background-color 160ms ease-out; text-align: left; background: transparent; border: 0; border-right: 1px solid var(--hair); border-bottom: 1px solid var(--hair); padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; color: inherit; }
 .scen b { font-weight: 600; font-size: 12px; }
 .scen small { color: var(--ink-2); font-size: 12px; line-height: 1.4; }
 .scen:hover { background: var(--raised); }
 .scen.on { background: var(--raised); box-shadow: inset 2px 0 0 var(--amber); }
 
 .paths { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0; margin-bottom: 22px; border-top: 1px solid var(--hair); border-left: 1px solid var(--hair); }
-.path { background: transparent; border-right: 1px solid var(--hair); border-bottom: 1px solid var(--hair); padding: 14px; cursor: pointer; }
+.path { background: transparent; border-right: 1px solid var(--hair); border-bottom: 1px solid var(--hair); padding: 14px; cursor: pointer; transition: background-color 160ms ease-out; }
 .path:hover { background: var(--raised); }
 .path.selected { background: var(--raised); box-shadow: inset 2px 0 0 var(--amber); }
 .path h2 { font-size: 14px; }
@@ -131,7 +131,7 @@ button:focus-visible, input:focus-visible, .path:focus-visible, .scen:focus-visi
 #top > .ghost, #top > .primary { align-self: center; margin: 0 8px; }
 #end-year { margin-left: auto; }
 
-/* Tabs: text on a ruled bar */
+/* Tabs: text on a ruled bar. Touch targets are 44px on phones (see below). */
 #tabs { display: flex; gap: 2px; flex-wrap: wrap; padding: 0 14px; background: var(--ground); border-bottom: 1px solid var(--hair); position: sticky; top: 52px; z-index: 4; }
 .tab { background: transparent; border: 0; border-bottom: 2px solid transparent; color: var(--ink-2); padding: 10px 11px 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
 .tab:hover { color: var(--ink); }
@@ -184,6 +184,7 @@ button:focus-visible, input:focus-visible, .path:focus-visible, .scen:focus-visi
   flex-direction: column;
   gap: 3px;
 }
+.act { cursor: pointer; transition: background-color 160ms ease-out; }
 .act:hover:not(:disabled) { background: var(--raised); }
 .act:hover:not(:disabled) b { color: var(--amber); }
 .act b { font-size: 12px; font-weight: 600; display: inline; }
@@ -298,7 +299,11 @@ button:focus-visible, input:focus-visible, .path:focus-visible, .scen:focus-visi
   #top > .ghost, #top > .primary { margin: 6px; }
   .grid, .grid > aside, .grid > section { max-width: 100%; }
   #tabs { position: static; padding: 0 8px; overflow-x: auto; flex-wrap: nowrap; }
-  .tab { white-space: nowrap; }
+  .tab { white-space: nowrap; min-height: 44px; display: inline-flex; align-items: center; }
+  .primary, .ghost, .rival button, .scen, .act { min-height: 44px; }
+  .rival { gap: 12px; }
+  .rival .rbtns { gap: 8px; }
+  .rival button { padding: 10px 12px; }
   #content { padding: 10px; }
   .grid2 { grid-template-columns: 1fr; }
   .ladder li { grid-template-columns: 1fr auto; }
