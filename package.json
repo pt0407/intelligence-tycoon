@@ -1,0 +1,15 @@
+{
+  "name": "intelligence-tycoon",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Browser AI company simulation, 2016 to 2035, with real-world anchors",
+  "scripts": {
+    "test": "node --test tests/engine.test.js",
+    "autoplay": "node tests/autoplay.js",
+    "autoplay:all": "node tests/autoplay.js --seeds=8",
+    "sim": "node tests/sim.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

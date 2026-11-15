@@ -12,11 +12,17 @@ python3 -m http.server 8000
 
 Then go to http://localhost:8000.
 
-To run the balance sim in Node (plays each pathway with a simple bot):
+## Tests and auto-player
 
 ```
-node tests/sim.js
+npm test                 # 48 engine tests (node:test, no dependencies)
+npm run autoplay         # bot plays every pathway and scenario, prints a summary table
+npm run autoplay:all     # 8 seeds per pathway and scenario
+node tests/autoplay.js --paths=lab,garage --scenarios=exportBan --seeds=10 --json=out.json
+node tests/sim.js        # the older per-year sim printout
 ```
+
+The autoplay runs games across worker threads. It reports bankruptcies, median rank, median valuation, objectives per run, and any non-finite values.
 
 ## What's in it
 
