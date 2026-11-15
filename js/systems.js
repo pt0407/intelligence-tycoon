@@ -91,12 +91,13 @@ function resolveOffers(s, news) {
 
 function payDividends(s, news) {
   let total = 0;
+  s.lastDividend = 0;
   for (const [rid, pct] of Object.entries(s.me.investments)) {
     const r = companyById(s, rid);
     if (!r || r.status !== 'active' || r.net <= 0) continue;
     total += pct * r.net * DIVIDEND_SHARE;
   }
-  if (total > 0) { s.me.cash += total; news.push(`Dividends from your stakes: +${money(total)}.`); }
+  if (total > 0) { s.me.cash += total; s.lastDividend = total; news.push(`Dividends from your stakes: +${money(total)}.`); }
 }
 
 function scheduleDeal(s, type, r, price) {

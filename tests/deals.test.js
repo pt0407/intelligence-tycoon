@@ -186,5 +186,6 @@ describe('stakes and control', () => {
     const cash = s.me.cash;
     E.payDividends(s, []);
     assert.ok(Math.abs(s.me.cash - (cash + 0.2 * 100 * 0.3)) < 1e-9);
+    assert.ok(Math.abs(s.lastDividend - 0.2 * 100 * 0.3) < 1e-9);
   });
 });

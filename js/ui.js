@@ -107,6 +107,12 @@
     return card('Founding story', `<div class="story-card"><b>${esc(m.name)}</b><span class="muted">${esc(m.founder ?? 'Founder')}${m.city ? ` · ${esc(m.city)}` : ''}</span><p>${esc(m.backstory ?? '')}</p></div>`);
   }
 
+  function stakesCard() {
+    const held = Object.entries(S.me.investments).filter(([, v]) => v > 0);
+    const rows = held.map(([rid, v]) => { const r = companyById(S, rid); return row(esc(r?.name ?? rid), `${Math.round(v * 100)}% · ${money((r?.valuation ?? 0) * v)}`); }).join('');
+    return card('Stakes', `${rows || '<p class="muted">No stakes yet. Buy 5 percent slices on the Rivals or Deals tab.</p>'}${S.lastDividend ? row('Dividends last year', `+${money(S.lastDividend)}`) : ''}`);
+  }
+
   function missionsCard() {
     const list = S.missions ?? [];
     return card('Missions this year', `<ul class="missions">${list.map(m => `<li class="${m.done ? 'done' : ''}"><span class="tick" aria-hidden="true"></span><b>${esc(m.text)}</b><small>${m.done ? 'Complete' : 'Open'} · reward ${money(m.reward)}</small></li>`).join('') || '<li class="muted">No missions.</li>'}</ul>`);
@@ -196,6 +202,7 @@
         ${card('Last year', `${row('Revenue', money(me.revenue))}${row('Inference costs', money(me.cogs))}${row('Operating costs', money(costs))}${row('Net cash', money(me.net))}`)}
         ${card('Leaderboard', `<ol class="board">${board.slice(0, 10).map((c, i) => `<li class="${c === me ? 'me' : ''}"><span>${i + 1}. ${esc(c.name)}${c.real ? ' <small class="muted">real</small>' : ''}</span><b>${money(c.valuation)}</b></li>`).join('')}</ol>`)}
         ${foundingCard()}
+        ${stakesCard()}
         ${missionsCard()}
         ${nextCard()}
         ${achievementsCard()}
