@@ -283,17 +283,48 @@
     $('#modal').hidden = false;
   }
 
+  function realLadder() {
+    const rows = [{ name: S.me.name, value: S.me.valuation, you: true, note: `${S.year}` }];
+    for (const r of S.rivals) {
+      if (!r.real || !r.anchors?.val) continue;
+      const v = anchorAt(r.anchors.val, HISTORY_END);
+      if (v) rows.push({ name: r.name, value: v, you: false, note: `${HISTORY_END} reported` });
+    }
+    return rows.sort((a, b) => b.value - a.value);
+  }
+
+  function shareText() {
+    const me = S.me;
+    return `${me.name} (${PATHS[S.path].name}, ${SCENARIOS[S.scenario ?? 'base'].name}): ${S.verdict.title}. #${rankOf(S)} of ${active(S).length} by valuation in ${END_YEAR}, ${money(me.valuation)}. Intelligence Tycoon`;
+  }
+
   function renderEnd() {
     showScreen('end');
     recordRun();
-    const v = S.verdict;
+    const v = S.verdict, ladder = realLadder(), max = Math.max(...ladder.map(x => x.value));
     $('#end').innerHTML = `<div class="end">
       <h1>${esc(v.title)}</h1>
       <p class="lede">${esc(S.me.name)}: ${esc(v.text)}</p>
+      <div class="share"><button class="primary" id="copy-share">Copy result</button><span id="share-status" class="muted" aria-live="polite"></span></div>
+      ${card('Your valuation next to the real 2026 leaders', `<p class="muted">Real figures are the latest reported valuations for each company in 2026. Your figure is the simulated one for ${END_YEAR}.</p><ol class="ladder">${ladder.map(x => `<li class="${x.you ? 'you' : ''}"><span class="lname">${esc(x.name)}<small>${esc(x.note)}</small></span><span class="lbar"><i style="width:${(x.value / max * 100).toFixed(2)}%"></i></span><b>${money(x.value)}</b></li>`).join('')}</ol>`)}
       ${historyChart()}
       ${card(`Objectives (${Object.keys(S.goalsDone).length} of ${PATHS[S.path].goals.length})`, `<ul class="objs-list">${PATHS[S.path].goals.map((g, i) => `<li class="${i in S.goalsDone ? 'done' : ''}">${esc(g.text)}<small>${i in S.goalsDone ? `Done in ${S.goalsDone[i]}` : 'Missed'}</small></li>`).join('')}</ul>`)}
       <button class="primary big" id="again">Play again</button>
     </div>`;
+  }
+
+  async function copyShare() {
+    const text = shareText(), status = $('#share-status');
+    try { await navigator.clipboard.writeText(text); status.textContent = 'Copied.'; }
+    catch (e) { status.textContent = text; }
+  }
+
+  function isTyping(e) { return ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName); }
+
+  function cycleTab(step) {
+    const i = TABS.findIndex(([id]) => id === tab);
+    tab = TABS[(i + step + TABS.length) % TABS.length][0];
+    renderGame();
   }
 
   function saveGame() { try { localStorage.setItem('it-save', JSON.stringify(S)); } catch (e) { } }
@@ -309,7 +340,7 @@
   document.addEventListener('input', e => { if (e.target.id === 'company-name') companyName = e.target.value; });
 
   document.addEventListener('click', e => {
-    const t = e.target.closest('[data-path],[data-act],[data-tab],[data-scenario],#found,#end-year,#continue,#again,#help,#help-start,#close-help,#continue-save,#save,#clear-runs');
+    const t = e.target.closest('[data-path],[data-act],[data-tab],[data-scenario],#found,#end-year,#continue,#again,#help,#help-start,#close-help,#continue-save,#save,#clear-runs,#copy-share');
     if (!t || t.disabled) return;
     if (t.dataset.path) { pathId = t.dataset.path; renderStart(); }
     else if (t.dataset.scenario) { scenarioId = t.dataset.scenario; renderStart(); }
@@ -322,12 +353,19 @@
     else if (t.id === 'end-year') { const r = Engine.endYear(S); saveGame(); renderGame(); showReport(r, S.over); }
     else if (t.id === 'continue') { $('#modal').hidden = true; if (S.over) renderEnd(); }
     else if (t.id === 'again') renderStart();
+    else if (t.id === 'copy-share') copyShare();
     else if (t.id === 'help' || t.id === 'help-start') showHelp();
     else if (t.id === 'close-help') $('#modal').hidden = true;
   });
 
   document.addEventListener('keydown', e => {
-    if ((e.key === 'Enter' || e.key === ' ') && e.target.classList?.contains('path')) { e.preventDefault(); e.target.click(); }
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.classList?.contains('path')) { e.preventDefault(); e.target.click(); return; }
+    if (e.key === 'Escape' && !$('#modal').hidden) { $('#modal').hidden = true; return; }
+    if (isTyping(e) || e.metaKey || e.ctrlKey || e.altKey || $('#game').hidden || !$('#modal').hidden) return;
+    if (e.key === 'e' || e.key === 'E') { if (!$('#end-year').disabled) $('#end-year').click(); }
+    else if (e.key === ']') cycleTab(1);
+    else if (e.key === '[') cycleTab(-1);
+    else if (e.key === '?') showHelp();
   });
 
   renderStart();
