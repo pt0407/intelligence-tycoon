@@ -1,3 +1,4 @@
+const fineTuneCap = s => Math.max(0.5 * flagCapOf(frontierOf(s)), 28);
 const regionById = id => REGIONS.find(r => r.id === id);
 const TIER_TEXT = { free: 'More users, half the revenue per user.', standard: 'Balanced pricing.', premium: 'Fewer users, 1.6x revenue per user.' };
 const platFree = (s, pid) => (platformsFor(s.me, s.year).find(p => p.id === pid).tf >= 0);
@@ -55,8 +56,8 @@ const ACTIONS = [
   { id: 'post', group: 'Research', name: () => 'Post-training and alignment pass ($3M)', desc: 'Adds capability to your current flagship and raises safety.', cost: () => 3, check: s => (s.me.flagship ? null : 'Train a flagship first'), run: s => { s.me.flagship.cap = Math.min(100, s.me.flagship.cap + 3 + Math.min(8, s.me.researchers / 20)); bump(s.me, 'safety', 4); return `Post-training lifted ${s.me.flagship.name}.`; } },
   {
     id: 'finetune', group: 'Research', name: () => 'Fine-tune an open-weights model ($1M)', desc: 'Borrowed brains, capped near half the frontier. Enough to ship early products.', cost: () => 1,
-    check: s => (flagCapOf(s.me) >= 0.5 * flagCapOf(frontierOf(s)) ? 'Your flagship already matches this' : null),
-    run: s => { const v = (s.me.flagship?.version ?? 0) + 1; s.me.flagship = { cap: 0.5 * flagCapOf(frontierOf(s)), version: v, name: `Open-weights fine-tune ${v}`, year: s.year, open: false }; return 'Fine-tuned an open-weights model.'; },
+    check: s => (flagCapOf(s.me) >= fineTuneCap(s) ? 'Your flagship already matches this' : null),
+    run: s => { const v = (s.me.flagship?.version ?? 0) + 1; s.me.flagship = { cap: fineTuneCap(s), version: v, name: `Open-weights fine-tune ${v}`, year: s.year, open: false }; return 'Fine-tuned an open-weights model.'; },
   },
   { id: 'sprint', group: 'Research', name: () => 'Algorithmic research sprint', desc: '+6 percent algorithmic efficiency for your training runs.', cost: s => 1 + s.me.researchers * 0.05, check: s => (s.me.researchers < 5 ? 'Needs 5 researchers' : null), run: s => { s.me.algo *= 1.06; return 'Research sprint shipped a new training recipe.'; } },
   { id: 'paper', group: 'Research', name: () => 'Publish a research paper ($0.5M)', desc: '+4 reputation. Ideas leak to everyone a little.', cost: () => 0.5, run: s => { bump(s.me, 'rep', 4); s.w.algo *= 1.003; s.stats.papers++; return 'Published a paper.'; } },

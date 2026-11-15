@@ -77,6 +77,24 @@ describe('actions and action points', () => {
   });
 });
 
+describe('early game', () => {
+  test('fine-tuning an open model gives a usable model on day one', () => {
+    const s = E.newGame('lab', 'T', 1);
+    s.me.cash = 100;
+    s.ap = 5;
+    assert.equal(E.act(s, 'finetune'), null);
+    assert.ok(E.flagCapOf(s.me) >= 28, `cap ${E.flagCapOf(s.me)}`);
+  });
+
+  test('a fine-tuned model unlocks the chat product', () => {
+    const s = E.newGame('lab', 'T', 1);
+    s.me.cash = 100;
+    s.ap = 5;
+    E.act(s, 'finetune');
+    assert.equal(E.act(s, 'launch:chat'), null);
+  });
+});
+
 describe('compute', () => {
   test('power draw is the sum of owned rack kilowatts', () => {
     const s = E.newGame('hardware', 'T', 1);
