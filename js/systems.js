@@ -271,3 +271,15 @@ function reactToStakes(s, news) {
     if (before < 1.2 && r.ask >= 1.2) news.push(`${r.name}'s board takes a defensive posture. Buyouts now cost more.`);
   }
 }
+
+function respondToLaunches(s, news) {
+  for (const sid of s.yr.launchedSids ?? []) {
+    for (const r of activeRivals(s)) {
+      if (r.products.includes(sid) || flagCapOf(r) < unlockOf(r, sid) || r.cash < SEGMENTS[sid].launch * 3) continue;
+      if (!chance(s, 0.5)) continue;
+      r.products.push(sid);
+      r.cash -= SEGMENTS[sid].launch;
+      news.push(`${r.name} answers your ${SEGMENTS[sid].name} launch with its own.`);
+    }
+  }
+}

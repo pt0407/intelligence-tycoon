@@ -74,7 +74,7 @@ const ACTIONS = [
     id: 'launch', each: 'seg', group: 'Products', name: (s, sid) => `Launch ${SEGMENTS[sid].name}`, desc: (s, sid) => `Needs capability ${unlockOf(s.me, sid)}. Costs $${(SEGMENTS[sid].launch * s.me.mods.launch).toFixed(0)}M.`,
     cost: (s, sid) => SEGMENTS[sid].launch * s.me.mods.launch,
     check: (s, sid) => (s.me.products.includes(sid) ? 'Already live' : !s.me.flagship ? 'Train a flagship first' : flagCapOf(s.me) < unlockOf(s.me, sid) ? `Needs capability ${unlockOf(s.me, sid)}` : null),
-    run: (s, sid) => { s.me.products.push(sid); s.stats.launched[sid] = s.stats.launched[sid] ?? s.year; bump(s.me, 'dist', 5 * s.me.mods.dist); return `Launched ${SEGMENTS[sid].name}.`; },
+    run: (s, sid) => { s.me.products.push(sid); (s.yr.launchedSids ??= []).push(sid); s.stats.launched[sid] = s.stats.launched[sid] ?? s.year; bump(s.me, 'dist', 5 * s.me.mods.dist); return `Launched ${SEGMENTS[sid].name}.`; },
   },
   { id: 'tier', each: 'tier', group: 'Products', name: (s, t) => `Price tier: ${t}`, desc: (s, t) => TIER_TEXT[t], cost: () => 0, check: (s, t) => (s.me.pricing === t ? 'Already set' : null), run: (s, t) => { s.me.pricing = t; return `Pricing moved to ${t}.`; } },
   { id: 'brand', group: 'Products', name: () => 'Brand campaign ($10M)', desc: '+8 distribution.', cost: () => 10, run: s => { bump(s.me, 'dist', 8 * s.me.mods.dist); return 'Brand campaign launched.'; } },

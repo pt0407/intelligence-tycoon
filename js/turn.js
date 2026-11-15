@@ -51,6 +51,7 @@ function endYear(s) {
     news.push(`Your custom accelerator taped out and is in production.`);
   }
   for (const r of activeRivals(s)) aiTurn(s, r, news);
+  respondToLaunches(s, news);
   const L = active(s);
   for (const c of L) if (c.flagship) c.flagship.cap *= 0.97;
   for (const c of L) resolveTraining(s, c, news);
@@ -122,9 +123,12 @@ function verdictFor(s) {
   if (me.status === 'bankrupt') return { title: 'Bankrupt', text: `Ran out of money in ${s.year}.` };
   const board = active(s).sort((a, b) => b.valuation - a.valuation), rank = board.indexOf(me) + 1, second = board[1] ? board[1].valuation : 0;
   const top = board[0] === me ? '' : ` ${board[0].name} leads at ${money(board[0].valuation)}.`;
+  const peers = [me, ...board.filter(c => c !== me && c.type !== 'Big tech AI division')].sort((x, y) => y.valuation - x.valuation);
+  const peerRank = peers.indexOf(me) + 1;
   const summary = `Finished ${END_YEAR} at #${rank} of ${board.length} with a valuation of ${money(me.valuation)}.${top} ${me.public ? `Listed since ${me.ipoYear}.` : 'Still private.'}`;
   if (rank === 1 && me.valuation >= 2 * second) return { title: 'Dominant', text: summary };
   if (rank === 1) return { title: 'Most valuable AI company', text: summary };
+  if (peerRank === 1) return { title: 'Top independent lab', text: summary };
   if (rank <= 3) return { title: 'Contender', text: summary };
   return { title: 'Survivor', text: summary };
 }
