@@ -9,7 +9,7 @@ function newGame(pathId, name, seed = 1) {
     goalsDone: {}, log: [{ year: START_YEAR, text: `${name} is founded as a ${p.name.toLowerCase()}.` }], history: [], rs: seed, over: false, verdict: null,
   };
   syncStars(s);
-  for (const c of active(s)) c.valuation = valuationOf(c, w);
+  for (const c of active(s)) { c.valuation = valuationOf(c, w); applyHistory(s, c); }
   w.frontierE = Math.max(1e-9, ...active(s).map(c => effCompute(s, c, 1)));
   return s;
 }

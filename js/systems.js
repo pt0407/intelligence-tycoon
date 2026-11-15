@@ -1,15 +1,16 @@
 function unlockOf(c, sid) { return c.mods.unlock[sid] ?? SEGMENTS[sid].unlock; }
-function allocLeft(c, w) { return Math.max(0, Math.floor(30 * (1 - 0.6 * w.shortage) * c.mods.alloc) - c.boughtYear); }
+const allocBase = y => 60 * Math.pow(1.45, yi(y));
+function allocLeft(c, w, y) { return Math.max(0, Math.floor(allocBase(y) * (1 - 0.6 * w.shortage) * c.mods.alloc) - c.boughtYear); }
 function queueYears(s, region) { return region.queue + (s.w.gridStress > 0 ? 1 : 0); }
-function dcCost(region, w) { return DC_BLOCK_COST * (1 + region.permit * (1 + w.regLevel * 0.3)); }
-function exportBlocked(s, c) { return s.w.exportControl && curGen(s.year).id >= 5 && !c.mods.gov; }
+function dcCost(region, s) { return facilityPerMW(s.year) * MW_PER_BLOCK * (1 + region.permit * (1 + s.w.regLevel * 0.3)); }
+function exportBlocked(s, c, p) { return s.w.exportControl && p.vendor === 'NVIDIA' && p.year >= 2024 && !c.mods.gov; }
 function starMult(c) { return 1 + 0.06 * c.starAbility; }
 function dataFactor(c) { return 0.6 + c.data.q / 250; }
 function effCompute(s, c, share) {
-  return perfTotal(c, s.year) * share * dataFactor(c) * s.w.algo * c.algo * starMult(c) * (1 + c.researchers / 25) * c.mods.talent;
+  return perfTotal(c) * share * dataFactor(c) * s.w.algo * c.algo * starMult(c) * (1 + c.researchers / 25) * c.mods.talent;
 }
 function capOf(s, E) { return 100 * (1 - Math.exp(-E / (0.8 * s.w.frontierE))); }
-function trainCost(c, size) { return TRAIN[size].share * totalClustersOf(c) * 0.4 * avgPowerFactor(c) + c.researchers * 0.05; }
+function trainCost(s, c, size) { return TRAIN[size].share * ownedMW(c) * energyRate(c, s.w) + c.researchers * 0.05; }
 
 function resolveTraining(s, c, news) {
   const size = c.training;
@@ -17,7 +18,7 @@ function resolveTraining(s, c, news) {
   c.training = null;
   const w = s.w, mine = c === s.me, frontierRun = size === 'frontier';
   const blocked = frontierRun && ((w.regLevel >= 3 && !c.licensed) || (w.regLevel >= 2 && c.safety < 50));
-  if (blocked) { if (mine) news.push(`Regulators blocked the frontier run. Get licensed or raise safety above 50.`); return; }
+  if (blocked) { if (mine) news.push('Regulators blocked the frontier run. Get licensed or raise safety above 50.'); return; }
   const cap = Math.min(100, capOf(s, effCompute(s, c, TRAIN[size].share)));
   if (c.flagship && cap < flagCapOf(c)) { if (mine) news.push(`${TRAIN[size].name} did not beat ${c.flagship.name}. Kept the old flagship.`); return; }
   const version = (c.flagship?.version ?? 0) + 1;
@@ -66,7 +67,7 @@ function spawnStartup(s, extra = {}) {
   const sids = Object.keys(SEGMENTS).filter(k => SEGMENTS[k].unlock <= 50);
   const r = makeCompany({
     id: `r${s.rivals.length}`, name: `${pick(s, NAME_PREFIXES)} ${pick(s, NAME_SUFFIXES)}`, type: 'Startup', founded: s.year,
-    cash: 30, researchers: 8, engineers: 8, fleet: { 1: 5 }, data: 45, rep: 30, safety: 40, dist: 10, morale: 65,
+    cash: 30, researchers: 8, engineers: 8, fleet: { a100: 5 }, dcs: [], data: 45, rep: 30, safety: 40, dist: 10, morale: 65,
     growth: 0.4, growthRes: 0.1, targets: [pick(s, sids)], mods: { talent: 0.95 + rand(s) * 0.15, noMW: true }, ...extra,
   });
   r.status = 'active';
@@ -76,10 +77,11 @@ function spawnStartup(s, extra = {}) {
 }
 
 function aiTurn(s, r, news) {
-  const y = s.year, w = s.w, price = clusterPrice(y, w, r.mods.compute);
-  const n = Math.min(allocLeft(r, w), Math.max(1, Math.round(totalClustersOf(r) * r.growth)), Math.floor(Math.max(0, r.cash) * 0.4 / price));
-  if (n > 0) { const g = curGen(y).id; r.fleet[g] = (r.fleet[g] ?? 0) + n; r.cash -= n * price; r.boughtYear += n; }
-  if (!r.training && totalClustersOf(r) > 0) r.training = r.cash > 30 ? 'medium' : 'small';
+  const y = s.year, w = s.w, p = bestNvidia(r, y);
+  const cost = p.rackM * w.priceShock;
+  const n = Math.min(allocLeft(r, w, y), Math.max(1, Math.round(totalRacksOf(r) * r.growth)), Math.floor(Math.max(0, r.cash) * 0.4 / cost));
+  if (n > 0) { r.fleet[p.id] = (r.fleet[p.id] ?? 0) + n; r.cash -= n * cost; r.boughtYear += n; }
+  if (!r.training && totalRacksOf(r) > 0) r.training = r.cash > 30 ? 'medium' : 'small';
   r.researchers *= 1 + r.growthRes;
   for (const sid of r.targets) {
     if (!r.products.includes(sid) && flagCapOf(r) >= unlockOf(r, sid) && r.cash > SEGMENTS[sid].launch * 2) { r.products.push(sid); r.cash -= SEGMENTS[sid].launch; }

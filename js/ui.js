@@ -7,9 +7,10 @@
   const row = (label, value) => `<div class="row"><span>${label}</span><b>${value}</b></div>`;
   const card = (title, body) => `<section class="card"><h3>${title}</h3>${body}</section>`;
   const costTag = c => (c > 0 ? `<i class="cost">-${money(c)}</i>` : c < 0 ? `<i class="cost gain">+${money(-c)}</i>` : '<i class="cost">free</i>');
-  const TABS = [['overview', 'Overview'], ['research', 'Research'], ['talent', 'Talent'], ['products', 'Products'], ['finance', 'Finance'], ['policy', 'Policy'], ['rivals', 'Rivals'], ['log', 'Log']];
-  const TAB_GROUPS = { talent: ['Talent'], research: ['Compute', 'Research'], products: ['Products'], finance: ['Finance'], policy: ['Policy'], rivals: ['Rivals'] };
+  const TABS = [['overview', 'Overview'], ['hardware', 'Hardware'], ['research', 'Research'], ['talent', 'Talent'], ['products', 'Products'], ['finance', 'Finance'], ['policy', 'Policy'], ['rivals', 'Rivals'], ['market', 'Market'], ['log', 'Log']];
+  const TAB_GROUPS = { hardware: ['Compute'], research: ['Research'], talent: ['Talent'], products: ['Products'], finance: ['Finance'], policy: ['Policy'], rivals: ['Rivals'] };
   const REG_NAMES = ['None', 'Voluntary guidelines', 'Binding rules', 'Licensing regime'];
+  const SRC = 'docs/research.md';
 
   let S = null, pathId = 'lab', companyName = 'Your AI Co', tab = 'overview', opts = [];
 
@@ -20,13 +21,13 @@
     $('#start').innerHTML = `
       <div class="start">
         <h1>Intelligence Tycoon</h1>
-        <p class="lede">2016 to 2035. Found an AI company, survive the hype cycles and chip shortages, and try to end up the most valuable AI company on earth.</p>
+        <p class="lede">2016 to 2035. Found an AI company and race the real ones: OpenAI, Anthropic, NVIDIA, xAI and the rest. History runs on real numbers until 2026. After that, it's up to you.</p>
         <label class="name">Company name <input id="company-name" value="${esc(companyName)}" maxlength="28"></label>
         <div class="paths">${Object.entries(PATHS).map(([id, p]) => `
           <div class="path${id === pathId ? ' selected' : ''}" data-path="${id}" tabindex="0" role="button">
             <h3>${p.name}</h3>
             <p class="blurb">${p.blurb}</p>
-            <p class="meta">${money(p.start.cash)} cash · ${p.start.researchers} researchers · ${totalClustersOf({ fleet: p.start.fleet })} clusters</p>
+            <p class="meta">${money(p.start.cash)} cash · ${p.start.researchers} researchers · ${sumVals(p.start.fleet)} racks</p>
             <ul class="pros">${p.pros.map(x => `<li>${x}</li>`).join('')}</ul>
             <ul class="cons">${p.cons.map(x => `<li>${x}</li>`).join('')}</ul>
             <p class="objs"><b>Objectives:</b> ${p.goals.map(g => esc(g.text)).join(' · ')}</p>
@@ -39,8 +40,8 @@
 
   function renderTop() {
     const me = S.me, board = active(S).sort((a, b) => b.valuation - a.valuation), rank = board.indexOf(me) + 1;
-    const burn = me.revenue - me.net;
     const runway = me.net < 0 ? `${(Math.max(0, me.cash) / -me.net).toFixed(1)} yrs` : me.net > 0 ? 'profitable' : 'no burn yet';
+    const power = `${Math.round(ownedMW(me))} / ${capacityMW(me) === Infinity ? '∞' : Math.round(capacityMW(me))} MW`;
     $('#top').innerHTML = `
       <div class="year">${S.year}</div>
       <div class="timeline"><i style="width:${(S.year - START_YEAR) / (END_YEAR - START_YEAR) * 100}%"></i></div>
@@ -49,17 +50,17 @@
         ${chip(me.public ? 'Market cap' : 'Valuation', money(me.valuation), '', me.public ? `IPO ${me.ipoYear}` : 'private')}
         ${chip('Rank', `#${rank} of ${board.length}`)}
         ${chip('Net worth', money(me.valuation * me.stake), '', `${pct(me.stake)} stake`)}
+        ${chip('Power', power, '', `${totalRacksOf(me)} racks`)}
         ${chip('Index', Math.round(S.w.index), '', `rate ${S.w.rate.toFixed(1)}%`)}
-        ${chip('Hype', S.w.hype.toFixed(2), S.w.hype > 1.8 ? 'bad' : '', `trust ${Math.round(S.w.trust)}`)}
-        ${chip('Actions', `${S.ap} left`, '', `outflow ${money(burn)}/yr`)}
+        ${chip('Actions', `${S.ap} left`, '', `outflow ${money(me.revenue - me.net)}/yr`)}
       </div>
       <button class="ghost" id="help">How it works</button>
       <button class="primary" id="end-year">End ${S.year} →</button>`;
   }
 
   function fleetRows(c) {
-    const rows = Object.entries(c.fleet).filter(([, n]) => n > 0).map(([g, n]) => row(GPU_GENS[g - 1].name, `${n} clusters`));
-    if (c.rentedClusters) rows.push(row('Rented', `${c.rentedClusters} clusters`));
+    const rows = Object.entries(c.fleet).filter(([, n]) => n > 0).map(([id, n]) => row(platOf(c, id).name, `${n} racks owned`));
+    for (const [id, n] of Object.entries(c.rented)) if (n > 0) rows.push(row(platOf(c, id).name, `${n} racks rented`));
     return rows.join('') || '<p class="muted">No compute yet.</p>';
   }
 
@@ -67,7 +68,7 @@
     const me = S.me, board = active(S).sort((a, b) => b.valuation - a.valuation);
     const fr = frontierOf(S), mine = opts.filter(o => TAB_GROUPS[tab]?.includes(o.group));
     const btn = o => `<button class="act" data-act="${o.key}" ${o.locked ? 'disabled' : ''} title="${esc(o.locked || o.name)}"><b>${esc(o.name)}</b>${costTag(o.cost)}<small>${esc(o.desc)}</small>${o.locked ? `<em>${esc(o.locked)}</em>` : ''}</button>`;
-    const acts = () => `<div class="acts">${mine.map(btn).join('')}</div>`;
+    const acts = list => `<div class="acts">${list.map(btn).join('')}</div>`;
     const cap = flagCapOf(me);
     let html = '';
 
@@ -76,48 +77,59 @@
       html = `<div class="grid2">
         ${card(esc(me.name), `<p class="muted">${esc(PATHS[S.path].name)}</p>
           ${row('Founder stake', pct(me.stake))}${row('Employees', Math.round(me.researchers + me.engineers + me.sales))}
-          ${row('Public', me.public ? `Yes, since ${me.ipoYear}` : 'Private')}${row('Debt', money(me.debt))}${row('Lawsuits settled', me.lawsuits)}
+          ${row('Public', me.public ? `Yes, since ${me.ipoYear}` : 'Private')}${row('Debt', money(me.debt))}${row('Portfolio stakes', money(portfolioValue(S)))}
           <h3 class="sub">Flagship</h3>
           ${me.flagship ? `${row(me.flagship.name, `capability ${Math.round(cap)}`)}${bar(cap)}<p class="muted">Frontier ${Math.round(flagCapOf(fr))} (${esc(fr.name)}). Models age about 3 percent a year.</p>` : '<p class="muted">No model yet. Train one or fine-tune an open model.</p>'}
           <h3 class="sub">Products</h3><div class="tags">${me.products.length ? me.products.map(sid => `<span class="tag">${SEGMENTS[sid].name}</span>`).join('') : '<span class="muted">None launched</span>'}</div>`)}
         ${card('Last year', `${row('Revenue', money(me.revenue))}${row('Inference costs', money(me.cogs))}${row('Operating costs', money(costs))}${row('Net cash', money(me.net))}`)}
-        ${card('Leaderboard', `<ol class="board">${board.slice(0, 10).map((c, i) => `<li class="${c === me ? 'me' : ''}"><span>${i + 1}. ${esc(c.name)}</span><b>${money(c.valuation)}</b></li>`).join('')}</ol>`)}
+        ${card('Leaderboard', `<ol class="board">${board.slice(0, 10).map((c, i) => `<li class="${c === me ? 'me' : ''}"><span>${i + 1}. ${esc(c.name)}${c.real ? ' <small class="muted">real</small>' : ''}</span><b>${money(c.valuation)}</b></li>`).join('')}</ol>`)}
         ${card('Objectives', `<ul class="objs-list">${PATHS[S.path].goals.map((g, i) => `<li class="${i in S.goalsDone ? 'done' : ''}">${esc(g.text)}<small>${i in S.goalsDone ? `Done in ${S.goalsDone[i]}` : 'Open'}</small></li>`).join('')}</ul>`)}
         ${card('Valuation history', historyChart())}
         ${card('Latest news', `<ul class="log">${S.log.slice(-8).reverse().map(l => `<li><b>${l.year}</b>${esc(l.text)}</li>`).join('')}</ul>`)}
       </div>`;
     }
 
-    if (tab === 'research') {
-      const alloc = allocLeft(me, S.w), gen = curGen(S.year);
+    if (tab === 'hardware') {
+      const ps = platformsFor(me, S.year);
       html = `<div class="grid2">
-        ${card('Compute', `${row('Current chip generation', `${gen.name} · $${clusterPrice(S.year, S.w).toFixed(0)}M per cluster`)}
-          ${row('Clusters owned', totalClustersOf(me))}${row('Power capacity', `${totalClustersOf(me)} / ${capacityMW(me) === Infinity ? '∞' : capacityMW(me)} MW`)}
-          ${row('Chip allocation left this year', alloc)}${row('Export controls', S.w.exportControl ? (me.mods.gov ? 'Exempt (domestic partner)' : 'Blocks newest generation') : 'Off')}
-          ${row('Chip shortage', pct(S.w.shortage))}${row('Power price index', `${avgPowerFactor(me).toFixed(2)}x`)}
+        ${card('Your power and racks', `${row('Owned racks', totalRacksOf(me, 'owned'))}${row('Rented racks', totalRacksOf(me, 'rented'))}
+          ${row('Power draw (owned)', `${Math.round(ownedMW(me))} MW`)}${row('Power capacity', capacityMW(me) === Infinity ? 'Unlimited (partner)' : `${Math.round(capacityMW(me))} MW`)}
+          ${row('Chip allocation left', allocLeft(me, S.w, S.year))}${row('Chip shortage', pct(S.w.shortage))}
+          ${row('Export controls', S.w.exportControl ? (me.mods.gov ? 'Exempt (domestic partner)' : 'Newest NVIDIA chips blocked') : 'Off')}
+          ${row('Energy price', `$${Math.round(energyRate(me, S.w) / 0.01095)}/MWh`)}${row('Custom chip', me.customPlatforms.length ? me.customPlatforms.map(p => p.name).join(', ') : me.asic ? `in design, ready ${me.asic.ready}` : 'none')}
           <h3 class="sub">Fleet</h3>${fleetRows(me)}
-          <h3 class="sub">Data centers</h3>${me.dcs.map(id => row(regionById(id).name, `${DC_BLOCK_MW} MW`)).join('') || '<p class="muted">None. Clusters can only be rented.</p>'}
-          ${me.pendingDC.map(b => row(`${regionById(b.region).name} (building)`, `online ${b.ready}`)).join('')}`)}
+          <h3 class="sub">Campuses</h3>${me.dcs.map(d => row(regionById(d.region).name, `${d.mw} MW`)).join('') || '<p class="muted">No owned campuses. Rent racks or build one.</p>'}
+          ${me.pendingDC.map(b => row(`${regionById(b.region).name}${b.smr ? ' (SMR)' : ''} building`, `online ${b.ready}`)).join('')}`)}
+        ${card('Hardware catalog', `<div class="catalog"><table><tr><th>Platform</th><th>Year</th><th>TFLOPS/GPU</th><th>HBM GB</th><th>Rack $M</th><th>kW</th><th>Source</th></tr>
+          ${PLATFORMS.map(p => `<tr class="${p.year <= S.year ? '' : 'future'}"><td>${esc(p.name)}${p.cloudOnly ? ' <small class="muted">cloud only</small>' : ''}</td><td>${p.year}</td><td>${p.tf.toLocaleString()}</td><td>${p.mem}</td><td>${p.rackM}</td><td>${p.kw}</td><td class="muted">${esc(p.src)}</td></tr>`).join('')}
+          </table><p class="muted">A rack is 72 GPUs. Rack prices are compute and networking only. Rubin and later numbers are estimates or roadmap, see ${SRC}.</p></div>`)}
+        ${card('Campus economics', `<p class="muted">Campus build cost is $${facilityPerMW(S.year)}M per MW at today's rates (AI-optimized, Turner and Townsend 2025 benchmark $20M+). A 100 MW campus costs about $${facilityPerMW(S.year) * MW_PER_BLOCK}M before chips. Grid queues are 2 to 4 years.</p>
+          ${REGIONS.map(r => row(r.name, `$${r.price}/MWh, queue ${queueYears(S, r)} yrs, build $${dcCost(r, S).toFixed(0)}M`)).join('')}`)}
+        ${card('Buy, rent and build', acts(mine))}
+      </div>`;
+    }
+
+    if (tab === 'research') {
+      html = `<div class="grid2">
         ${card('Models and training', `${me.training ? `<p>Training: <b>${TRAIN[me.training].name}</b>. Results at year end.</p>` : '<p class="muted">Nothing training right now.</p>'}
           ${me.flagship ? `${row('Flagship', me.flagship.name)}${row('Capability', Math.round(cap))}${row('Open weights', me.flagship.open ? 'Released' : 'Closed')}${row('Safety score', Math.round(me.safety))}` : ''}
           <p class="muted">Frontier runs need data quality 40, safety 50 under binding rules, and a license under licensing.</p>`)}
         ${card('Data', `${row('Data quality', Math.round(me.data.q))}${bar(me.data.q)}${row('Licensed share', `${Math.round(me.data.licensed)}%`)}${row('Lawsuit risk', pct(0.08 * (1 - me.data.licensed / 100) * S.w.copyrightHeat))}`)}
-        ${card('Compute actions', acts())}
+        ${card('Research actions', acts(mine))}
       </div>`;
     }
 
     if (tab === 'talent') {
       const attrition = clamp((60 - me.morale) / 400, 0, 0.12);
-      const free = S.stars.filter(st => !st.owner);
       html = `<div class="grid2">
         ${card('Team', `${row('Researchers', Math.round(me.researchers))}${row('Engineers', Math.round(me.engineers))}${row('Sales', Math.round(me.sales))}
           ${row('Chief Financial Officer', me.execs.cfo ? 'Hired' : 'Missing')}${row('Chief Revenue Officer', me.execs.cro ? 'Hired' : 'Missing')}
           <h3 class="sub">Morale ${Math.round(me.morale)}</h3>${bar(me.morale, 100, me.morale < 40 ? 'warn' : 'good')}
           <p class="muted">Expected attrition: about ${pct(attrition)} of researchers a year.</p>`)}
         ${card('Star researchers', `${S.stars.filter(st => st.owner === 'me').map(st => row(st.name, `ability ${st.ability.toFixed(1)}`)).join('') || '<p class="muted">None on your team.</p>'}
-          <h3 class="sub">Available or poachable</h3>${S.stars.filter(st => st.owner !== 'me').map(st => row(st.name, `${st.owner ? companyById(S, st.owner).name : 'Free agent'}`)).join('')}
-          <p class="muted">${free.length} free agents. Stars add research output and company value.</p>`)}
-        ${card('Talent actions', acts())}
+          <h3 class="sub">Everyone else</h3>${S.stars.filter(st => st.owner !== 'me').map(st => row(st.name, st.owner ? companyById(S, st.owner).name : 'Free agent')).join('')}
+          <p class="muted">Star researchers are fictional. Real labs' staffing isn't public.</p>`)}
+        ${card('Talent actions', acts(mine))}
       </div>`;
     }
 
@@ -125,10 +137,10 @@
       const shares = marketShares(S);
       html = `<div class="grid2">
         ${card('Market share by segment', Object.keys(SEGMENTS).map(sid => `<div class="mrow"><span>${SEGMENTS[sid].name} <small class="muted">unlock ${unlockOf(me, sid)}</small></span>
-          ${shares[sid].length ? `<div class="stack">${shares[sid].map(x => `<i class="${x.id === 'me' ? 'me' : ''}" style="width:${x.share * 100}%" title="${esc(x.name)} ${pct(x.share)}"></i>`).join('')}</div><div class="mshare">${shares[sid].slice(0, 3).map(x => `${esc(x.name)} <b>${pct(x.share)}</b>`).join(' · ')}</div>` : '<div class="mshare">No sellers yet</div>'}</div>`).join('') + `<p class="muted">Pricing tier: ${me.pricing}. Free tiers win users, premium tiers win revenue per user.</p>`)}
+          ${shares[sid].length ? `<div class="stack">${shares[sid].map(x => `<i class="${x.id === 'me' ? 'me' : ''}" style="width:${x.share * 100}%" title="${esc(x.name)} ${pct(x.share)}"></i>`).join('')}</div><div class="mshare">${shares[sid].slice(0, 3).map(x => `${esc(x.name)} <b>${pct(x.share)}</b>`).join(' · ')}</div>` : '<div class="mshare">No sellers yet</div>'}</div>`).join('') + `<p class="muted">Pricing tier: ${me.pricing}.</p>`)}
         ${card('Your products', `${me.products.map(sid => row(SEGMENTS[sid].name, `${Math.round(flagCapOf(me) + polishOf(me))} quality`)).join('') || '<p class="muted">Nothing launched yet.</p>'}
-          ${row('Enterprise sales reps', Math.round(me.sales))}${row('Distribution', Math.round(me.dist))}${row('Reputation', Math.round(me.rep))}`)}
-        ${card('Product actions', acts())}
+          ${row('Enterprise sales reps', Math.round(me.sales))}${row('Distribution', Math.round(me.dist))}${row('Reputation', Math.round(me.rep))}${row('Ads', me.ads ? 'Live' : 'Off')}`)}
+        ${card('Product actions', acts(mine))}
       </div>`;
     }
 
@@ -136,11 +148,11 @@
       const r = ROUNDS[me.rounds.length];
       html = `<div class="grid2">
         ${card('Cap table', `${row('Founder stake', pct(me.stake))}${row('Valuation', money(me.valuation))}${row('Cash', money(me.cash))}${row('Debt', money(me.debt))}
-          ${row('Status', me.public ? `Public since ${me.ipoYear}` : 'Private')}
+          ${row('Status', me.public ? `Public since ${me.ipoYear}` : 'Private')}${row('Portfolio stakes', money(portfolioValue(S)))}
           <h3 class="sub">Funding history</h3>${me.rounds.map(x => row(x.name, `${x.year}`)).join('') || '<p class="muted">No rounds yet.</p>'}
           <p class="muted">${r ? `Next: ${r.name}, needs ${r.ask}.` : 'No private rounds left. Go public.'}</p>`)}
-        ${card('How funding works', `<p class="muted">Rounds sell a fixed slice of the company at today's valuation. Each raise dilutes your stake and adds cash. A CFO is required for later rounds and the IPO. After listing, quarterly losses pile pressure on the board.</p>`)}
-        ${card('Finance actions', acts())}
+        ${card('How funding works', `<p class="muted">Rounds sell a fixed slice of the company at today's valuation. Sovereign money brings capital and scrutiny. Strategic stakes in rivals count toward your portfolio, not your rank.</p>`)}
+        ${card('Finance actions', acts(mine))}
       </div>`;
     }
 
@@ -148,15 +160,26 @@
       html = `<div class="grid2">
         ${card('World', `${row('Regulation', REG_NAMES[S.w.regLevel])}${row('Export controls', S.w.exportControl ? 'On' : 'Off')}${row('Public trust', Math.round(S.w.trust))}${bar(S.w.trust)}
           ${row('Interest rate', `${S.w.rate.toFixed(1)}%`)}${row('Market index', Math.round(S.w.index))}${row('Hype', S.w.hype.toFixed(2))}
-          ${row('Chip shortage', pct(S.w.shortage))}${row('Recession', S.w.recession > 0 ? 'Yes' : 'No')}${row('Lobbying', me.lobbyUntil >= S.year ? 'Active' : 'Off')}`)}
-        ${card('Policy actions', acts())}
+          ${row('Chip shortage', pct(S.w.shortage))}${row('Energy price shock', `${S.w.energyShock.toFixed(2)}x`)}${row('Lobbying', me.lobbyUntil >= S.year ? 'Active' : 'Off')}`)}
+        ${card('Policy actions', acts(mine))}
       </div>`;
     }
 
     if (tab === 'rivals') {
       const rivals = board.filter(c => c !== me);
       html = `${card('Rivals', `<div class="rivals">${rivals.map(c => rivalRow(c)).join('') || '<span class="muted">No rivals left standing.</span>'}</div>`)}
-        <p class="muted">Gone or acquired: ${S.rivals.filter(r => r.status !== 'active' && r.status !== 'future').map(r => esc(r.name)).join(', ') || 'none yet'}.</p>`;
+        <p class="muted">Out of the race: ${S.rivals.filter(r => r.status === 'dead' || r.status === 'acquired').map(r => esc(r.name)).join(', ') || 'none yet'}.</p>`;
+    }
+
+    if (tab === 'market') {
+      html = `<div class="grid2">
+        ${card('Real anchors', `<p class="muted">Valuations and revenue from public reports through 2026. Before 2026 each real company follows its anchors. After 2026 the simulation takes over.</p>
+          ${S.rivals.filter(r => r.real).map(r => `<div class="anchor"><b>${esc(r.name)}</b><small class="muted">founded ${r.founded}${r.status !== 'active' ? ` · ${r.status}` : ''}</small>
+            <small>${r.anchors?.val ? 'Valuation: ' + Object.entries(r.anchors.val).map(([y, v]) => `${y} ${money(v)}`).join(' · ') : ''}</small>
+            ${r.anchors?.rev ? `<small>Revenue: ${Object.entries(r.anchors.rev).map(([y, v]) => `${y} ${money(v)}`).join(' · ')}</small>` : ''}</div>`).join('')}`)}
+        ${card('Total market', `${row('Global AI revenue pool, this year', money(TAM[S.year - START_YEAR]))}${row('Sources', `see ${SRC}`)}
+          <p class="muted">The pool is a game estimate, roughly matching 2025 and 2026 run-rates from public reports. Long-range numbers are scenario guesses.</p>`)}
+      </div>`;
     }
 
     if (tab === 'log') {
@@ -168,11 +191,12 @@
 
   function rivalRow(c) {
     const by = Object.fromEntries(opts.map(o => [o.key, o]));
-    const po = by[`poach:${c.id}`], ac = by[`acquire:${c.id}`];
+    const po = by[`poach:${c.id}`], ac = by[`acquire:${c.id}`], inv = by[`invest:${c.id}`];
     const b = o => (o ? `${o.locked ? 'disabled' : ''} title="${esc(o.locked || o.name)}"` : 'disabled');
     return `<div class="rival">
-      <div><b>${esc(c.name)}</b><small>${esc(c.type)} · ${money(c.valuation)} · cap ${Math.round(flagCapOf(c))} · ${c.products.length} products · ${Math.round(c.researchers)} researchers${c.public ? ' · public' : ''}</small></div>
+      <div><b>${esc(c.name)}</b>${c.real ? ' <small class="muted">real</small>' : ''}<small>${esc(c.type)} · ${money(c.valuation)} · cap ${Math.round(flagCapOf(c))} · ${totalRacksOf(c)} racks · ${c.products.length} products${c.public ? ' · public' : ''}</small></div>
       <div class="rbtns">
+        <button data-act="invest:${c.id}" ${b(inv)}>Stake 5%</button>
         <button data-act="poach:${c.id}" ${b(po)}>Poach</button>
         <button data-act="acquire:${c.id}" ${b(ac)}>${ac ? esc(ac.name.replace('Acquire for ', '')) : 'Acquire'}</button>
       </div></div>`;
@@ -220,13 +244,13 @@
       <h2>How it works</h2>
       <ul class="help">
         <li><b>Turns.</b> Each turn is a year. You spend action points, then end the year. Costs, revenue, training, hiring and rival moves resolve at year end.</li>
-        <li><b>Compute.</b> Clusters come in GPU generations. Each generation is roughly 2 to 3 times faster and costs more. Chip allocation tightens during shortages. Clusters need data center megawatts, which take a grid queue to build. Renting costs a premium every year.</li>
-        <li><b>Models.</b> Capability is your effective compute relative to the frontier (the best flagship in the world), times data quality, algorithms and stars. Models age about 3 percent a year, so you must retrain to keep up. Fine-tuning borrowed open weights is cheap but capped near half the frontier.</li>
-        <li><b>Talent.</b> Researchers drive output. Low morale causes attrition, and rivals poach. Stars are rare and add real research power and company value.</li>
-        <li><b>Products.</b> Each product competes for its segment's share of the market, weighted by quality, distribution and price tier. Sales reps add enterprise contracts.</li>
-        <li><b>Finance.</b> Rounds have milestones (flagship, revenue, CFO). Debt is backed by GPUs. An IPO needs a CFO, $500M revenue and a healthy market. After listing, two loss years in a row trigger a board revolt.</li>
-        <li><b>Policy.</b> Regulation tightens over time: binding rules need safety 50 for frontier releases and charge a compliance fee unless you lobby. Licensing needs a permit. Export controls block the newest chips. Copyright lawsuits follow unlicensed data. Acquisitions face antitrust review above 40 percent segment share.</li>
-        <li><b>Macro.</b> Interest rates, the market index and hype drive valuations and IPO timing. Recessions, bubbles and talent wars happen. Public trust moves demand.</li>
+        <li><b>Hardware.</b> Real GPU platforms from P100 (2016) to Blackwell GB200 and Vera Rubin, plus AMD MI455X and TPU v7. Racks are 72 GPUs. Each rack has a real price and power draw, so buying racks means finding megawatts. Campuses take 2 to 4 years to get grid power. Chip allocation tightens in shortages. Export controls block the newest NVIDIA parts for most buyers.</li>
+        <li><b>Models.</b> Capability is your effective compute relative to the frontier, times data, algorithms and stars. Models age, so you must retrain to keep up. Fine-tuning borrowed open weights is cheap but capped near half the frontier.</li>
+        <li><b>Custom silicon.</b> Designing your own accelerator takes three years and a strong research team. It lands near 1.8 times the current NVIDIA part at 60 percent of the rack price.</li>
+        <li><b>Power.</b> Energy is priced by region. Clean power contracts cut costs. Small modular reactors take four years.</li>
+        <li><b>Real rivals.</b> OpenAI, Anthropic, xAI, NVIDIA, Mistral, SSI and Thinking Machines follow public valuation and revenue reports through 2026. After 2026 they play by the same rules as you. Google, Meta and Microsoft AI are simulated divisions, since their AI units have no separate valuation.</li>
+        <li><b>Finance.</b> Rounds have milestones. Debt is backed by GPUs. An IPO needs a CFO, $500M revenue and a healthy market. Sovereign money brings capital and scrutiny. You can take 5 percent stakes in rivals.</li>
+        <li><b>Policy.</b> Regulation tightens over time. Binding rules need safety 50 for frontier releases. Licensing needs a permit. Copyright lawsuits follow unlicensed data. Acquisitions face antitrust review above 40 percent segment share.</li>
         <li><b>Winning.</b> The highest valuation in ${END_YEAR} wins. Going bankrupt ends the game early.</li>
       </ul>
       <button class="primary" id="close-help">Close</button>

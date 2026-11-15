@@ -1,12 +1,13 @@
 function macroStep(s) {
   const w = s.w, y = s.year, growth = TAM[Math.min(yi(y) + 1, TAM.length - 1)] / TAM[yi(y)];
   w.rate = clamp(w.rate + (3 - w.rate) * 0.15 + (rand(s) - 0.5) * 0.5, 0, 8);
-  w.index = clamp(w.index * (1 + 0.05 + (w.hype - 1) * 0.1 - (w.rate - 3) * 0.015 + (rand(s) - 0.5) * 0.12), 30, 400);
-  w.hype = clamp(w.hype + (growth - 1.4) * 0.2 + (rand(s) - 0.5) * 0.1 - w.recession * 0.05, 0.4, 2.5);
+  w.index = clamp(w.index * (1 + 0.05 + (w.hype - 1) * 0.1 - (w.rate - 3) * 0.015 + (rand(s) - 0.5) * 0.12), 30, 220);
+  w.hype = clamp(w.hype + (growth - 1.4) * 0.2 + (rand(s) - 0.5) * 0.1 - w.recession * 0.05, 0.4, 1.8);
   w.shortage = clamp(w.shortage + (clamp(0.1 + (w.hype - 0.8) * 0.4, 0, 0.9) - w.shortage) * 0.5, 0, 1);
   const cs = active(s), avgSafety = cs.reduce((t, c) => t + c.safety, 0) / cs.length;
   w.trust = clamp(w.trust + (avgSafety - 50) * 0.02 - 0.2, 0, 100);
   w.priceShock = 1 + (w.priceShock - 1) * 0.6;
+  w.energyShock = 1 + (w.energyShock - 1) * 0.6;
   w.algo *= 1.05;
   w.gridStress = Math.max(0, w.gridStress - 1);
   w.recession = Math.max(0, w.recession - 1);
@@ -14,6 +15,15 @@ function macroStep(s) {
 
 function activateRivals(s, news) {
   for (const r of s.rivals) if (r.status === 'future' && r.founded <= s.year + 1) { r.status = 'active'; news.push(`${r.name} emerges from stealth.`); }
+}
+
+function applyHistory(s, c) {
+  if (!inHistory(c, s.year)) return;
+  const v = anchorAt(c.anchors.val, s.year);
+  if (v) c.valuation = v;
+  const rv = anchorAt(c.anchors.rev, s.year, 0);
+  if (rv !== null && c.anchors.rev) c.revenue = rv;
+  if (c.cash < 0) c.cash = 0;
 }
 
 function endYear(s) {
@@ -24,8 +34,14 @@ function endYear(s) {
   runEvents(s, news);
   syncStars(s);
   for (const c of active(s)) c.boughtYear = 0;
-  for (const b of me.pendingDC.filter(b => b.ready <= y)) { me.dcs.push(b.region); news.push(`${regionById(b.region).name} data center online: +${DC_BLOCK_MW} MW.`); }
+  for (const b of me.pendingDC.filter(b => b.ready <= y)) { me.dcs.push({ region: b.region, mw: b.mw }); news.push(`${regionById(b.region).name} campus online: +${b.mw} MW${b.smr ? ' (SMR)' : ''}.`); }
   me.pendingDC = me.pendingDC.filter(b => b.ready > y);
+  if (me.asic && me.asic.ready <= y) {
+    const best = bestNvidia(me, y), id = `asic${me.customPlatforms.length + 1}`;
+    me.customPlatforms.push({ id, vendor: 'Custom', name: `${me.name} custom accelerator`, year: y, tf: best.tf * 1.8, rackM: best.rackM * 0.6, kw: Math.round(best.kw * 0.85), mem: best.mem, src: 'game estimate' });
+    me.asic = null;
+    news.push(`Your custom accelerator taped out and is in production.`);
+  }
   for (const r of activeRivals(s)) aiTurn(s, r, news);
   const L = active(s);
   for (const c of L) if (c.flagship) c.flagship.cap *= 0.97;
@@ -52,6 +68,7 @@ function endYear(s) {
   }
   starMoves(s, news);
   for (const c of L) c.valuation = valuationOf(c, w);
+  for (const c of L) applyHistory(s, c);
   for (const c of L) {
     if (c.cash >= 0) continue;
     const pct = c.valuation > 0 ? Math.min(1, -c.cash / c.valuation) : 1;
@@ -65,9 +82,10 @@ function endYear(s) {
     }
   }
   for (const c of active(s)) c.valuation = valuationOf(c, w);
+  for (const c of active(s)) applyHistory(s, c);
   w.frontierE = Math.max(1e-9, ...active(s).map(c => effCompute(s, c, 1)));
   PATHS[s.path].goals.forEach((gl, i) => { if (!(i in s.goalsDone) && me.status === 'active' && gl.check(s)) { s.goalsDone[i] = y; news.push(`Objective complete: ${gl.text}`); } });
-  s.history.push({ year: y, valuation: me.valuation, revenue: me.revenue, cap: flagCapOf(me), frontier: flagCapOf(frontierOf(s)), rank: rankOf(s), index: w.index, rate: w.rate });
+  s.history.push({ year: y, valuation: me.valuation, revenue: me.revenue, cap: flagCapOf(me), frontier: flagCapOf(frontierOf(s)), rank: rankOf(s), index: w.index, rate: w.rate, portfolio: portfolioValue(s) });
   s.log.push(...news.map(text => ({ year: y, text })));
   s.log = s.log.slice(-300);
   const report = {
@@ -79,13 +97,18 @@ function endYear(s) {
   return report;
 }
 
+function portfolioValue(s) {
+  return Object.entries(s.me.investments).reduce((t, [id, pct]) => { const r = companyById(s, id); return t + (r && r.status === 'active' ? pct * r.valuation : 0); }, 0);
+}
+
 function verdictFor(s) {
   const me = s.me;
   if (me.status === 'bankrupt') return { title: 'Bankrupt', text: `Ran out of money in ${s.year}.` };
   const board = active(s).sort((a, b) => b.valuation - a.valuation), rank = board.indexOf(me) + 1, second = board[1] ? board[1].valuation : 0;
-  const summary = `Finished ${END_YEAR} at #${rank} of ${board.length} with a valuation of ${money(me.valuation)}. ${me.public ? `Listed since ${me.ipoYear}.` : 'Still private.'}`;
+  const top = board[0] === me ? '' : ` ${board[0].name} leads at ${money(board[0].valuation)}.`;
+  const summary = `Finished ${END_YEAR} at #${rank} of ${board.length} with a valuation of ${money(me.valuation)}.${top} ${me.public ? `Listed since ${me.ipoYear}.` : 'Still private.'}`;
   if (rank === 1 && me.valuation >= 2 * second) return { title: 'Dominant', text: summary };
-  if (rank === 1) return { title: 'Biggest AI company', text: summary };
+  if (rank === 1) return { title: 'Most valuable AI company', text: summary };
   if (rank <= 3) return { title: 'Contender', text: summary };
   return { title: 'Survivor', text: summary };
 }

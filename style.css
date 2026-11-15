@@ -215,3 +215,12 @@ input { font: inherit; color: inherit; background: #111827; border: 1px solid #2
 .news { list-style: none; padding: 0; }
 .rrow { display: flex; justify-content: space-between; gap: 12px; }
 .rrow span { color: #8ea0bd; }
+.catalog { overflow-x: auto; }
+.catalog table { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+.catalog th, .catalog td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #1a2438; white-space: nowrap; }
+.catalog th { color: #8ea0bd; font-weight: 600; }
+.catalog tr.future td { opacity: 0.45; }
+.anchor { padding: 8px 0; border-bottom: 1px solid #1a2438; }
+.anchor small { display: block; color: #9fb0cc; font-size: 12px; }
+.rival small { display: block; }
+.rbtns button { white-space: nowrap; }

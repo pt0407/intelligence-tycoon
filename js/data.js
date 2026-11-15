@@ -1,10 +1,11 @@
 const START_YEAR = 2016;
 const END_YEAR = 2035;
+const HISTORY_END = 2026;
 const AP_PER_YEAR = 5;
-const DC_BLOCK_MW = 50;
-const DC_BLOCK_COST = 45;
+const MW_PER_BLOCK = 100;
+const RACK_GPUS = 72;
 
-const TAM = [2000, 2600, 3800, 5800, 8000, 12000, 18000, 28000, 42000, 60000, 80000, 100000, 125000, 150000, 180000, 215000, 250000, 290000, 330000, 370000];
+const TAM = [2000, 3000, 5000, 8000, 14000, 22000, 40000, 90000, 170000, 300000, 480000, 640000, 780000, 900000, 1000000, 1100000, 1200000, 1300000, 1400000, 1500000];
 
 const SEGMENTS = {
   chat: { name: 'Consumer chat', share: 0.2, unlock: 25, launch: 4 },
@@ -16,21 +17,26 @@ const SEGMENTS = {
   robots: { name: 'Robotics', share: 0.12, unlock: 85, launch: 20 },
 };
 
-const GPU_GENS = [
-  { id: 1, name: 'Gen 1', year: 2016, perf: 1, price: 12 },
-  { id: 2, name: 'Gen 2', year: 2018, perf: 2.5, price: 14 },
-  { id: 3, name: 'Gen 3', year: 2020, perf: 6, price: 16 },
-  { id: 4, name: 'Gen 4', year: 2022, perf: 15, price: 18 },
-  { id: 5, name: 'Gen 5', year: 2024, perf: 35, price: 21 },
-  { id: 6, name: 'Gen 6', year: 2026, perf: 80, price: 24 },
-  { id: 7, name: 'Gen 7', year: 2029, perf: 180, price: 28 },
-  { id: 8, name: 'Gen 8', year: 2032, perf: 400, price: 32 },
+const PLATFORMS = [
+  { id: 'p100', vendor: 'NVIDIA', name: 'P100 (Pascal)', year: 2016, tf: 21, rackM: 0.9, kw: 25, mem: 16, src: 'datasheet + est' },
+  { id: 'v100', vendor: 'NVIDIA', name: 'V100 (Volta)', year: 2017, tf: 125, rackM: 1.0, kw: 30, mem: 32, src: 'datasheet + est' },
+  { id: 'a100', vendor: 'NVIDIA', name: 'A100 (Ampere)', year: 2020, tf: 312, rackM: 1.6, kw: 40, mem: 80, src: 'datasheet + est' },
+  { id: 'h100', vendor: 'NVIDIA', name: 'H100 (Hopper)', year: 2022, tf: 989, rackM: 2.6, kw: 70, mem: 80, src: 'datasheet + est' },
+  { id: 'h200', vendor: 'NVIDIA', name: 'H200 (Hopper refresh)', year: 2024, tf: 989, rackM: 2.8, kw: 70, mem: 141, src: 'datasheet + est' },
+  { id: 'gb200', vendor: 'NVIDIA', name: 'GB200 NVL72 (Blackwell)', year: 2025, tf: 2250, rackM: 3.4, kw: 120, mem: 186, src: 'Bernstein, ipvaluelabs' },
+  { id: 'ironwood', vendor: 'Google', name: 'TPU v7 Ironwood', year: 2025, tf: 2307, rackM: 2.6, kw: 100, mem: 192, cloudOnly: true, src: 'Google Cloud docs + est' },
+  { id: 'vr', vendor: 'NVIDIA', name: 'Vera Rubin NVL72', year: 2026, tf: 4000, rackM: 4.2, kw: 190, mem: 288, src: 'NVIDIA + est' },
+  { id: 'mi455', vendor: 'AMD', name: 'Instinct MI455X (Helios)', year: 2026, tf: 5000, rackM: 3.8, kw: 180, mem: 432, src: 'AMD + est' },
+  { id: 'rubin_ultra', vendor: 'NVIDIA', name: 'Rubin Ultra (roadmap)', year: 2027, tf: 8000, rackM: 5.5, kw: 230, mem: 1024, src: 'roadmap est' },
+  { id: 'feynman', vendor: 'NVIDIA', name: 'Feynman (roadmap)', year: 2028, tf: 16000, rackM: 7.5, kw: 300, mem: 2048, src: 'roadmap est' },
+  { id: 'gen9', vendor: 'NVIDIA', name: 'Gen 9 (projected)', year: 2030, tf: 30000, rackM: 9, kw: 380, mem: 4096, src: 'extrapolated' },
+  { id: 'gen10', vendor: 'NVIDIA', name: 'Gen 10 (projected)', year: 2032, tf: 60000, rackM: 11, kw: 450, mem: 8192, src: 'extrapolated' },
 ];
 
 const REGIONS = [
-  { id: 'us', name: 'US Southeast', power: 0.09, queue: 2, permit: 0.2 },
-  { id: 'tx', name: 'Texas Plains', power: 0.06, queue: 1, permit: 0.1 },
-  { id: 'nordic', name: 'Nordic Hydro', power: 0.04, queue: 3, permit: 0.15 },
+  { id: 'us', name: 'US Southeast', price: 80, queue: 3, permit: 0.2 },
+  { id: 'tx', name: 'Texas Plains', price: 55, queue: 2, permit: 0.1 },
+  { id: 'nordic', name: 'Nordic Hydro', price: 45, queue: 4, permit: 0.15 },
 ];
 
 const ROUNDS = [
@@ -52,10 +58,10 @@ const DEFAULT_MODS = { ap: 0, talent: 1, compute: 1, burn: 1, launch: 1, hype: 1
 const PATHS = {
   lab: {
     name: 'Academic Lab',
-    blurb: 'A university spinout. Brilliant people, thin wallet, lots of papers.',
+    blurb: 'A university spinout. Brilliant people, thin wallet, a rack of old P100s in the basement.',
     pros: ['Research multiplier from a strong team', 'Papers and open research build reputation'],
-    cons: ['Slow to ship products', 'Lower valuation multiple', 'Few clusters to train on'],
-    start: { cash: 6, researchers: 18, engineers: 3, sales: 0, fleet: { 1: 4 }, dcs: ['us'], data: 55, rep: 60, safety: 70, dist: 10, morale: 65, stake: 0.6 },
+    cons: ['Slow to ship products', 'Lower valuation multiple', 'Almost no compute'],
+    start: { cash: 10, researchers: 18, engineers: 3, sales: 0, fleet: { p100: 2 }, dcs: [{ region: 'us', mw: 5 }], data: 55, rep: 60, safety: 70, dist: 10, morale: 65, stake: 0.6 },
     mods: { talent: 1.3, launch: 1.3, hype: 0.9, openSource: 1.6, hire: 0.8 },
     goals: [
       { text: 'Train a flagship with capability 60 or higher', check: s => flagCapOf(s.me) >= 60 },
@@ -65,10 +71,10 @@ const PATHS = {
   },
   garage: {
     name: 'Garage Startup',
-    blurb: 'Two founders, one rented GPU, and a pitch deck that gets you meetings.',
+    blurb: 'Two founders, a cloud credit card, and a pitch deck that gets you meetings.',
     pros: ['Cheap launches', 'Investors love the hype', 'One extra action per year'],
     cons: ['Weak talent', 'No compute of their own', 'Tiny runway'],
-    start: { cash: 6, researchers: 3, engineers: 6, sales: 0, fleet: {}, dcs: [], data: 20, rep: 15, safety: 40, dist: 5, morale: 70, stake: 0.8 },
+    start: { cash: 5, researchers: 3, engineers: 6, sales: 0, fleet: {}, dcs: [], data: 20, rep: 15, safety: 40, dist: 5, morale: 70, stake: 0.8 },
     mods: { ap: 1, launch: 0.6, hype: 1.2, talent: 0.8, burn: 0.6 },
     goals: [
       { text: 'Launch 2 products', check: s => s.me.products.length >= 2 },
@@ -78,10 +84,10 @@ const PATHS = {
   },
   bigtech: {
     name: 'Big Tech Skunkworks',
-    blurb: 'A secret team inside a cloud giant. Unlimited budget, unlimited meetings.',
+    blurb: 'A secret team inside a cloud giant. The parent funds the datacenters. Meetings are unlimited.',
     pros: ['Huge allocation of scarce chips', 'Huge distribution', 'Deep bench of engineers'],
     cons: ['Parent takes 15% of revenue', 'Parent can veto open weights', 'Slow decisions'],
-    start: { cash: 90, researchers: 35, engineers: 40, sales: 10, fleet: { 1: 20, 3: 10 }, dcs: ['us', 'us', 'tx', 'tx'], data: 80, rep: 70, safety: 45, dist: 60, morale: 60, stake: 0.2 },
+    start: { cash: 3000, researchers: 35, engineers: 40, sales: 10, fleet: { p100: 300 }, dcs: [{ region: 'us', mw: 60 }, { region: 'tx', mw: 40 }], data: 80, rep: 70, safety: 45, dist: 60, morale: 60, stake: 0.2 },
     mods: { compute: 0.6, dist: 1.5, hype: 1.1, burn: 1.2, parent: 0.15, veto: true, gov: true, alloc: 2.5 },
     goals: [
       { text: 'Ship a chat product by 2020', check: s => (s.stats.launched.chat ?? 9999) <= 2020 },
@@ -94,7 +100,7 @@ const PATHS = {
     blurb: 'Volunteers, donors, and a Discord with 40,000 members. Your model is everywhere, your revenue is not.',
     pros: ['Massive goodwill', 'Open releases boost reputation and distribution', 'Donations every year'],
     cons: ['Tiny cash pile', 'Revenue penalty on closed products', 'Thin talent budget'],
-    start: { cash: 3, researchers: 12, engineers: 8, sales: 0, fleet: { 1: 2 }, dcs: ['nordic'], data: 45, rep: 50, safety: 55, dist: 35, morale: 70, stake: 0.9 },
+    start: { cash: 1, researchers: 12, engineers: 8, sales: 0, fleet: { p100: 4 }, dcs: [{ region: 'nordic', mw: 2 }], data: 45, rep: 50, safety: 55, dist: 35, morale: 70, stake: 0.9 },
     mods: { openSource: 2.5, revenue: 0.7, hire: 0.6, hype: 0.8, grants: 3, burn: 0.6 },
     goals: [
       { text: 'Open-source 2 models', check: s => s.stats.openReleases >= 2 },
@@ -104,13 +110,13 @@ const PATHS = {
   },
   hardware: {
     name: 'Chip and Datacenter',
-    blurb: 'You sell the shovels. Everyone else is panning for gold, so you get paid either way.',
-    pros: ['Leases clusters to others for revenue', 'Owns data center capacity early', 'Domestic chip access'],
+    blurb: 'You rent out the shovels. Everyone else is panning for gold, so you get paid either way.',
+    pros: ['Leases racks to others for revenue', 'Owns megawatts early', 'Domestic chip access'],
     cons: ['Weak research bench', 'Expensive launches', 'Low model hype'],
-    start: { cash: 60, researchers: 6, engineers: 25, sales: 10, fleet: { 1: 40, 2: 20 }, dcs: ['us', 'tx', 'nordic'], data: 15, rep: 25, safety: 30, dist: 10, morale: 60, stake: 0.7 },
+    start: { cash: 800, researchers: 6, engineers: 25, sales: 10, fleet: { p100: 400, v100: 200 }, dcs: [{ region: 'us', mw: 200 }, { region: 'tx', mw: 150 }, { region: 'nordic', mw: 100 }], data: 15, rep: 25, safety: 30, dist: 10, morale: 60, stake: 0.7 },
     mods: { compute: 0.7, talent: 0.6, launch: 1.3, hype: 0.9, lease: 0.5, gov: true, alloc: 1.5 },
     goals: [
-      { text: 'Own 200 clusters', check: s => totalClustersOf(s.me) >= 200 },
+      { text: 'Own 2,000 racks', check: s => totalRacksOf(s.me, 'owned') >= 2000 },
       { text: 'Reach $10B revenue in one year', check: s => s.me.revenue >= 10000 },
       { text: 'Ship a model product', check: s => s.me.products.length >= 1 },
     ],
@@ -120,7 +126,7 @@ const PATHS = {
     blurb: 'Software for machines that need hardware, budgets, and patience.',
     pros: ['Robotics unlocks early', 'Strong safety culture', 'Loyal team'],
     cons: ['Heavy burn', 'Chat and API markets are slow to reach', 'Long hardware cycles'],
-    start: { cash: 30, researchers: 15, engineers: 18, sales: 2, fleet: { 1: 10 }, dcs: ['us'], data: 35, rep: 35, safety: 60, dist: 8, morale: 65, stake: 0.75 },
+    start: { cash: 40, researchers: 15, engineers: 18, sales: 2, fleet: { p100: 40 }, dcs: [{ region: 'us', mw: 10 }], data: 35, rep: 35, safety: 60, dist: 8, morale: 65, stake: 0.75 },
     mods: { burn: 1.3, unlock: { robots: 70 } },
     goals: [
       { text: 'Launch a robotics product', check: s => s.me.products.includes('robots') },
@@ -131,24 +137,77 @@ const PATHS = {
 };
 
 const RIVAL_TEMPLATES = [
-  { id: 'meridian', name: 'Meridian Research', type: 'Nonprofit lab turned capped-profit', founded: 2015, cash: 400, researchers: 40, engineers: 40, sales: 5, fleet: { 1: 15, 2: 10 }, data: 70, rep: 85, safety: 60, dist: 40, morale: 70, growth: 0.5, growthRes: 0.08, targets: ['chat', 'api', 'agents', 'science'], mods: { talent: 1.15, noMW: true } },
-  { id: 'nimbus', name: 'Nimbus Cloud AI', type: 'Big tech division', founded: 2016, cash: 5000, researchers: 60, engineers: 200, sales: 80, fleet: { 1: 20, 2: 20, 3: 10 }, data: 90, rep: 75, safety: 50, dist: 90, morale: 60, growth: 0.4, growthRes: 0.03, targets: ['chat', 'api', 'code', 'media', 'agents'], mods: { compute: 0.8, parent: 0.05, gov: true, alloc: 2.5, noMW: true } },
-  { id: 'ferro', name: 'Ferro Silicon', type: 'Chipmaker', founded: 2016, cash: 2000, researchers: 20, engineers: 300, sales: 60, fleet: { 1: 40, 2: 30 }, data: 20, rep: 55, safety: 40, dist: 30, morale: 60, growth: 0.25, growthRes: 0.02, targets: [], mods: { compute: 0.7, talent: 0.3, lease: 0.5, gov: true, noMW: true } },
-  { id: 'kestrel', name: 'Kestrel Search', type: 'Search startup', founded: 2017, cash: 60, researchers: 15, engineers: 15, sales: 10, fleet: { 1: 8 }, data: 40, rep: 40, safety: 35, dist: 45, morale: 60, growth: 0.4, growthRes: 0.1, targets: ['chat', 'api'], mods: { talent: 0.95, noMW: true } },
-  { id: 'dendra', name: 'Dendra Robotics', type: 'Robotics startup', founded: 2018, cash: 120, researchers: 25, engineers: 40, sales: 4, fleet: { 1: 15 }, data: 40, rep: 35, safety: 55, dist: 15, morale: 65, growth: 0.3, growthRes: 0.06, targets: ['robots'], mods: { talent: 0.95, noMW: true } },
-  { id: 'ledger', name: 'Ledger Health', type: 'Science startup', founded: 2019, cash: 50, researchers: 15, engineers: 10, sales: 4, fleet: { 1: 10 }, data: 60, rep: 45, safety: 50, dist: 15, morale: 60, growth: 0.35, growthRes: 0.08, targets: ['science', 'api'], mods: { talent: 0.9, noMW: true } },
-  { id: 'quorum', name: 'Quorum Labs', type: 'Open-weights lab', founded: 2019, cash: 150, researchers: 30, engineers: 25, sales: 10, fleet: { 1: 20 }, data: 60, rep: 70, safety: 45, dist: 35, morale: 70, growth: 0.3, growthRes: 0.08, targets: ['api', 'chat', 'code'], mods: { talent: 1.0, noMW: true } },
-  { id: 'halcyon', name: 'Halcyon AI', type: 'Safety-first lab', founded: 2021, cash: 800, researchers: 60, engineers: 40, sales: 15, fleet: { 1: 40 }, data: 65, rep: 70, safety: 90, dist: 30, morale: 75, growth: 0.45, growthRes: 0.08, targets: ['api', 'chat', 'agents'], mods: { talent: 1.05, noMW: true } },
-  { id: 'pixelmind', name: 'Pixelmind', type: 'Media startup', founded: 2021, cash: 120, researchers: 20, engineers: 20, sales: 6, fleet: { 1: 15 }, data: 70, rep: 40, safety: 40, dist: 30, morale: 65, growth: 0.45, growthRes: 0.1, targets: ['media'], mods: { talent: 1.1, noMW: true } },
-  { id: 'stackforge', name: 'Stackforge', type: 'Coding tools startup', founded: 2022, cash: 150, researchers: 15, engineers: 30, sales: 8, fleet: { 1: 15 }, data: 60, rep: 40, safety: 40, dist: 25, morale: 65, growth: 0.5, growthRes: 0.1, targets: ['code', 'agents'], mods: { talent: 1.1, noMW: true } },
+  {
+    id: 'openai', name: 'OpenAI', type: 'Frontier lab (capped-profit)', real: true, founded: 2015, cash: 120, researchers: 25, engineers: 15, sales: 5,
+    fleet: { p100: 40 }, dcs: [{ region: 'us', mw: 5 }], data: 70, rep: 80, safety: 65, dist: 30, morale: 70, growth: 0.6, growthRes: 0.1,
+    targets: ['chat', 'api', 'code'], mods: { talent: 1.2, noMW: true },
+    anchors: {
+      val: { 2016: 1500, 2019: 25000, 2021: 20000, 2023: 29000, 2024: 157000, 2025: 500000, 2026: 1250000 },
+      rev: { 2022: 200, 2023: 2000, 2024: 6000, 2025: 13100, 2026: 50000 },
+    },
+  },
+  {
+    id: 'nvidia', name: 'NVIDIA', type: 'Chipmaker (public)', real: true, founded: 1993, cash: 2000, researchers: 20, engineers: 500, sales: 300,
+    fleet: { p100: 50 }, dcs: [], data: 20, rep: 80, safety: 50, dist: 60, morale: 75, growth: 0.25, growthRes: 0.02,
+    targets: [], mods: { compute: 0.7, talent: 0.3, lease: 0.5, gov: true, noMW: true, hype: 1.1 },
+    anchors: { val: { 2016: 57530, 2017: 117270, 2018: 81420, 2019: 144020, 2020: 323240, 2021: 735270, 2022: 364180, 2023: 1220000, 2024: 3288000, 2025: 4638000, 2026: 3932000 } },
+  },
+  {
+    id: 'anthropic', name: 'Anthropic', type: 'Frontier lab (PBC)', real: true, founded: 2021, cash: 80, researchers: 12, engineers: 6, sales: 2,
+    fleet: {}, dcs: [], data: 60, rep: 70, safety: 85, dist: 25, morale: 75, growth: 0.6, growthRes: 0.12,
+    targets: ['chat', 'api', 'code', 'agents'], mods: { talent: 1.1, noMW: true },
+    anchors: {
+      val: { 2021: 4000, 2023: 18400, 2024: 40000, 2025: 183000, 2026: 965000 },
+      rev: { 2023: 500, 2024: 1000, 2025: 10000, 2026: 47000 },
+    },
+  },
+  {
+    id: 'xai', name: 'xAI', type: 'Frontier lab (part of SpaceX from 2026)', real: true, founded: 2023, cash: 50, researchers: 10, engineers: 20, sales: 2,
+    fleet: {}, dcs: [], data: 60, rep: 50, safety: 35, dist: 30, morale: 65, growth: 0.7, growthRes: 0.12,
+    targets: ['chat', 'api'], mods: { talent: 1.05, noMW: true },
+    anchors: { val: { 2023: 18000, 2024: 24000, 2025: 113000, 2026: 250000 } },
+  },
+  {
+    id: 'mistral', name: 'Mistral AI', type: 'Open-weights lab (EU)', real: true, founded: 2023, cash: 30, researchers: 15, engineers: 15, sales: 4,
+    fleet: { a100: 20 }, dcs: [{ region: 'nordic', mw: 10 }], data: 55, rep: 60, safety: 50, dist: 25, morale: 70, growth: 0.5, growthRes: 0.08,
+    targets: ['api', 'chat', 'code'], mods: { talent: 1.0, noMW: true, openSource: 2 },
+    anchors: { val: { 2023: 2000, 2024: 6200, 2025: 14000, 2026: 24400 }, rev: { 2026: 1000 } },
+  },
+  {
+    id: 'ssi', name: 'Safe Superintelligence', type: 'Research lab (no product planned)', real: true, founded: 2024, cash: 1000, researchers: 20, engineers: 5, sales: 0,
+    fleet: { h100: 10 }, dcs: [{ region: 'us', mw: 20 }], data: 60, rep: 60, safety: 90, dist: 5, morale: 70, growth: 0.5, growthRes: 0.1,
+    targets: [], mods: { talent: 1.2, noMW: true },
+    anchors: { val: { 2024: 5000, 2025: 32000, 2026: 32000 } },
+  },
+  {
+    id: 'tml', name: 'Thinking Machines Lab', type: 'Research lab and platform', real: true, founded: 2025, cash: 2000, researchers: 40, engineers: 20, sales: 3,
+    fleet: { h100: 40 }, dcs: [{ region: 'us', mw: 30 }], data: 55, rep: 60, safety: 60, dist: 15, morale: 70, growth: 0.6, growthRes: 0.1,
+    targets: ['api', 'code', 'agents'], mods: { talent: 1.15, noMW: true },
+    anchors: { val: { 2025: 12000, 2026: 40000 }, rev: { 2026: 200 } },
+  },
+  {
+    id: 'gdm', name: 'Google DeepMind (simulated)', type: 'Big tech AI division', real: false, founded: 2016, cash: 8000, researchers: 150, engineers: 300, sales: 200,
+    fleet: { p100: 300 }, dcs: [{ region: 'us', mw: 200 }], data: 90, rep: 80, safety: 70, dist: 90, morale: 65, growth: 0.15, growthRes: 0.02,
+    targets: ['chat', 'science'], mods: { talent: 1.2, compute: 0.8, parent: 0.05, gov: true, alloc: 1.2, noMW: true, hype: 0.15 },
+  },
+  {
+    id: 'meta', name: 'Meta AI (simulated)', type: 'Big tech AI division', real: false, founded: 2016, cash: 6000, researchers: 120, engineers: 400, sales: 100,
+    fleet: { p100: 250 }, dcs: [{ region: 'us', mw: 150 }], data: 85, rep: 70, safety: 50, dist: 85, morale: 65, growth: 0.15, growthRes: 0.02,
+    targets: ['media'], mods: { talent: 1.1, compute: 0.8, openSource: 1.5, alloc: 1.2, noMW: true, hype: 0.15 },
+  },
+  {
+    id: 'msft', name: 'Microsoft AI (simulated)', type: 'Big tech AI division', real: false, founded: 2016, cash: 10000, researchers: 80, engineers: 500, sales: 500,
+    fleet: { p100: 300 }, dcs: [{ region: 'us', mw: 150 }], data: 85, rep: 75, safety: 55, dist: 90, morale: 60, growth: 0.15, growthRes: 0.02,
+    targets: ['api', 'code'], mods: { talent: 1.0, compute: 0.8, parent: 0.05, gov: true, alloc: 1.2, noMW: true, hype: 0.15 },
+  },
 ];
 
 const STARS = [
-  { id: 's1', name: 'Ines Varga', ability: 1.6, owner: 'meridian' },
-  { id: 's2', name: 'Kenji Morrow', ability: 1.4, owner: 'meridian' },
-  { id: 's3', name: 'Amara Osei', ability: 1.5, owner: 'nimbus' },
-  { id: 's4', name: 'Lukas Brandt', ability: 1.3, owner: 'halcyon' },
-  { id: 's5', name: 'Priya Sundaram', ability: 1.7, owner: 'halcyon' },
+  { id: 's1', name: 'Ines Varga', ability: 1.6, owner: 'openai' },
+  { id: 's2', name: 'Kenji Morrow', ability: 1.4, owner: 'openai' },
+  { id: 's3', name: 'Amara Osei', ability: 1.5, owner: 'gdm' },
+  { id: 's4', name: 'Lukas Brandt', ability: 1.3, owner: 'anthropic' },
+  { id: 's5', name: 'Priya Sundaram', ability: 1.7, owner: 'anthropic' },
   { id: 's6', name: 'Tomas Ruiz', ability: 1.2, owner: null },
   { id: 's7', name: 'Hana Lindqvist', ability: 1.4, owner: null },
   { id: 's8', name: 'Ravi Mehta', ability: 1.3, owner: null },
