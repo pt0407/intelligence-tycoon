@@ -4,11 +4,12 @@
   const pct = v => `${Math.round(v * 100)}%`;
   const bar = (v, max = 100, cls = '') => `<div class="bar ${cls}"><i style="width:${clamp(v / max * 100, 0, 100)}%"></i></div>`;
   const chip = (label, value, cls = '', sub = '') => `<div class="chip"><span>${label}</span><b class="${cls}">${value}</b>${sub ? `<small>${sub}</small>` : ''}</div>`;
+  const chipN = (label, key, num, cls = '', sub = '') => `<div class="chip"><span>${label}</span><b class="${cls}" data-key="${key}" data-num="${num}">${money(num)}</b>${sub ? `<small>${sub}</small>` : ''}</div>`;
   const row = (label, value) => `<div class="row"><span>${label}</span><b>${value}</b></div>`;
   const card = (title, body) => `<section class="card"><h3>${title}</h3>${body}</section>`;
   const costTag = c => (c > 0 ? `<i class="cost">-${money(c)}</i>` : c < 0 ? `<i class="cost gain">+${money(-c)}</i>` : '<i class="cost">free</i>');
-  const TABS = [['overview', 'Overview'], ['hardware', 'Hardware'], ['research', 'Research'], ['talent', 'Talent'], ['products', 'Products'], ['finance', 'Finance'], ['policy', 'Policy'], ['rivals', 'Rivals'], ['market', 'Market'], ['log', 'Log']];
-  const TAB_GROUPS = { hardware: ['Compute'], research: ['Research'], talent: ['Talent'], products: ['Products'], finance: ['Finance'], policy: ['Policy'], rivals: ['Rivals'] };
+  const TABS = [['overview', 'Overview'], ['hardware', 'Hardware'], ['research', 'Research'], ['talent', 'Talent'], ['products', 'Products'], ['finance', 'Finance'], ['policy', 'Policy'], ['rivals', 'Rivals'], ['deals', 'Deals'], ['market', 'Market'], ['log', 'Log']];
+  const TAB_GROUPS = { hardware: ['Compute'], research: ['Research'], talent: ['Talent'], products: ['Products'], finance: ['Finance'], policy: ['Policy'], rivals: ['Rivals'], deals: ['Deals'] };
   const REG_NAMES = ['None', 'Voluntary guidelines', 'Binding rules', 'Licensing regime'];
   const SRC = 'docs/research.md';
 
@@ -52,6 +53,71 @@
     return `<section class="runs"><h3>Recent runs</h3><ol>${runs.map(r => `<li><b>${esc(r.name)}</b> <span class="muted">${esc(r.path)} · ${esc(r.scenario)}</span><span class="run-result">${esc(r.title)}, #${r.rank} of ${r.of}, ${money(r.valuation)}, ${r.goals}/${r.goalTotal} objectives</span><small class="muted">${r.at}</small></li>`).join('')}</ol><button class="ghost" id="clear-runs">Clear history</button></section>`;
   }
 
+  const prevNums = {};
+  const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function resetFx() { for (const k of Object.keys(prevNums)) delete prevNums[k]; }
+
+  function flash(el, dir, delta) {
+    const tag = document.createElement('em');
+    tag.className = `delta ${dir}`;
+    tag.textContent = `${delta > 0 ? '+' : '−'}${money(Math.abs(delta))}`;
+    el.parentElement.appendChild(tag);
+    setTimeout(() => tag.remove(), 1100);
+  }
+
+  function animateTop() {
+    document.querySelectorAll('#top b[data-key]').forEach(el => {
+      const key = el.dataset.key, to = Number(el.dataset.num), from = key in prevNums ? prevNums[key] : to;
+      prevNums[key] = to;
+      if (from === to) return;
+      if (key === 'valuation') flash(el, to > from ? 'up' : 'down', to - from);
+      if (reduceMotion()) return;
+      const t0 = performance.now(), dur = 700;
+      const step = now => {
+        const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+        el.textContent = money(from + (to - from) * e);
+        if (k < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
+  }
+
+  function toast(title, text) {
+    const box = $('#toasts');
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.innerHTML = `<b>${esc(title)}</b><span>${esc(text)}</span>`;
+    box.appendChild(el);
+    setTimeout(() => el.remove(), 4800);
+  }
+
+  function burst() {
+    if (reduceMotion()) return;
+    const fx = $('#fx'), colors = ['#9ee8ff', '#6ee7b7', '#fcd34d', '#f9a8d4'];
+    for (let i = 0; i < 22; i++) {
+      const p = document.createElement('i');
+      p.style.setProperty('--x', `${(Math.random() - 0.5) * 70}vw`);
+      p.style.setProperty('--r', `${Math.round(Math.random() * 540)}deg`);
+      p.style.setProperty('--c', colors[i % colors.length]);
+      p.style.animationDelay = `${(Math.random() * 0.12).toFixed(2)}s`;
+      fx.appendChild(p);
+    }
+    setTimeout(() => { fx.innerHTML = ''; }, 1700);
+  }
+
+  function nextCard() {
+    const n = nextAchievement(S);
+    if (!n) return card('Next milestone', '<p class="muted">Every milestone is unlocked.</p>');
+    const pct = clamp(n.value / n.target * 100, 0, 100);
+    return card('Next milestone', `<div class="next"><b>${esc(n.title)}</b><span class="muted">${esc(n.text)}</span><div class="bar good" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct.toFixed(1)}%"></i></div><small class="muted">${esc(n.label)}</small></div>`);
+  }
+
+  function achievementsCard() {
+    const got = S.achievements ?? {};
+    const n = Object.keys(got).length;
+    return card(`Achievements ${n} of ${ACHIEVEMENTS.length}`, `<ul class="achs">${ACHIEVEMENTS.map(a => `<li class="${a.id in got ? 'on' : ''}"><b>${esc(a.title)}</b><small>${esc(a.text)}</small></li>`).join('')}</ul>`);
+  }
+
   function renderStart() {
     showScreen('start');
     $('#start').innerHTML = `
@@ -86,8 +152,8 @@
       <div class="year">${S.year}</div>
       <div class="timeline"><i style="width:${(S.year - START_YEAR) / (END_YEAR - START_YEAR) * 100}%"></i></div>
       <div class="chips">
-        ${chip('Cash', money(me.cash), me.cash < 0 ? 'bad' : '', `runway ${runway}`)}
-        ${chip(me.public ? 'Market cap' : 'Valuation', money(me.valuation), '', me.public ? `IPO ${me.ipoYear}` : 'private')}
+        ${chipN('Cash', 'cash', me.cash, me.cash < 0 ? 'bad' : '', `runway ${runway}`)}
+        ${chipN(me.public ? 'Market cap' : 'Valuation', 'valuation', me.valuation, '', me.public ? `IPO ${me.ipoYear}` : 'private')}
         ${chip('Rank', `#${rank} of ${board.length}`)}
         ${chip('Net worth', money(me.valuation * me.stake), '', `${pct(me.stake)} stake`)}
         ${chip('Power', power, '', `${totalRacksOf(me)} racks`)}
@@ -124,6 +190,8 @@
           <h3 class="sub">Products</h3><div class="tags">${me.products.length ? me.products.map(sid => `<span class="tag">${SEGMENTS[sid].name}</span>`).join('') : '<span class="muted">None launched</span>'}</div>`)}
         ${card('Last year', `${row('Revenue', money(me.revenue))}${row('Inference costs', money(me.cogs))}${row('Operating costs', money(costs))}${row('Net cash', money(me.net))}`)}
         ${card('Leaderboard', `<ol class="board">${board.slice(0, 10).map((c, i) => `<li class="${c === me ? 'me' : ''}"><span>${i + 1}. ${esc(c.name)}${c.real ? ' <small class="muted">real</small>' : ''}</span><b>${money(c.valuation)}</b></li>`).join('')}</ol>`)}
+        ${nextCard()}
+        ${achievementsCard()}
         ${card('Objectives', `<ul class="objs-list">${PATHS[S.path].goals.map((g, i) => `<li class="${i in S.goalsDone ? 'done' : ''}">${esc(g.text)}<small>${i in S.goalsDone ? `Done in ${S.goalsDone[i]}` : 'Open'}</small></li>`).join('')}</ul>`)}
         ${card('Valuation history', historyChart())}
         ${card('Latest news', `<ul class="log">${S.log.slice(-8).reverse().map(l => `<li><b>${l.year}</b>${esc(l.text)}</li>`).join('')}</ul>`)}
@@ -213,6 +281,16 @@
         <p class="muted">Out of the race: ${S.rivals.filter(r => r.status === 'dead' || r.status === 'acquired').map(r => esc(r.name)).join(', ') || 'none yet'}.</p>`;
     }
 
+    if (tab === 'deals') {
+      const kind = { acquire: 'Acquisition', acquihire: 'Acquihire', buycompute: 'Racks' };
+      const pend = S.deals.filter(d => d.status === 'pending'), past = S.deals.filter(d => d.status !== 'pending').slice(-10).reverse();
+      html = `<div class="grid2">
+        ${card('In flight', pend.map(d => row(`${esc(d.name)} · ${kind[d.type]}`, `closes ${d.closeYear} · ${money(d.price)}`)).join('') || '<p class="muted">No deals in flight. Sign one below.</p>')}
+        ${card('Closed and failed', past.map(d => row(`${esc(d.name)} · ${kind[d.type]}`, `${d.status} ${d.closeYear}`)).join('') || '<p class="muted">Nothing has closed yet.</p>')}
+        ${card('Deal options', `<p class="muted">Each deal is paid now and closes next year. Antitrust review blocks a deal when you and the target both sell in the same segment and hold more than 40 percent of it.</p>${acts(mine)}`)}
+      </div>`;
+    }
+
     if (tab === 'market') {
       html = `<div class="grid2">
         ${card('Logos and credits', `<div class="credits">${[['anthropic', 'Anthropic', 'Public domain, via Wikimedia Commons'], ['deepseek', 'DeepSeek', 'MIT, via Wikimedia Commons'], ['mistral', 'Mistral AI', 'Public domain, via Wikimedia Commons'], ['nvidia', 'NVIDIA', 'Apache-2.0, per Wikimedia Commons metadata']].map(([k, n, l]) => `<div class="credit"><img src="${LOGOS[k]}" alt="${n} logo"><small>${n}. ${l}.</small></div>`).join('')}</div><p class="muted">Logos are trademarks of their owners and are shown only to identify the companies.</p>`)}
@@ -276,11 +354,20 @@
     showScreen('game');
     opts = Engine.options(S);
     renderTop();
+    animateTop();
     $('#tabs').innerHTML = TABS.map(([id, label]) => `<button class="tab${id === tab ? ' on' : ''}" data-tab="${id}">${label}</button>`).join('');
     renderTab();
   }
 
+  function celebrate(r) {
+    for (const a of r.unlocked ?? []) toast('Achievement unlocked', `${a.title}: ${a.text}`);
+    const first = r.after.rank === 1 && r.before.rank !== 1;
+    if (first) toast('Number one', 'You are now the most valuable AI company in the game.');
+    if (first || (r.unlocked ?? []).some(a => ['ipo', 'rank-one', 'hectocorn'].includes(a.id))) burst();
+  }
+
   function showReport(r, over) {
+    celebrate(r);
     const b = r.before, a = r.after;
     const row2 = (label, from, to) => `<div class="rrow"><span>${label}</span><b>${from ? `${from} → ${to}` : to}</b></div>`;
     $('#modal').innerHTML = `<div class="modal">
@@ -364,9 +451,10 @@
   }
 
   function saveGame() { try { localStorage.setItem('it-save', JSON.stringify(S)); } catch (e) { } }
-  function loadGame() { const raw = localStorage.getItem('it-save'); if (!raw) return false; S = JSON.parse(raw); tab = 'overview'; renderGame(); return true; }
+  function loadGame() { resetFx(); const raw = localStorage.getItem('it-save'); if (!raw) return false; S = JSON.parse(raw); tab = 'overview'; renderGame(); return true; }
 
   function newGame() {
+    resetFx();
     const seed = Math.floor(Math.random() * 1e9) + 1;
     S = Engine.newGame(pathId, (companyName || '').trim().slice(0, 28) || 'Untitled AI', seed, scenarioId);
     tab = 'overview';

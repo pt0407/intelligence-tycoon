@@ -387,3 +387,34 @@ button:focus-visible, input:focus-visible, .path:focus-visible, .scen:focus-visi
 .banner figcaption span { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; margin-right: 6px; color: var(--ink-2); }
 .start > .banner { max-width: 100%; }
 @media (max-width: 640px) { .banner img { height: 120px; } }
+
+/* Feedback: count-ups, deltas, toasts and one celebration. Transform and opacity only. */
+.chip { position: relative; }
+.delta { position: absolute; top: 6px; right: 10px; font-style: normal; font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; pointer-events: none; animation: delta-rise 1.05s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.delta.up { color: var(--up); }
+.delta.down { color: var(--down); }
+@keyframes delta-rise { 0% { opacity: 0; transform: translateY(6px); } 15% { opacity: 1; } 100% { opacity: 0; transform: translateY(-16px); } }
+
+.toasts { position: fixed; top: 16px; right: 16px; z-index: 40; display: flex; flex-direction: column; gap: 10px; width: min(340px, calc(100vw - 32px)); pointer-events: none; }
+.toast { display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; border-radius: 16px; background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.05)); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); border: 1px solid rgba(158, 232, 255, 0.4); box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 16px 40px -20px rgba(0,0,0,0.7); animation: toast-in 380ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.toast b { font-size: 12px; color: var(--accent); font-weight: 600; }
+.toast span { font-size: 12px; color: var(--ink); line-height: 1.4; }
+@keyframes toast-in { from { opacity: 0; transform: translateX(14px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+.fx { position: fixed; inset: 0; z-index: 50; pointer-events: none; overflow: hidden; }
+.fx i { position: absolute; top: 42%; left: 50%; width: 8px; height: 13px; border-radius: 2px; background: var(--c); opacity: 0; animation: burst 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes burst { 0% { opacity: 1; transform: translate(0, 0) rotate(0deg); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x), 70vh) rotate(var(--r)); } }
+
+.next { display: flex; flex-direction: column; gap: 6px; }
+.next b { font-size: 14px; }
+.next .bar { height: 6px; margin: 6px 0 2px; }
+.achs { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.achs li { border: 1px solid var(--row); border-radius: 12px; padding: 9px 11px; display: flex; flex-direction: column; gap: 3px; opacity: 0.5; transition: opacity 240ms ease-out, border-color 240ms ease-out; }
+.achs li.on { opacity: 1; border-color: rgba(110, 231, 183, 0.55); }
+.achs li.on b::before { content: "\2713  "; color: var(--up); }
+.achs b { font-size: 12px; font-weight: 600; }
+.achs small { color: var(--ink-3); font-size: 11px; line-height: 1.35; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fx, .delta, .toast { display: none; }
+}

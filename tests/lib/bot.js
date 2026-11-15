@@ -24,7 +24,8 @@ function makeBot(E) {
       () => (s.me.products.length >= 2 && s.me.pricing === 'standard' && s.me.cash > 60 ? direct('tier:premium') : null),
       () => (s.me.cash > 30 ? direct('sprint') : null),
       () => (s.me.cash > 60 ? direct('star') : null),
-      () => (s.me.cash > 300 ? direct('acquire') : null),
+      () => (s.me.cash > 300 ? opts().find(o => o.key.startsWith('acquire:') && !o.locked) || null : null),
+      () => (s.me.cash > 150 ? opts().find(o => o.key.startsWith('buycompute:') && !o.locked) || null : null),
       () => (s.me.cash > 60 ? direct('brand') : null),
     ];
     let progressed = true, guard = 0;

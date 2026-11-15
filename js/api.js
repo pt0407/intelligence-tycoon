@@ -14,7 +14,7 @@ function newGame(pathId, name, seed = 1, scenario = 'base') {
   const s = {
     year: START_YEAR, path: pathId, scenario, w, me, rivals, stars: STARS.map(x => ({ ...x })), ap: AP_PER_YEAR + me.mods.ap,
     stats: { papers: 0, rounds: 0, openReleases: 0, profitYears: 0, launched: {}, ipo: 0 },
-    goalsDone: {}, log: [{ year: START_YEAR, text: `${name} is founded as a ${p.name.toLowerCase()}.` }], history: [], rs: seed, over: false, verdict: null,
+    goalsDone: {}, achievements: {}, deals: [], log: [{ year: START_YEAR, text: `${name} is founded as a ${p.name.toLowerCase()}.` }], history: [], rs: seed, over: false, verdict: null,
   };
   syncStars(s);
   for (const c of active(s)) { c.valuation = valuationOf(c, w); applyHistory(s, c); }

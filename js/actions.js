@@ -111,27 +111,35 @@ const ACTIONS = [
     run: (s, rid) => { const r = companyById(s, rid), p = clamp(0.35 + (s.me.rep - r.rep) / 200, 0.1, 0.9); if (rand(s) >= p) return `Offers to ${r.name}'s researchers were turned down.`; s.me.researchers += 3; r.researchers -= 3; return `Poached 3 researchers from ${r.name}.`; },
   },
   {
-    id: 'acquire', each: 'rival', group: 'Rivals', name: (s, rid) => `Acquire for ${money(acqPrice(s, rid))}`, desc: 'Cash first, the rest in stock. Gets their team, racks and products.',
+    id: 'acquire', each: 'rival', group: 'Deals', name: (s, rid) => `Buy ${companyById(s, rid).name} for ${money(acqPrice(s, rid))}`,
+    desc: 'Cash now, the rest in stock. Closes next year. Brings their team, racks and products, and a morale hit from integration.',
     cost: (s, rid) => Math.min(Math.max(0, s.me.cash), acqPrice(s, rid)),
-    check: (s, rid) => {
-      const r = companyById(s, rid), price = acqPrice(s, rid), stock = price - Math.min(Math.max(0, s.me.cash), price);
-      return antitrustBlocks(s, r) ? 'Antitrust review would block this deal' : r.valuation > 1.5 * s.me.valuation ? 'Too big to buy' : s.me.stake * (1 - stock / s.me.valuation) < 0.1 ? 'Would dilute you below 10%' : null;
-    },
-    run: (s, rid) => {
-      const r = companyById(s, rid), price = acqPrice(s, rid), stock = price - Math.min(Math.max(0, s.me.cash), price), m = s.me;
-      m.stake *= 1 - stock / m.valuation;
-      r.status = 'acquired';
-      m.researchers += r.researchers; m.engineers += r.engineers; m.sales += r.sales;
-      for (const [g, n] of Object.entries(r.fleet)) m.fleet[g] = (m.fleet[g] ?? 0) + n;
-      for (const sid of r.products) if (!m.products.includes(sid)) { m.products.push(sid); s.stats.launched[sid] = s.stats.launched[sid] ?? s.year; }
-      return `Acquired ${r.name}.`;
-    },
+    check: (s, rid) => dealBlock(s, rid) ?? (companyById(s, rid).valuation > 1.5 * s.me.valuation ? 'Too big to buy' : null) ?? (s.me.stake * (1 - Math.max(0, acqPrice(s, rid) - Math.max(0, s.me.cash)) / s.me.valuation) < 0.1 ? 'Would dilute you below 10%' : null),
+    run: (s, rid) => scheduleDeal(s, 'acquire', companyById(s, rid), acqPrice(s, rid)),
+  },
+  {
+    id: 'acquihire', each: 'rival', group: 'Deals', name: (s, rid) => `Acquihire ${companyById(s, rid).name}'s team for ${money(acquihirePrice(s, rid))}`,
+    desc: 'Their researchers join you next year. Products and racks stay with the company.',
+    cost: (s, rid) => Math.min(Math.max(0, s.me.cash), acquihirePrice(s, rid)),
+    check: (s, rid) => dealBlock(s, rid) ?? (companyById(s, rid).researchers < 5 ? 'Team too small to bother' : null),
+    run: (s, rid) => scheduleDeal(s, 'acquihire', companyById(s, rid), acquihirePrice(s, rid)),
+  },
+  {
+    id: 'buycompute', each: 'rival', group: 'Deals', name: (s, rid) => `Buy ${companyById(s, rid).name}'s racks for ${money(computePrice(s, rid))}`,
+    desc: 'Their fleet joins you next year at 80 percent of rack value. The company keeps its team and products.',
+    cost: (s, rid) => Math.min(Math.max(0, s.me.cash), computePrice(s, rid)),
+    check: (s, rid) => dealBlock(s, rid) ?? (sumVals(companyById(s, rid).fleet) < 1 ? 'No owned racks to buy' : null) ?? (capacityMW(s.me) - ownedMW(s.me) < fleetMW(companyById(s, rid)) ? 'Needs free megawatts for these racks' : null),
+    run: (s, rid) => scheduleDeal(s, 'buycompute', companyById(s, rid), computePrice(s, rid)),
   },
 ];
 
 function rackFleetValue(c, s) { return 0.3 * clusterValue(c, s); }
 function clusterValue(c, s) { return Object.entries(c.fleet).reduce((t, [id, n]) => t + n * rackPrice(s, platOf(c, id)), 0); }
 function acqPrice(s, rid) { const r = companyById(s, rid); return r.valuation * 0.9 * r.discount; }
+function acquihirePrice(s, rid) { return companyById(s, rid).researchers * 1.2; }
+function computePrice(s, rid) { return clusterValue(companyById(s, rid), s) * 0.8; }
+function fleetMW(c) { return Object.entries(c.fleet).reduce((t, [id, n]) => t + n * platOf(c, id).kw / 1000, 0); }
+function dealBlock(s, rid) { return antitrustBlocks(s, companyById(s, rid)) ? 'Antitrust review would block this deal' : null; }
 
 function targetsOf(a, s) {
   return {

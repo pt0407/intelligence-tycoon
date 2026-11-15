@@ -138,6 +138,13 @@ describe('after 2026', () => {
   });
 });
 
+describe('every game is different', () => {
+  test('two seeds give different real-company paths after 2026', () => {
+    const run = seed => { const s = E.newGame('lab', 'T', seed); while (s.year <= 2030 && !s.over) E.endYear(s); return E.companyById(s, 'nvidia').valuation; };
+    assert.notEqual(run(1), run(2));
+  });
+});
+
 describe('finance and failure', () => {
   test('a company that runs out of cash with no value goes bankrupt', () => {
     const s = E.newGame('garage', 'T', 1);

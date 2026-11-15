@@ -53,13 +53,43 @@ function attrition(c) {
   return lost;
 }
 
+function scheduleDeal(s, type, r, price) {
+  const paid = Math.min(Math.max(0, s.me.cash), price);
+  if (type === 'acquire') s.me.stake *= 1 - (price - paid) / s.me.valuation;
+  r.status = 'pending';
+  s.deals.push({ type, target: r.id, name: r.name, price, paid, closeYear: s.year + 1, status: 'pending' });
+  return `Signed a deal for ${r.name}. Closes in ${s.year + 1}.`;
+}
+
+function closeDeals(s, news) {
+  for (const d of s.deals.filter(x => x.status === 'pending' && x.closeYear <= s.year)) {
+    const r = companyById(s, d.target), m = s.me;
+    if (!r || r.status !== 'pending') { d.status = 'failed'; m.cash += d.paid; news.push(`The ${d.name} deal falls through. Cash is returned.`); continue; }
+    d.status = 'closed';
+    if (d.type === 'buycompute') {
+      for (const [g, n] of Object.entries(r.fleet)) m.fleet[g] = (m.fleet[g] ?? 0) + n;
+      r.fleet = {}; r.status = 'active';
+      news.push(`Racks from ${d.name} are now in your fleet.`);
+      continue;
+    }
+    m.researchers += r.researchers;
+    m.morale = clamp(m.morale - (d.type === 'acquire' ? 8 : 3), 0, 100);
+    if (d.type === 'acquihire') { r.researchers = 0; r.status = 'dead'; news.push(`${d.name} winds down after its team joins you.`); continue; }
+    m.engineers += r.engineers; m.sales += r.sales;
+    for (const [g, n] of Object.entries(r.fleet)) m.fleet[g] = (m.fleet[g] ?? 0) + n;
+    for (const sid of r.products) if (!m.products.includes(sid)) { m.products.push(sid); s.stats.launched[sid] = s.stats.launched[sid] ?? s.year; }
+    r.status = 'acquired';
+    news.push(`Acquisition of ${d.name} closes. Integration costs morale.`);
+  }
+}
+
 function ipoReady(s, c) { return !c.public && c.execs.cfo && c.revenue >= 500 && s.w.index >= 100 && c.rounds.length >= 2; }
 
 function antitrustBlocks(s, target) {
   return Object.keys(SEGMENTS).some(sid => {
     const tot = active(s).filter(c => c.products.includes(sid)).reduce((t, c) => t + weightOf(c), 0);
     const mine = [s.me, target].filter(c => c.products.includes(sid)).reduce((t, c) => t + weightOf(c), 0);
-    return tot > 0 && mine / tot > 0.4;
+    return s.me.products.includes(sid) && target.products.includes(sid) && tot > 0 && mine / tot > 0.4;
   });
 }
 
@@ -85,7 +115,7 @@ function aiTurn(s, r, news) {
   if (!r.training && totalRacksOf(r) > 0) r.training = r.cash > 30 ? 'medium' : 'small';
   r.researchers *= 1 + r.growthRes;
   for (const sid of r.targets) {
-    if (!r.products.includes(sid) && flagCapOf(r) >= unlockOf(r, sid) && r.cash > SEGMENTS[sid].launch * 2) { r.products.push(sid); r.cash -= SEGMENTS[sid].launch; }
+    if (!r.products.includes(sid) && flagCapOf(r) >= unlockOf(r, sid) && r.cash > SEGMENTS[sid].launch * 2 && chance(s, 0.6)) { r.products.push(sid); r.cash -= SEGMENTS[sid].launch; }
   }
   if (r.cash < 40 && r.valuation > 0 && r.raisedYear < y) { r.cash += r.valuation * 0.1; r.raisedYear = y; }
   if (!r.public && r.revenue >= 1000 && chance(s, 0.4)) { r.public = true; r.ipoYear = y; r.cash += r.valuation * 0.12; }

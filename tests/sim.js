@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const FILES = ['data.js', 'core.js', 'systems.js', 'events.js', 'actions.js', 'turn.js', 'api.js'];
+const FILES = ['data.js', 'core.js', 'systems.js', 'events.js', 'progress.js', 'actions.js', 'turn.js', 'api.js'];
 const dir = path.join(__dirname, '..', 'js');
 const real = fs.readFileSync(path.join(__dirname, '..', 'data', 'real.js'), 'utf8');
 const Engine = new Function(real + '\n' + FILES.map(f => fs.readFileSync(path.join(dir, f), 'utf8')).join('\n') + '\nreturn { ...Engine, flagCapOf, totalRacksOf, active, money, effCompute, activeRivals, rankOf, PLATFORMS };')();
