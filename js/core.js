@@ -35,7 +35,7 @@ function makeCompany(o) {
     cash: o.cash, stake: o.stake ?? 1, valuation: 0, lastValuation: 0, revenue: 0, cogs: 0, net: 0, lastNet: 0,
     researchers: o.researchers, engineers: o.engineers, sales: o.sales ?? 0, morale: o.morale ?? 60,
     execs: { cfo: false, cro: false }, starAbility: 0,
-    fleet: { ...(o.fleet ?? {}) }, rented: {}, leased: { ...(o.leased ?? {}) }, boughtYear: 0, dcs: (o.dcs ?? []).map(d => ({ ...d })), pendingDC: [],
+    fleet: { ...(o.fleet ?? {}) }, rented: { ...(o.rented ?? {}) }, leased: { ...(o.leased ?? {}) }, realRounds: o.realRounds ?? [], boughtYear: 0, dcs: (o.dcs ?? []).map(d => ({ ...d })), pendingDC: [],
     customPlatforms: [], asic: null, ppa: false, ads: false, sovereign: false, investments: {},
     data: { q: o.data, licensed: 0 }, rep: o.rep, safety: o.safety, dist: o.dist,
     flagship: null, training: null, algo: 1, licensed: false,
@@ -60,9 +60,9 @@ function capacityMW(c) { return c.mods.noMW ? Infinity : c.dcs.reduce((t, d) => 
 function energyRate(c, w) {
   const mw = c.dcs.reduce((t, d) => t + d.mw, 0);
   const price = mw ? c.dcs.reduce((t, d) => t + d.mw * REGIONS.find(r => r.id === d.region).price, 0) / mw : 60;
-  return 0.01095 * price * (c.ppa ? 0.7 : 1) * w.energyShock;
+  return REAL.power.hoursPerYear * REAL.power.pue / 1e6 * price * (c.ppa ? 0.7 : 1) * w.energyShock;
 }
-function facilityPerMW(y) { return y < 2022 ? 12 : y < 2024 ? 16 : 20; }
+function facilityPerMW(y) { const f = REAL.facility.usdMPerMW, ks = Object.keys(f).map(Number).sort((a, b) => a - b); return f[ks.filter(k => k <= y).pop() ?? ks[0]]; }
 function perfTotal(c) {
   return [...Object.entries(c.fleet), ...Object.entries(c.rented)].reduce((t, [id, n]) => t + n * platOf(c, id).tf * RACK_GPUS, 0);
 }
@@ -75,7 +75,7 @@ function valuationOf(c, w) {
 }
 
 function anchorAt(map, y, before) {
-  if (!map) return null;
+  if (!map || !Object.keys(map).length) return null;
   if (map[y] !== undefined) return map[y];
   const ks = Object.keys(map).map(Number).sort((a, b) => a - b);
   if (y < ks[0]) return before;

@@ -33,6 +33,7 @@ function endYear(s) {
   const before = { valuation: me.valuation, cash: me.cash, rank: rankOf(s), stake: me.stake };
   activateRivals(s, news);
   macroStep(s);
+  for (const c of active(s)) for (const rd of c.realRounds) if (rd.year === y) { c.cash += rd.amountUsdM; news.push(`${c.name} closes a reported funding round of ${money(rd.amountUsdM)}.`); }
   runEvents(s, news);
   syncStars(s);
   for (const c of active(s)) c.boughtYear = 0;
@@ -85,7 +86,7 @@ function endYear(s) {
   }
   for (const c of active(s)) c.valuation = valuationOf(c, w);
   for (const c of active(s)) applyHistory(s, c);
-  for (const c of active(s)) if (c !== me && y > HISTORY_END && c.lastValuation > 0) c.valuation = Math.min(c.valuation, c.lastValuation * 1.12);
+  for (const c of active(s)) if (c !== me && y > HISTORY_END && c.lastValuation > 0) c.valuation = clamp(c.valuation, c.lastValuation * REAL.rules.postHistoryValuationFloor, c.lastValuation * REAL.rules.postHistoryValuationCap);
   w.frontierE = Math.max(1e-9, ...active(s).map(c => effCompute(s, c, 1)));
   PATHS[s.path].goals.forEach((gl, i) => { if (!(i in s.goalsDone) && me.status === 'active' && gl.check(s)) { s.goalsDone[i] = y; news.push(`Objective complete: ${gl.text}`); } });
   s.history.push({ year: y, valuation: me.valuation, revenue: me.revenue, cap: flagCapOf(me), frontier: flagCapOf(frontierOf(s)), rank: rankOf(s), index: w.index, rate: w.rate, portfolio: portfolioValue(s) });

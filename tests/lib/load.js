@@ -10,7 +10,9 @@ const EXPORTS = [
 ];
 
 function load() {
-  const src = FILES.map(f => fs.readFileSync(path.join(__dirname, '..', '..', 'js', f), 'utf8')).join('\n');
+  const root = path.join(__dirname, '..', '..');
+  const real = fs.readFileSync(path.join(root, 'data', 'real.js'), 'utf8');
+  const src = [real, ...FILES.map(f => fs.readFileSync(path.join(root, 'js', f), 'utf8'))].join('\n');
   return new Function(`${src}\nreturn { ...Engine, ${EXPORTS.join(', ')} };`)();
 }
 

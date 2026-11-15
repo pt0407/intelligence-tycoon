@@ -12,6 +12,16 @@ python3 -m http.server 8000
 
 Then go to http://localhost:8000.
 
+## Real data
+
+Every public figure the game uses lives in `data/real.json`: valuations, revenue, funding rounds, chip specs, power prices, capex and the market size. Each record names a source from the `sources` list and a status (`reported`, `estimate` or `game-estimate`). Starting states for companies are labelled `game-estimate`.
+
+```
+npm run build:data   # validates real.json and writes data/real.js for the browser
+```
+
+The build fails if a source is missing or a status is wrong. The tests check that `data/real.js` is up to date and that no public figure is typed into `js/`. The game never fetches data live.
+
 ## Tests and auto-player
 
 ```

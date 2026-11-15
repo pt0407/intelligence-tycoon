@@ -90,7 +90,7 @@ function aiTurn(s, r, news) {
   if (r.cash < 40 && r.valuation > 0 && r.raisedYear < y) { r.cash += r.valuation * 0.1; r.raisedYear = y; }
   if (!r.public && r.revenue >= 1000 && chance(s, 0.4)) { r.public = true; r.ipoYear = y; r.cash += r.valuation * 0.12; }
   if (r.cash > 600 && chance(s, 0.1)) {
-    const t = activeRivals(s).find(x => x !== r && x.valuation < r.valuation * 0.1 && !antitrustBlocks(s, x));
+    const t = activeRivals(s).find(x => x !== r && !x.real && x.valuation < r.valuation * 0.1 && !antitrustBlocks(s, x));
     if (t) {
       t.status = 'acquired';
       r.researchers += t.researchers; r.engineers += t.engineers;

@@ -3,9 +3,9 @@ const END_YEAR = 2035;
 const HISTORY_END = 2026;
 const AP_PER_YEAR = 5;
 const MW_PER_BLOCK = 100;
-const RACK_GPUS = 72;
+const RACK_GPUS = REAL.hardware.rackGpus;
 
-const TAM = [2000, 3000, 5000, 8000, 14000, 22000, 40000, 90000, 170000, 300000, 480000, 640000, 780000, 900000, 1000000, 1100000, 1200000, 1300000, 1400000, 1500000];
+const TAM = REAL.market.tamUsdM;
 
 const SEGMENTS = {
   chat: { name: 'Consumer chat', share: 0.2, unlock: 25, launch: 4 },
@@ -17,28 +17,15 @@ const SEGMENTS = {
   robots: { name: 'Robotics', share: 0.12, unlock: 85, launch: 20 },
 };
 
-const PLATFORMS = [
-  { id: 'p100', vendor: 'NVIDIA', name: 'P100 (Pascal)', year: 2016, tf: 21, rackM: 0.9, kw: 25, mem: 16, src: 'datasheet + est' },
-  { id: 'v100', vendor: 'NVIDIA', name: 'V100 (Volta)', year: 2017, tf: 125, rackM: 1.0, kw: 30, mem: 32, src: 'datasheet + est' },
-  { id: 'a100', vendor: 'NVIDIA', name: 'A100 (Ampere)', year: 2020, tf: 312, rackM: 1.6, kw: 40, mem: 80, src: 'datasheet + est' },
-  { id: 'h100', vendor: 'NVIDIA', name: 'H100 (Hopper)', year: 2022, tf: 989, rackM: 2.6, kw: 70, mem: 80, src: 'datasheet + est' },
-  { id: 'h200', vendor: 'NVIDIA', name: 'H200 (Hopper refresh)', year: 2024, tf: 989, rackM: 2.8, kw: 70, mem: 141, src: 'datasheet + est' },
-  { id: 'gb200', vendor: 'NVIDIA', name: 'GB200 NVL72 (Blackwell)', year: 2025, tf: 2250, rackM: 3.4, kw: 120, mem: 186, src: 'Bernstein, ipvaluelabs' },
-  { id: 'ironwood', vendor: 'Google', name: 'TPU v7 Ironwood', year: 2025, tf: 2307, rackM: 2.6, kw: 100, mem: 192, cloudOnly: true, src: 'Google Cloud docs + est' },
-  { id: 'vr', vendor: 'NVIDIA', name: 'Vera Rubin NVL72', year: 2026, tf: 4000, rackM: 4.2, kw: 190, mem: 288, src: 'NVIDIA + est' },
-  { id: 'mi455', vendor: 'AMD', name: 'Instinct MI455X (Helios)', year: 2026, tf: 5000, rackM: 3.8, kw: 180, mem: 432, src: 'AMD + est' },
-  { id: 'rubin_ultra', vendor: 'NVIDIA', name: 'Rubin Ultra (roadmap)', year: 2027, tf: 8000, rackM: 5.5, kw: 230, mem: 1024, src: 'roadmap est' },
-  { id: 'feynman', vendor: 'NVIDIA', name: 'Feynman (roadmap)', year: 2028, tf: 16000, rackM: 7.5, kw: 300, mem: 2048, src: 'roadmap est' },
-  { id: 'gen9', vendor: 'NVIDIA', name: 'Gen 9 (projected)', year: 2030, tf: 30000, rackM: 9, kw: 380, mem: 4096, src: 'extrapolated' },
-  { id: 'gen10', vendor: 'NVIDIA', name: 'Gen 10 (projected)', year: 2032, tf: 60000, rackM: 11, kw: 450, mem: 8192, src: 'extrapolated' },
-];
+const SOURCE_NAME = Object.fromEntries(REAL.sources.map(s => [s.id, s.publisher]));
+const PLATFORMS = REAL.hardware.platforms.map(p => ({
+  id: p.id, vendor: p.vendor, name: p.name, year: p.year, tf: p.tf, rackM: p.rackM, kw: p.kw, mem: p.mem,
+  ...(p.cloudOnly ? { cloudOnly: true } : {}), status: p.status, src: SOURCE_NAME[p.source] ?? p.source,
+}));
 
-const REGIONS = [
-  { id: 'us', name: 'US Southeast (PJM-like)', price: 90, queue: 3, permit: 0.2 },
-  { id: 'tx', name: 'Texas (ERCOT)', price: 75, queue: 2, permit: 0.1 },
-  { id: 'nordic', name: 'Sweden North (hydro)', price: 50, queue: 4, permit: 0.15 },
-  { id: 'gulf', name: 'Saudi Arabia (sovereign)', price: 54, queue: 2, permit: 0.25 },
-];
+const REGIONS = REAL.power.regions.map(r => ({
+  id: r.id, name: r.name, price: r.usdPerMWh, status: r.status, queue: REAL.power.queueYears[r.id], permit: REAL.power.permit[r.id],
+}));
 
 const SCENARIOS = {
   base: { name: 'Base history', blurb: 'The real timeline as far as public data goes, then the simulation.' },
@@ -145,118 +132,14 @@ const PATHS = {
   },
 };
 
-const RIVAL_TEMPLATES_BASE = [
-  {
-    id: 'openai', name: 'OpenAI', type: 'Frontier lab (capped-profit)', real: true, founded: 2015, cash: 120, researchers: 25, engineers: 15, sales: 5,
-    fleet: { p100: 40 }, dcs: [{ region: 'us', mw: 5 }], data: 70, rep: 80, safety: 65, dist: 30, morale: 70, growth: 0.6, growthRes: 0.1,
-    targets: ['chat', 'api', 'code'], mods: { talent: 1.2, noMW: true },
-    anchors: {
-      val: { 2016: 1500, 2019: 25000, 2021: 20000, 2023: 29000, 2024: 157000, 2025: 500000, 2026: 1250000 },
-      rev: { 2022: 200, 2023: 2000, 2024: 6000, 2025: 13100, 2026: 50000 },
-    },
-  },
-  {
-    id: 'nvidia', name: 'NVIDIA', type: 'Chipmaker (public)', real: true, founded: 1993, cash: 2000, researchers: 20, engineers: 500, sales: 300,
-    fleet: { p100: 50 }, dcs: [], data: 20, rep: 80, safety: 50, dist: 60, morale: 75, growth: 0.25, growthRes: 0.02,
-    targets: [], mods: { compute: 0.7, talent: 0.3, lease: 0.5, gov: true, noMW: true, hype: 1.1 },
-    anchors: { val: { 2016: 57530, 2017: 117270, 2018: 81420, 2019: 144020, 2020: 323240, 2021: 735270, 2022: 364180, 2023: 1220000, 2024: 3288000, 2025: 4638000, 2026: 3932000 } },
-  },
-  {
-    id: 'anthropic', name: 'Anthropic', type: 'Frontier lab (PBC)', real: true, founded: 2021, cash: 80, researchers: 12, engineers: 6, sales: 2,
-    fleet: {}, dcs: [], data: 60, rep: 70, safety: 85, dist: 25, morale: 75, growth: 0.6, growthRes: 0.12,
-    targets: ['chat', 'api', 'code', 'agents'], mods: { talent: 1.1, noMW: true },
-    anchors: {
-      val: { 2021: 4000, 2023: 18400, 2024: 40000, 2025: 183000, 2026: 965000 },
-      rev: { 2023: 500, 2024: 1000, 2025: 10000, 2026: 47000 },
-    },
-  },
-  {
-    id: 'xai', name: 'xAI', type: 'Frontier lab (part of SpaceX from 2026)', real: true, founded: 2023, cash: 50, researchers: 10, engineers: 20, sales: 2,
-    fleet: {}, dcs: [], data: 60, rep: 50, safety: 35, dist: 30, morale: 65, growth: 0.7, growthRes: 0.12,
-    targets: ['chat', 'api'], mods: { talent: 1.05, noMW: true },
-    anchors: { val: { 2023: 18000, 2024: 24000, 2025: 113000, 2026: 250000 } },
-  },
-  {
-    id: 'mistral', name: 'Mistral AI', type: 'Open-weights lab (EU)', real: true, founded: 2023, cash: 30, researchers: 15, engineers: 15, sales: 4,
-    fleet: { a100: 20 }, dcs: [{ region: 'nordic', mw: 10 }], data: 55, rep: 60, safety: 50, dist: 25, morale: 70, growth: 0.5, growthRes: 0.08,
-    targets: ['api', 'chat', 'code'], mods: { talent: 1.0, noMW: true, openSource: 2 },
-    anchors: { val: { 2023: 2000, 2024: 6200, 2025: 14000, 2026: 24400 }, rev: { 2026: 1000 } },
-  },
-  {
-    id: 'ssi', name: 'Safe Superintelligence', type: 'Research lab (no product planned)', real: true, founded: 2024, cash: 1000, researchers: 20, engineers: 5, sales: 0,
-    fleet: { h100: 10 }, dcs: [{ region: 'us', mw: 20 }], data: 60, rep: 60, safety: 90, dist: 5, morale: 70, growth: 0.5, growthRes: 0.1,
-    targets: [], mods: { talent: 1.2, noMW: true },
-    anchors: { val: { 2024: 5000, 2025: 32000, 2026: 32000 } },
-  },
-  {
-    id: 'tml', name: 'Thinking Machines Lab', type: 'Research lab and platform', real: true, founded: 2025, cash: 2000, researchers: 40, engineers: 20, sales: 3,
-    fleet: { h100: 40 }, dcs: [{ region: 'us', mw: 30 }], data: 55, rep: 60, safety: 60, dist: 15, morale: 70, growth: 0.6, growthRes: 0.1,
-    targets: ['api', 'code', 'agents'], mods: { talent: 1.15, noMW: true },
-    anchors: { val: { 2025: 12000, 2026: 40000 }, rev: { 2026: 200 } },
-  },
-  {
-    id: 'gdm', name: 'Google DeepMind (simulated)', type: 'Big tech AI division', real: false, founded: 2016, cash: 8000, researchers: 150, engineers: 300, sales: 200,
-    fleet: { p100: 300 }, dcs: [{ region: 'us', mw: 200 }], data: 90, rep: 80, safety: 70, dist: 90, morale: 65, growth: 0.15, growthRes: 0.02,
-    targets: ['chat', 'science'], mods: { talent: 1.2, compute: 0.8, parent: 0.05, gov: true, alloc: 1.2, noMW: true, hype: 0.15 },
-  },
-  {
-    id: 'meta', name: 'Meta AI (simulated)', type: 'Big tech AI division', real: false, founded: 2016, cash: 6000, researchers: 120, engineers: 400, sales: 100,
-    fleet: { p100: 250 }, dcs: [{ region: 'us', mw: 150 }], data: 85, rep: 70, safety: 50, dist: 85, morale: 65, growth: 0.15, growthRes: 0.02,
-    targets: ['media'], mods: { talent: 1.1, compute: 0.8, openSource: 1.5, alloc: 1.2, noMW: true, hype: 0.15 },
-  },
-  {
-    id: 'msft', name: 'Microsoft AI (simulated)', type: 'Big tech AI division', real: false, founded: 2016, cash: 10000, researchers: 80, engineers: 500, sales: 500,
-    fleet: { p100: 300 }, dcs: [{ region: 'us', mw: 150 }], data: 85, rep: 75, safety: 55, dist: 90, morale: 60, growth: 0.15, growthRes: 0.02,
-    targets: ['api', 'code'], mods: { talent: 1.0, compute: 0.8, parent: 0.05, gov: true, alloc: 1.2, noMW: true, hype: 0.15 },
-  },
-];
+const RIVAL_TEMPLATES = REAL.companies.map(c => ({
+  id: c.id, name: c.name, type: c.type, real: c.real, founded: c.founded, public: !!c.public, ipoYear: c.ipoYear ?? 0,
+  ...c.start,
+  leased: c.start.leased ?? {},
+  anchors: Object.keys(c.val).length ? { val: c.val, rev: c.rev } : null,
+  realRounds: c.rounds ?? [],
+}));
 
-const RIVAL_EXTRA = [
-  {
-    id: 'deepseek', name: 'DeepSeek', type: 'Open-weights lab (China)', real: true, founded: 2023, cash: 500, researchers: 60, engineers: 40, sales: 5,
-    fleet: { h100: 40 }, dcs: [{ region: 'nordic', mw: 30 }], data: 60, rep: 70, safety: 45, dist: 40, morale: 75, growth: 0.6, growthRes: 0.1,
-    targets: ['api', 'chat', 'code'], mods: { talent: 1.1, noMW: true, openSource: 2 },
-    anchors: { val: { 2026: 89000 } },
-  },
-  {
-    id: 'moonshot', name: 'Moonshot AI (Kimi)', type: 'Frontier lab (China)', real: true, founded: 2023, cash: 300, researchers: 40, engineers: 30, sales: 3,
-    fleet: { h100: 20 }, dcs: [], data: 55, rep: 60, safety: 45, dist: 35, morale: 70, growth: 0.5, growthRes: 0.1,
-    targets: ['chat', 'api'], mods: { talent: 1.05, noMW: true },
-    anchors: { val: { 2025: 4300, 2026: 35000 } },
-  },
-  {
-    id: 'zhipu', name: 'Zhipu AI (Z.ai)', type: 'Frontier lab (China, listed in Hong Kong 2026)', real: true, founded: 2019, cash: 200, researchers: 50, engineers: 40, sales: 5,
-    fleet: { a100: 30 }, dcs: [], data: 55, rep: 60, safety: 50, dist: 30, morale: 70, growth: 0.5, growthRes: 0.08,
-    targets: ['chat', 'api', 'code'], mods: { talent: 1.0, noMW: true },
-    anchors: { val: { 2026: 7300 } },
-  },
-  {
-    id: 'cursor', name: 'Cursor (Anysphere)', type: 'AI coding tools', real: true, founded: 2022, cash: 200, researchers: 30, engineers: 80, sales: 20,
-    fleet: {}, dcs: [], data: 60, rep: 65, safety: 40, dist: 50, morale: 75, growth: 0.5, growthRes: 0.1,
-    targets: ['code', 'agents'], mods: { talent: 1.0, noMW: true, hype: 1.1 },
-    anchors: { val: { 2025: 29300, 2026: 60000 }, rev: { 2026: 2000 } },
-  },
-  {
-    id: 'perplexity', name: 'Perplexity', type: 'AI answer engine and agents', real: true, founded: 2022, cash: 100, researchers: 25, engineers: 40, sales: 15,
-    fleet: {}, dcs: [], data: 55, rep: 55, safety: 45, dist: 45, morale: 70, growth: 0.4, growthRes: 0.08,
-    targets: ['chat', 'agents'], mods: { talent: 1.0, noMW: true },
-    anchors: { val: { 2024: 9000, 2025: 20000, 2026: 30000 }, rev: { 2025: 200, 2026: 750 } },
-  },
-  {
-    id: 'cohere', name: 'Cohere', type: 'Enterprise and sovereign AI (Canada)', real: true, founded: 2019, cash: 300, researchers: 40, engineers: 50, sales: 40,
-    fleet: { a100: 60 }, dcs: [{ region: 'nordic', mw: 20 }], data: 60, rep: 60, safety: 55, dist: 30, morale: 70, growth: 0.4, growthRes: 0.06,
-    targets: ['api', 'agents'], mods: { talent: 1.0, noMW: true },
-    anchors: { val: { 2026: 26000 } },
-  },
-  {
-    id: 'coreweave', name: 'CoreWeave', type: 'Neocloud (GPU cloud, public)', real: true, founded: 2017, public: true, ipoYear: 2025, cash: 1500, researchers: 5, engineers: 600, sales: 100,
-    fleet: {}, leased: { h100: 3000, gb200: 2000 }, dcs: [{ region: 'us', mw: 300 }, { region: 'tx', mw: 200 }], data: 20, rep: 70, safety: 40, dist: 60, morale: 65, growth: 0.6, growthRes: 0.02,
-    targets: [], mods: { talent: 0.3, lease: 7, noMW: true },
-    anchors: { val: { 2026: 29300 }, rev: { 2025: 5131, 2026: 13150 } },
-  },
-];
-
-const RIVAL_TEMPLATES = [...RIVAL_TEMPLATES_BASE, ...RIVAL_EXTRA];
 
 const STARS = [
   { id: 's1', name: 'Ines Varga', ability: 1.6, owner: 'openai' },

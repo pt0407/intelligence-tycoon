@@ -216,7 +216,21 @@
     if (tab === 'market') {
       html = `<div class="grid2">
         ${card('Logos and credits', `<div class="credits">${[['anthropic', 'Anthropic', 'Public domain, via Wikimedia Commons'], ['deepseek', 'DeepSeek', 'MIT, via Wikimedia Commons'], ['mistral', 'Mistral AI', 'Public domain, via Wikimedia Commons'], ['nvidia', 'NVIDIA', 'Apache-2.0, per Wikimedia Commons metadata']].map(([k, n, l]) => `<div class="credit"><img src="${LOGOS[k]}" alt="${n} logo"><small>${n}. ${l}.</small></div>`).join('')}</div><p class="muted">Logos are trademarks of their owners and are shown only to identify the companies.</p>`)}
-        ${card('Capex and supply (public reports)', `${row('Amazon 2026 capex', '~$220B')}${row('Alphabet 2026 capex', '$195-205B')}${row('Microsoft 2026 capex (calendar)', '~$170B')}${row('Meta 2026 capex', '$135-145B')}${row('Big four 2026 combined', '~$730B (vs ~$410B 2025)')}${row('China AI capex 2026 (RHG est.)', '~932B yuan ($139B)')}${row('Alibaba capex, quarter to Jun 2026', '$9.98B, +75% y/y')}${row('CoreWeave 2026 capex guidance', '$37-39B')}${row('CoreWeave backlog (Sept 2026)', '$132.5B')}${row('TSMC CoWoS, end 2026 (est.)', '~130k wafers/mo')}${row('DRAM revenue, Q3 2026', '~$200B (+369% y/y, Counterpoint)')}${row('DDR5 16Gb contract price', '$8.70 (Oct 2025) to $48 (Sept 2026)')}${row('Memory tightness in game', `${Math.round(S.w.memTight * 100)}% (raises rack prices up to 50%)`)}<p class="muted">Sources in docs/research.md.</p>`)}
+        ${card('Capex and supply (public reports)', `${[
+          ['Amazon 2026 capex', money(REAL.capex.amazon2026Usd)],
+          ['Alphabet 2026 capex', `${money(REAL.capex.alphabet2026Usd)} (${REAL.capex.alphabetNote})`],
+          ['Microsoft 2026 capex', money(REAL.capex.microsoft2026Usd)],
+          ['Meta 2026 capex', `${money(REAL.capex.meta2026Usd)} (${REAL.capex.metaNote})`],
+          ['Big four 2025 to 2026 combined', `${money(REAL.capex.bigFour2025Usd)} to ${money(REAL.capex.bigFour2026Usd)}`],
+          ['China AI capex 2026 (Rhodium estimate)', money(REAL.capex.chinaAi2026Usd)],
+          ['Alibaba capex, quarter to June 2026', money(REAL.capex.alibabaQ2_2026Usd)],
+          ['CoreWeave 2026 capex guidance', `${money(REAL.capex.coreweave2026Usd)} (${REAL.capex.coreweaveNote})`],
+          ['CoreWeave revenue backlog, Sept 2026', money(REAL.capex.coreweaveBacklogUsd)],
+          ['DRAM revenue, Q3 2026', `${money(REAL.memory.dramRevenueQ3_2026Usd)} (${REAL.memory.dramRevenueNote})`],
+          ['DDR5 16Gb contract price', `$${REAL.memory.ddr5_16Gb_contractUsd['2025-10']} (Oct 2025) to $${REAL.memory.ddr5_16Gb_contractUsd['2026-09']} (Sept 2026)`],
+          ['CoWoS wafers per month, end 2026', `${REAL.memory.cowosWafersPerMonthEnd2026.toLocaleString('en-US')} (analyst estimate)`],
+          ['Memory tightness in game', `${Math.round(S.w.memTight * 100)}% (raises rack prices up to 50%)`],
+        ].map(([l, v]) => row(l, v)).join('')}<p class="muted">Sources listed in docs/research.md and data/real.json.</p>`)}
         ${card('Real anchors', `<p class="muted">Valuations and revenue from public reports through 2026. Before 2026 each real company follows its anchors. After 2026 the simulation takes over.</p>
           ${S.rivals.filter(r => r.real).map(r => `<div class="anchor"><b>${esc(r.name)}</b><small class="muted">founded ${r.founded}${r.status !== 'active' ? ` · ${r.status}` : ''}</small>
             <small>${r.anchors?.val ? 'Valuation: ' + Object.entries(r.anchors.val).map(([y, v]) => `${y} ${money(v)}`).join(' · ') : ''}</small>

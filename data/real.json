@@ -1,0 +1,1403 @@
+{
+ "meta": {
+  "version": 1,
+  "asOf": "2026-11-14",
+  "note": "Public figures used by the game. Each record names a source id and a status: reported, estimate or game-estimate. Sources were retrieved by web search on 2026-11-14; figures are USD millions unless the key says otherwise. Game-estimate fields are design choices, not public figures. Refresh by hand; the game never fetches these live.",
+  "retrieved": "2026-11-14"
+ },
+ "sources": [
+  {
+   "id": "nvda-datasheets",
+   "publisher": "NVIDIA",
+   "title": "H100, H200, Blackwell and Rubin datasheets and product pages"
+  },
+  {
+   "id": "bernstein-rack",
+   "publisher": "Bernstein via Investing.com",
+   "title": "How much does a GW of data center capacity cost"
+  },
+  {
+   "id": "google-tpu7x",
+   "publisher": "Google Cloud",
+   "title": "TPU7x (Ironwood) documentation"
+  },
+  {
+   "id": "amd-helios",
+   "publisher": "AMD",
+   "title": "Instinct MI455X and Helios rackscale product pages"
+  },
+  {
+   "id": "turner-townsend",
+   "publisher": "Turner and Townsend 2025, as cited by aitooldiscovery",
+   "title": "Data center construction cost benchmarks"
+  },
+  {
+   "id": "bofa-dc",
+   "publisher": "BofA Global Research via Investing.com",
+   "title": "Global data center spending and cost per MW"
+  },
+  {
+   "id": "pgiq-power",
+   "publisher": "PowerGridIQ",
+   "title": "Ratings release 2026: delivered cost of electricity by market"
+  },
+  {
+   "id": "eia-industrial",
+   "publisher": "US EIA Table 5.6.B via DataCenterScope",
+   "title": "Average industrial electricity price, January to June 2026"
+  },
+  {
+   "id": "openai-cfo",
+   "publisher": "Reuters",
+   "title": "OpenAI CFO says annualized revenue crosses $20 billion"
+  },
+  {
+   "id": "openai-round",
+   "publisher": "OpenAI; Bloomberg",
+   "title": "Raises $122 billion at $852 billion post-money; $1.25 trillion first close"
+  },
+  {
+   "id": "openai-revenue",
+   "publisher": "CNBC; Sacra; TechCrunch",
+   "title": "OpenAI 2025 revenue of $13.1 billion; run-rate reports"
+  },
+  {
+   "id": "anthropic-series-h",
+   "publisher": "Anthropic",
+   "title": "Series H: $65 billion at $965 billion post-money"
+  },
+  {
+   "id": "anthropic-revenue",
+   "publisher": "TechCrunch; Reuters",
+   "title": "Run-rate revenue above $47 billion"
+  },
+  {
+   "id": "nvidia-mcap",
+   "publisher": "CompaniesMarketCap; StockAnalysis; GuruFocus",
+   "title": "NVIDIA market capitalization by year-end"
+  },
+  {
+   "id": "mistral-d",
+   "publisher": "Mistral AI; CNBC; TechCrunch",
+   "title": "Series D: 3 billion euros at more than 21 billion euros"
+  },
+  {
+   "id": "ssi",
+   "publisher": "Business Insider; Dealroom",
+   "title": "Safe Superintelligence valuation"
+  },
+  {
+   "id": "tml",
+   "publisher": "Business Insider; TechCrunch",
+   "title": "Thinking Machines Lab rounds and run-rate"
+  },
+  {
+   "id": "xai",
+   "publisher": "Reuters; CNBC; Forbes",
+   "title": "SpaceX acquires xAI; xAI $20 billion round at $230 billion"
+  },
+  {
+   "id": "deepseek",
+   "publisher": "Reuters; Bloomberg; TechCrunch",
+   "title": "DeepSeek raises about 100 billion yuan"
+  },
+  {
+   "id": "moonshot",
+   "publisher": "36Kr; Bloomberg",
+   "title": "Moonshot AI rounds and valuation"
+  },
+  {
+   "id": "zhipu",
+   "publisher": "ICMI Q3 2026; 36Kr",
+   "title": "Zhipu AI Hong Kong listing and market value"
+  },
+  {
+   "id": "cursor",
+   "publisher": "TechCrunch; Dealroom; Quartz",
+   "title": "Cursor funding and SpaceX acquisition agreement"
+  },
+  {
+   "id": "perplexity",
+   "publisher": "Reuters (The Information); StockAnalysis",
+   "title": "Perplexity valuation and annualized revenue"
+  },
+  {
+   "id": "cohere",
+   "publisher": "PR Newswire; CBC; Globe and Mail",
+   "title": "Series E initial close at CAD 35.7 billion valuation"
+  },
+  {
+   "id": "coreweave",
+   "publisher": "CoreWeave",
+   "title": "Third quarter 2026 results"
+  },
+  {
+   "id": "hyperscaler-capex",
+   "publisher": "Company Q3 2026 guidance, via ValueAddVC",
+   "title": "Big Tech AI capex 2026"
+  },
+  {
+   "id": "rhg-china",
+   "publisher": "Rhodium Group",
+   "title": "Examining China's AI financing"
+  },
+  {
+   "id": "alibaba-capex",
+   "publisher": "Alibaba filing, via safeguard.sh",
+   "title": "Capital expenditure, quarter to June 2026"
+  },
+  {
+   "id": "counterpoint-dram",
+   "publisher": "Counterpoint Research, via TechRadar",
+   "title": "Global DRAM revenue, Q3 2026"
+  },
+  {
+   "id": "trendforce-dram",
+   "publisher": "TrendForce",
+   "title": "DRAM industry revenue, 2Q26"
+  },
+  {
+   "id": "tsmc-cowos",
+   "publisher": "TrendForce; RCR Tech analysis",
+   "title": "CoWoS capacity outlook"
+  },
+  {
+   "id": "game-estimate",
+   "publisher": "Intelligence Tycoon design",
+   "title": "Game estimate or design rule, not a public figure"
+  }
+ ],
+ "hardware": {
+  "platforms": [
+   {
+    "id": "p100",
+    "vendor": "NVIDIA",
+    "name": "P100 (Pascal)",
+    "year": 2016,
+    "tf": 21,
+    "rackM": 0.9,
+    "kw": 25,
+    "mem": 16,
+    "status": "estimate",
+    "source": "nvda-datasheets"
+   },
+   {
+    "id": "v100",
+    "vendor": "NVIDIA",
+    "name": "V100 (Volta)",
+    "year": 2017,
+    "tf": 125,
+    "rackM": 1.0,
+    "kw": 30,
+    "mem": 32,
+    "status": "estimate",
+    "source": "nvda-datasheets"
+   },
+   {
+    "id": "a100",
+    "vendor": "NVIDIA",
+    "name": "A100 (Ampere)",
+    "year": 2020,
+    "tf": 312,
+    "rackM": 1.6,
+    "kw": 40,
+    "mem": 80,
+    "status": "estimate",
+    "source": "nvda-datasheets"
+   },
+   {
+    "id": "h100",
+    "vendor": "NVIDIA",
+    "name": "H100 (Hopper)",
+    "year": 2022,
+    "tf": 989,
+    "rackM": 2.6,
+    "kw": 70,
+    "mem": 80,
+    "status": "estimate",
+    "source": "nvda-datasheets"
+   },
+   {
+    "id": "h200",
+    "vendor": "NVIDIA",
+    "name": "H200 (Hopper refresh)",
+    "year": 2024,
+    "tf": 989,
+    "rackM": 2.8,
+    "kw": 70,
+    "mem": 141,
+    "status": "estimate",
+    "source": "nvda-datasheets"
+   },
+   {
+    "id": "gb200",
+    "vendor": "NVIDIA",
+    "name": "GB200 NVL72 (Blackwell)",
+    "year": 2025,
+    "tf": 2250,
+    "rackM": 3.4,
+    "kw": 120,
+    "mem": 186,
+    "status": "reported",
+    "source": "bernstein-rack"
+   },
+   {
+    "id": "ironwood",
+    "vendor": "Google",
+    "name": "TPU v7 Ironwood",
+    "year": 2025,
+    "tf": 2307,
+    "rackM": 2.6,
+    "kw": 100,
+    "mem": 192,
+    "cloudOnly": true,
+    "status": "estimate",
+    "source": "google-tpu7x"
+   },
+   {
+    "id": "vr",
+    "vendor": "NVIDIA",
+    "name": "Vera Rubin NVL72",
+    "year": 2026,
+    "tf": 4000,
+    "rackM": 4.2,
+    "kw": 190,
+    "mem": 288,
+    "status": "estimate",
+    "source": "nvda-datasheets"
+   },
+   {
+    "id": "mi455",
+    "vendor": "AMD",
+    "name": "Instinct MI455X (Helios)",
+    "year": 2026,
+    "tf": 5000,
+    "rackM": 3.8,
+    "kw": 180,
+    "mem": 432,
+    "status": "estimate",
+    "source": "amd-helios"
+   },
+   {
+    "id": "rubin_ultra",
+    "vendor": "NVIDIA",
+    "name": "Rubin Ultra (roadmap)",
+    "year": 2027,
+    "tf": 8000,
+    "rackM": 5.5,
+    "kw": 230,
+    "mem": 1024,
+    "status": "estimate",
+    "source": "game-estimate"
+   },
+   {
+    "id": "feynman",
+    "vendor": "NVIDIA",
+    "name": "Feynman (roadmap)",
+    "year": 2028,
+    "tf": 16000,
+    "rackM": 7.5,
+    "kw": 300,
+    "mem": 2048,
+    "status": "estimate",
+    "source": "game-estimate"
+   },
+   {
+    "id": "gen9",
+    "vendor": "NVIDIA",
+    "name": "Gen 9 (projected)",
+    "year": 2030,
+    "tf": 30000,
+    "rackM": 9,
+    "kw": 380,
+    "mem": 4096,
+    "status": "game-estimate",
+    "source": "game-estimate"
+   },
+   {
+    "id": "gen10",
+    "vendor": "NVIDIA",
+    "name": "Gen 10 (projected)",
+    "year": 2032,
+    "tf": 60000,
+    "rackM": 11,
+    "kw": 450,
+    "mem": 8192,
+    "status": "game-estimate",
+    "source": "game-estimate"
+   }
+  ],
+  "rackGpus": 72
+ },
+ "power": {
+  "hoursPerYear": 8760,
+  "pue": 1.25,
+  "regions": [
+   {
+    "id": "us",
+    "name": "US Southeast (PJM-like)",
+    "usdPerMWh": 90,
+    "status": "estimate",
+    "source": "pgiq-power",
+    "note": "PJM is not in the PGIQ table; estimate"
+   },
+   {
+    "id": "tx",
+    "name": "Texas (ERCOT)",
+    "usdPerMWh": 75,
+    "status": "reported",
+    "source": "pgiq-power",
+    "note": "Midpoint of the ERCOT Central band, 55 to 95"
+   },
+   {
+    "id": "nordic",
+    "name": "Sweden North (hydro)",
+    "usdPerMWh": 50,
+    "status": "reported",
+    "source": "pgiq-power",
+    "note": "Midpoint of the Sweden North band, 35 to 65"
+   },
+   {
+    "id": "gulf",
+    "name": "Saudi Arabia (sovereign)",
+    "usdPerMWh": 54,
+    "status": "reported",
+    "source": "pgiq-power",
+    "note": "Midpoint of the Saudi band, 50 to 58"
+   }
+  ],
+  "queueYears": {
+   "us": 3,
+   "tx": 2,
+   "nordic": 4,
+   "gulf": 2
+  },
+  "queueStatus": "game-estimate",
+  "permit": {
+   "us": 0.2,
+   "tx": 0.1,
+   "nordic": 0.15,
+   "gulf": 0.25
+  },
+  "permitStatus": "game-estimate",
+  "usIndustrialCentsPerKwh": 8.89,
+  "usIndustrialSource": "eia-industrial"
+ },
+ "facility": {
+  "usdMPerMW": {
+   "2016": 12,
+   "2022": 16,
+   "2024": 20
+  },
+  "status": "estimate",
+  "source": "turner-townsend",
+  "note": "AI-optimized build cost of 20 million dollars per MW in 2025 (Turner and Townsend). Earlier years are estimates. Standard hyperscale was 10.7 million per MW in 2025; BofA gives 39 and 52."
+ },
+ "market": {
+  "years": [
+   2016,
+   2017,
+   2018,
+   2019,
+   2020,
+   2021,
+   2022,
+   2023,
+   2024,
+   2025,
+   2026,
+   2027,
+   2028,
+   2029,
+   2030,
+   2031,
+   2032,
+   2033,
+   2034,
+   2035
+  ],
+  "tamUsdM": [
+   2000,
+   3000,
+   5000,
+   8000,
+   14000,
+   22000,
+   40000,
+   90000,
+   170000,
+   300000,
+   480000,
+   640000,
+   780000,
+   900000,
+   1000000,
+   1100000,
+   1200000,
+   1300000,
+   1400000,
+   1500000
+  ],
+  "status": "estimate",
+  "source": "game-estimate",
+  "note": "2016 to 2026 roughly match public run-rates for the major labs and cloud AI. 2027 onward is a scenario, not a forecast."
+ },
+ "capex": {
+  "bigFour2025Usd": 410000,
+  "bigFour2026Usd": 730000,
+  "bigFourSource": "hyperscaler-capex",
+  "amazon2026Usd": 220000,
+  "alphabet2026Usd": 200000,
+  "alphabetNote": "Guidance 195,000 to 205,000; midpoint",
+  "microsoft2026Usd": 170000,
+  "meta2026Usd": 140000,
+  "metaNote": "Guidance 135,000 to 145,000; midpoint",
+  "alibabaQ2_2026Usd": 9975,
+  "alibabaSource": "alibaba-capex",
+  "chinaAi2026Usd": 139000,
+  "chinaAiSource": "rhg-china",
+  "coreweave2026Usd": 38000,
+  "coreweaveNote": "Guidance 37,000 to 39,000; midpoint",
+  "coreweaveSource": "coreweave",
+  "notionalAiShare": 0.4,
+  "notionalAiShareStatus": "game-estimate",
+  "coreweaveBacklogUsd": 132500,
+  "coreweaveBacklogSource": "coreweave",
+  "coreweaveBacklogNote": "Revenue backlog at 30 September 2026"
+ },
+ "memory": {
+  "dramRevenueQ3_2026Usd": 200000,
+  "dramRevenueNote": "Just under 200 billion dollars, up 369 percent year on year",
+  "dramRevenueSource": "counterpoint-dram",
+  "trendforce2Q26Usd": 154730,
+  "trendforceSource": "trendforce-dram",
+  "ddr5_16Gb_contractUsd": {
+   "2025-10": 8.7,
+   "2026-09": 48
+  },
+  "ddr5Source": "counterpoint-dram",
+  "cowosWafersPerMonthEnd2026": 130000,
+  "cowosStatus": "estimate",
+  "cowosSource": "tsmc-cowos",
+  "cowosNote": "Analyst estimate, not company guidance"
+ },
+ "companies": [
+  {
+   "id": "openai",
+   "name": "OpenAI",
+   "type": "Frontier lab (capped-profit)",
+   "founded": 2015,
+   "real": true,
+   "val": {
+    "2016": 1500,
+    "2019": 25000,
+    "2021": 20000,
+    "2023": 29000,
+    "2024": 157000,
+    "2025": 500000,
+    "2026": 1250000
+   },
+   "valStatus": "2016, 2019 and 2021 are estimates; the rest are reported",
+   "rev": {
+    "2022": 200,
+    "2023": 2000,
+    "2024": 6000,
+    "2025": 13100,
+    "2026": 50000
+   },
+   "revStatus": "2025 is reported; 2026 is an annualized run-rate",
+   "rounds": [
+    {
+     "year": 2026,
+     "amountUsdM": 122000,
+     "source": "openai-round"
+    }
+   ],
+   "sources": [
+    "openai-round",
+    "openai-revenue",
+    "openai-cfo"
+   ],
+   "start": {
+    "cash": 120,
+    "researchers": 25,
+    "engineers": 15,
+    "sales": 5,
+    "fleet": {
+     "p100": 40
+    },
+    "dcs": [
+     {
+      "region": "us",
+      "mw": 5
+     }
+    ],
+    "data": 70,
+    "rep": 80,
+    "safety": 65,
+    "dist": 30,
+    "morale": 70,
+    "growth": 0.6,
+    "growthRes": 0.1,
+    "targets": [
+     "chat",
+     "api",
+     "code"
+    ],
+    "mods": {
+     "talent": 1.2,
+     "noMW": true
+    },
+    "rented": {
+     "h100": 200
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures. Rented cloud compute is a game estimate of each lab's cloud deals; it lets the lab train."
+  },
+  {
+   "id": "nvidia",
+   "name": "NVIDIA",
+   "type": "Chipmaker (public)",
+   "founded": 1993,
+   "real": true,
+   "val": {
+    "2016": 57530,
+    "2017": 117270,
+    "2018": 81420,
+    "2019": 144020,
+    "2020": 323240,
+    "2021": 735270,
+    "2022": 364180,
+    "2023": 1220000,
+    "2024": 3288000,
+    "2025": 4638000,
+    "2026": 3932000
+   },
+   "valStatus": "Year-end market capitalization; reported",
+   "rev": {},
+   "rounds": [],
+   "sources": [
+    "nvidia-mcap"
+   ],
+   "start": {
+    "cash": 2000,
+    "researchers": 20,
+    "engineers": 500,
+    "sales": 300,
+    "fleet": {
+     "p100": 50
+    },
+    "dcs": [],
+    "data": 20,
+    "rep": 80,
+    "safety": 50,
+    "dist": 60,
+    "morale": 75,
+    "growth": 0.25,
+    "growthRes": 0.02,
+    "targets": [],
+    "mods": {
+     "compute": 0.7,
+     "talent": 0.3,
+     "lease": 0.5,
+     "gov": true,
+     "noMW": true,
+     "hype": 1.1
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+  },
+  {
+   "id": "anthropic",
+   "name": "Anthropic",
+   "type": "Frontier lab (PBC)",
+   "founded": 2021,
+   "real": true,
+   "val": {
+    "2021": 4000,
+    "2023": 18400,
+    "2024": 40000,
+    "2025": 183000,
+    "2026": 965000
+   },
+   "valStatus": "2021 and 2023 reported; 2024 is an estimate between rounds; 2025 reported (Series F); 2026 is the Series H post-money",
+   "rev": {
+    "2025": 10000,
+    "2026": 47000
+   },
+   "revStatus": "2025 is reported; 2026 is a reported run-rate",
+   "rounds": [
+    {
+     "year": 2026,
+     "amountUsdM": 65000,
+     "source": "anthropic-series-h"
+    }
+   ],
+   "sources": [
+    "anthropic-series-h",
+    "anthropic-revenue"
+   ],
+   "start": {
+    "cash": 80,
+    "researchers": 12,
+    "engineers": 6,
+    "sales": 2,
+    "fleet": {},
+    "dcs": [],
+    "data": 60,
+    "rep": 70,
+    "safety": 85,
+    "dist": 25,
+    "morale": 75,
+    "growth": 0.6,
+    "growthRes": 0.12,
+    "targets": [
+     "chat",
+     "api",
+     "code",
+     "agents"
+    ],
+    "mods": {
+     "talent": 1.1,
+     "noMW": true
+    },
+    "rented": {
+     "ironwood": 100
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures. Rented cloud compute is a game estimate of each lab's cloud deals; it lets the lab train."
+  },
+  {
+   "id": "xai",
+   "name": "xAI",
+   "type": "Frontier lab (part of SpaceX from 2026)",
+   "founded": 2023,
+   "real": true,
+   "val": {
+    "2023": 18000,
+    "2024": 24000,
+    "2025": 113000,
+    "2026": 250000
+   },
+   "valStatus": "2023 is an estimate; 2024 to 2026 are reported. 2025 is the merger value with X.",
+   "rev": {},
+   "rounds": [
+    {
+     "year": 2026,
+     "amountUsdM": 20000,
+     "source": "xai"
+    }
+   ],
+   "sources": [
+    "xai"
+   ],
+   "start": {
+    "cash": 50,
+    "researchers": 10,
+    "engineers": 20,
+    "sales": 2,
+    "fleet": {},
+    "dcs": [],
+    "data": 60,
+    "rep": 50,
+    "safety": 35,
+    "dist": 30,
+    "morale": 65,
+    "growth": 0.7,
+    "growthRes": 0.12,
+    "targets": [
+     "chat",
+     "api"
+    ],
+    "mods": {
+     "talent": 1.05,
+     "noMW": true
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+  },
+  {
+   "id": "mistral",
+   "name": "Mistral AI",
+   "type": "Open-weights lab (EU)",
+   "founded": 2023,
+   "real": true,
+   "val": {
+    "2023": 2000,
+    "2024": 6200,
+    "2025": 14000,
+    "2026": 24400
+   },
+   "valStatus": "Reported; converted from euros at the round's rate",
+   "rounds": [
+    {
+     "year": 2026,
+     "amountUsdM": 3500,
+     "source": "mistral-d"
+    }
+   ],
+   "sources": [
+    "mistral-d"
+   ],
+   "start": {
+    "cash": 30,
+    "researchers": 15,
+    "engineers": 15,
+    "sales": 4,
+    "fleet": {
+     "a100": 20
+    },
+    "dcs": [
+     {
+      "region": "nordic",
+      "mw": 10
+     }
+    ],
+    "data": 55,
+    "rep": 60,
+    "safety": 50,
+    "dist": 25,
+    "morale": 70,
+    "growth": 0.5,
+    "growthRes": 0.08,
+    "targets": [
+     "api",
+     "chat",
+     "code"
+    ],
+    "mods": {
+     "talent": 1.0,
+     "noMW": true,
+     "openSource": 2
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+  },
+  {
+   "id": "ssi",
+   "name": "Safe Superintelligence",
+   "type": "Research lab (no product planned)",
+   "founded": 2024,
+   "real": true,
+   "val": {
+    "2024": 5000,
+    "2025": 32000,
+    "2026": 32000
+   },
+   "valStatus": "Reported",
+   "rev": {},
+   "rounds": [],
+   "sources": [
+    "ssi"
+   ],
+   "start": {
+    "cash": 1000,
+    "researchers": 20,
+    "engineers": 5,
+    "sales": 0,
+    "fleet": {
+     "h100": 10
+    },
+    "dcs": [
+     {
+      "region": "us",
+      "mw": 20
+     }
+    ],
+    "data": 60,
+    "rep": 60,
+    "safety": 90,
+    "dist": 5,
+    "morale": 70,
+    "growth": 0.5,
+    "growthRes": 0.1,
+    "targets": [],
+    "mods": {
+     "talent": 1.2,
+     "noMW": true
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+  },
+  {
+   "id": "tml",
+   "name": "Thinking Machines Lab",
+   "type": "Research lab and platform",
+   "founded": 2025,
+   "real": true,
+   "val": {
+    "2025": 12000,
+    "2026": 40000
+   },
+   "valStatus": "2025 reported; 2026 is a pre-money target",
+   "rev": {
+    "2026": 200
+   },
+   "revStatus": "Reported run-rate above 200 million",
+   "rounds": [],
+   "sources": [
+    "tml"
+   ],
+   "start": {
+    "cash": 2000,
+    "researchers": 40,
+    "engineers": 20,
+    "sales": 3,
+    "fleet": {
+     "h100": 40
+    },
+    "dcs": [
+     {
+      "region": "us",
+      "mw": 30
+     }
+    ],
+    "data": 55,
+    "rep": 60,
+    "safety": 60,
+    "dist": 15,
+    "morale": 70,
+    "growth": 0.6,
+    "growthRes": 0.1,
+    "targets": [
+     "api",
+     "code",
+     "agents"
+    ],
+    "mods": {
+     "talent": 1.15,
+     "noMW": true
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+  },
+  {
+   "id": "deepseek",
+   "name": "DeepSeek",
+   "type": "Open-weights lab (China)",
+   "founded": 2023,
+   "real": true,
+   "val": {
+    "2026": 89000
+   },
+   "valStatus": "Estimate: about 500 billion yuan pre-money converted to USD, plus the raise; reports, not a closed-round filing",
+   "rev": {},
+   "rounds": [
+    {
+     "year": 2026,
+     "amountUsdM": 14980,
+     "source": "deepseek"
+    }
+   ],
+   "sources": [
+    "deepseek"
+   ],
+   "start": {
+    "cash": 500,
+    "researchers": 60,
+    "engineers": 40,
+    "sales": 5,
+    "fleet": {
+     "h100": 40
+    },
+    "dcs": [
+     {
+      "region": "nordic",
+      "mw": 30
+     }
+    ],
+    "data": 60,
+    "rep": 70,
+    "safety": 45,
+    "dist": 40,
+    "morale": 75,
+    "growth": 0.6,
+    "growthRes": 0.1,
+    "targets": [
+     "api",
+     "chat",
+     "code"
+    ],
+    "mods": {
+     "talent": 1.1,
+     "noMW": true,
+     "openSource": 2
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+  },
+  {
+   "id": "moonshot",
+   "name": "Moonshot AI (Kimi)",
+   "type": "Frontier lab (China)",
+   "founded": 2023,
+   "real": true,
+   "val": {
+    "2025": 4300,
+    "2026": 35000
+   },
+   "valStatus": "Reported",
+   "rev": {},
+   "rounds": [
+    {
+     "year": 2026,
+     "amountUsdM": 2000,
+     "source": "moonshot"
+    }
+   ],
+   "sources": [
+    "moonshot"
+   ],
+   "start": {
+    "cash": 300,
+    "researchers": 40,
+    "engineers": 30,
+    "sales": 3,
+    "fleet": {
+     "h100": 20
+    },
+    "dcs": [],
+    "data": 55,
+    "rep": 60,
+    "safety": 45,
+    "dist": 35,
+    "morale": 70,
+    "growth": 0.5,
+    "growthRes": 0.1,
+    "targets": [
+     "chat",
+     "api"
+    ],
+    "mods": {
+     "talent": 1.05,
+     "noMW": true
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+  },
+  {
+   "id": "zhipu",
+   "name": "Zhipu AI (Z.ai)",
+   "type": "Frontier lab (China, listed in Hong Kong 2026)",
+   "founded": 2019,
+   "real": true,
+   "val": {
+    "2026": 7300
+   },
+   "valStatus": "Market value at listing; reported",
+   "rev": {},
+   "rounds": [],
+   "sources": [
+    "zhipu"
+   ],
+   "start": {
+    "cash": 200,
+    "researchers": 50,
+    "engineers": 40,
+    "sales": 5,
+    "fleet": {
+     "a100": 30
+    },
+    "dcs": [],
+    "data": 55,
+    "rep": 60,
+    "safety": 50,
+    "dist": 30,
+    "morale": 70,
+    "growth": 0.5,
+    "growthRes": 0.08,
+    "targets": [
+     "chat",
+     "api",
+     "code"
+    ],
+    "mods": {
+     "talent": 1.0,
+     "noMW": true
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+  },
+  {
+   "id": "cursor",
+   "name": "Cursor (Anysphere)",
+   "type": "AI coding tools",
+   "founded": 2022,
+   "real": true,
+   "val": {
+    "2025": 29300,
+    "2026": 60000
+   },
+   "valStatus": "2025 reported; 2026 is the SpaceX acquisition value",
+   "rev": {
+    "2026": 2000
+   },
+   "revStatus": "Annualized, reported in February 2026",
+   "rounds": [
+    {
+     "year": 2025,
+     "amountUsdM": 2300,
+     "source": "cursor"
+    }
+   ],
+   "sources": [
+    "cursor"
+   ],
+   "start": {
+    "cash": 200,
+    "researchers": 30,
+    "engineers": 80,
+    "sales": 20,
+    "fleet": {},
+    "dcs": [],
+    "data": 60,
+    "rep": 65,
+    "safety": 40,
+    "dist": 50,
+    "morale": 75,
+    "growth": 0.5,
+    "growthRes": 0.1,
+    "targets": [
+     "code",
+     "agents"
+    ],
+    "mods": {
+     "talent": 1.0,
+     "noMW": true,
+     "hype": 1.1
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+  },
+  {
+   "id": "perplexity",
+   "name": "Perplexity",
+   "type": "AI answer engine and agents",
+   "founded": 2022,
+   "real": true,
+   "val": {
+    "2024": 9000,
+    "2025": 20000,
+    "2026": 30000
+   },
+   "valStatus": "2024 and 2025 reported; 2026 is reported talks, not a closed round",
+   "rev": {
+    "2025": 200,
+    "2026": 750
+   },
+   "revStatus": "Annualized, reported",
+   "rounds": [
+    {
+     "year": 2025,
+     "amountUsdM": 500,
+     "source": "perplexity"
+    }
+   ],
+   "sources": [
+    "perplexity"
+   ],
+   "start": {
+    "cash": 100,
+    "researchers": 25,
+    "engineers": 40,
+    "sales": 15,
+    "fleet": {},
+    "dcs": [],
+    "data": 55,
+    "rep": 55,
+    "safety": 45,
+    "dist": 45,
+    "morale": 70,
+    "growth": 0.4,
+    "growthRes": 0.08,
+    "targets": [
+     "chat",
+     "agents"
+    ],
+    "mods": {
+     "talent": 1.0,
+     "noMW": true
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+  },
+  {
+   "id": "cohere",
+   "name": "Cohere",
+   "type": "Enterprise and sovereign AI (Canada)",
+   "founded": 2019,
+   "real": true,
+   "val": {
+    "2026": 26000
+   },
+   "valStatus": "Initial close at CAD 35.7 billion, converted to USD; round not yet fully closed",
+   "rev": {},
+   "rounds": [],
+   "sources": [
+    "cohere"
+   ],
+   "start": {
+    "cash": 300,
+    "researchers": 40,
+    "engineers": 50,
+    "sales": 40,
+    "fleet": {
+     "a100": 60
+    },
+    "dcs": [
+     {
+      "region": "nordic",
+      "mw": 20
+     }
+    ],
+    "data": 60,
+    "rep": 60,
+    "safety": 55,
+    "dist": 30,
+    "morale": 70,
+    "growth": 0.4,
+    "growthRes": 0.06,
+    "targets": [
+     "api",
+     "agents"
+    ],
+    "mods": {
+     "talent": 1.0,
+     "noMW": true
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+  },
+  {
+   "id": "coreweave",
+   "name": "CoreWeave",
+   "type": "Neocloud (GPU cloud, public)",
+   "founded": 2017,
+   "real": true,
+   "val": {
+    "2026": 29300
+   },
+   "valStatus": "Market capitalization; reported",
+   "rev": {
+    "2025": 5131,
+    "2026": 13150
+   },
+   "revStatus": "2025 is reported; 2026 is the guidance midpoint",
+   "rounds": [],
+   "sources": [
+    "coreweave"
+   ],
+   "start": {
+    "cash": 1500,
+    "researchers": 5,
+    "engineers": 600,
+    "sales": 100,
+    "fleet": {},
+    "leased": {
+     "h100": 3000,
+     "gb200": 2000
+    },
+    "dcs": [
+     {
+      "region": "us",
+      "mw": 300
+     },
+     {
+      "region": "tx",
+      "mw": 200
+     }
+    ],
+    "data": 20,
+    "rep": 70,
+    "safety": 40,
+    "dist": 60,
+    "morale": 65,
+    "growth": 0.6,
+    "growthRes": 0.02,
+    "targets": [],
+    "mods": {
+     "talent": 0.3,
+     "lease": 7,
+     "noMW": true
+    },
+    "public": true,
+    "ipoYear": 2025
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+  },
+  {
+   "id": "gdm",
+   "name": "Google DeepMind (simulated)",
+   "type": "Big tech AI division",
+   "founded": 2016,
+   "real": false,
+   "capex2026Usd": 200000,
+   "capexSource": "hyperscaler-capex",
+   "val": {},
+   "rev": {},
+   "rounds": [],
+   "sources": [
+    "hyperscaler-capex"
+   ],
+   "start": {
+    "cash": 8000,
+    "researchers": 150,
+    "engineers": 300,
+    "sales": 200,
+    "fleet": {
+     "p100": 300
+    },
+    "dcs": [
+     {
+      "region": "us",
+      "mw": 200
+     }
+    ],
+    "data": 90,
+    "rep": 80,
+    "safety": 70,
+    "dist": 90,
+    "morale": 65,
+    "growth": 0.15,
+    "growthRes": 0.02,
+    "targets": [
+     "chat",
+     "science"
+    ],
+    "mods": {
+     "talent": 1.2,
+     "compute": 0.8,
+     "parent": 0.05,
+     "gov": true,
+     "alloc": 1.2,
+     "noMW": true,
+     "hype": 0.15
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+  },
+  {
+   "id": "meta",
+   "name": "Meta AI (simulated)",
+   "type": "Big tech AI division",
+   "founded": 2016,
+   "real": false,
+   "capex2026Usd": 140000,
+   "capexSource": "hyperscaler-capex",
+   "val": {},
+   "rev": {},
+   "rounds": [],
+   "sources": [
+    "hyperscaler-capex"
+   ],
+   "start": {
+    "cash": 6000,
+    "researchers": 120,
+    "engineers": 400,
+    "sales": 100,
+    "fleet": {
+     "p100": 250
+    },
+    "dcs": [
+     {
+      "region": "us",
+      "mw": 150
+     }
+    ],
+    "data": 85,
+    "rep": 70,
+    "safety": 50,
+    "dist": 85,
+    "morale": 65,
+    "growth": 0.15,
+    "growthRes": 0.02,
+    "targets": [
+     "media"
+    ],
+    "mods": {
+     "talent": 1.1,
+     "compute": 0.8,
+     "openSource": 1.5,
+     "alloc": 1.2,
+     "noMW": true,
+     "hype": 0.15
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+  },
+  {
+   "id": "msft",
+   "name": "Microsoft AI (simulated)",
+   "type": "Big tech AI division",
+   "founded": 2016,
+   "real": false,
+   "capex2026Usd": 170000,
+   "capexSource": "hyperscaler-capex",
+   "val": {},
+   "rev": {},
+   "rounds": [],
+   "sources": [
+    "hyperscaler-capex"
+   ],
+   "start": {
+    "cash": 10000,
+    "researchers": 80,
+    "engineers": 500,
+    "sales": 500,
+    "fleet": {
+     "p100": 300
+    },
+    "dcs": [
+     {
+      "region": "us",
+      "mw": 150
+     }
+    ],
+    "data": 85,
+    "rep": 75,
+    "safety": 55,
+    "dist": 90,
+    "morale": 60,
+    "growth": 0.15,
+    "growthRes": 0.02,
+    "targets": [
+     "api",
+     "code"
+    ],
+    "mods": {
+     "talent": 1.0,
+     "compute": 0.8,
+     "parent": 0.05,
+     "gov": true,
+     "alloc": 1.2,
+     "noMW": true,
+     "hype": 0.15
+    }
+   },
+   "startStatus": "game-estimate",
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+  }
+ ],
+ "rules": {
+  "postHistoryValuationCap": 1.12,
+  "postHistoryValuationFloor": 0.88,
+  "rulesStatus": "game-estimate",
+  "rulesNote": "After 2026 real companies are valued from simulated revenue, which is not their real revenue. These bounds stop a company moving more than 12 percent a year up or down in the simulation."
+ }
+}
