@@ -8,7 +8,7 @@
   const row = (label, value) => `<div class="row"><span>${label}</span><b>${value}</b></div>`;
   const card = (title, body) => `<section class="card"><h3>${title}</h3>${body}</section>`;
   const costTag = c => (c > 0 ? `<i class="cost">-${money(c)}</i>` : c < 0 ? `<i class="cost gain">+${money(-c)}</i>` : '<i class="cost">free</i>');
-  const TABS = [['overview', 'Overview'], ['hardware', 'Hardware'], ['research', 'Research'], ['talent', 'Talent'], ['products', 'Products'], ['finance', 'Finance'], ['policy', 'Policy'], ['rivals', 'Rivals'], ['deals', 'Deals'], ['market', 'Market'], ['log', 'Log']];
+  const TABS = [['overview', 'Overview'], ['hardware', 'Compute'], ['research', 'Research'], ['talent', 'Team'], ['products', 'Products'], ['finance', 'Capital'], ['policy', 'Policy'], ['rivals', 'Rivals'], ['deals', 'Deals'], ['market', 'Market'], ['log', 'Log']];
   const TAB_GROUPS = { hardware: ['Compute'], research: ['Research'], talent: ['Talent'], products: ['Products'], finance: ['Finance'], policy: ['Policy'], rivals: ['Rivals'], deals: ['Deals'] };
   const REG_NAMES = ['None', 'Voluntary guidelines', 'Binding rules', 'Licensing regime'];
   const SRC = 'docs/research.md';
@@ -102,6 +102,12 @@
     return card(`Achievements ${n} of ${ACHIEVEMENTS.length}`, `<ul class="achs">${ACHIEVEMENTS.map(a => `<li class="${a.id in got ? 'on' : ''}"><b>${esc(a.title)}</b><small>${esc(a.text)}</small></li>`).join('')}</ul>`);
   }
 
+  function tutorialCard() {
+    if (localStorage.getItem('it-tutorial') === '1') return '';
+    const steps = [['Found your company', 'Pick a pathway and press Found company.'], ['End your first year', 'Press End year and read the report.'], ['Finish a mission', 'Missions on this page pay out cash.'], ['Stake a rival', 'Buy 5 percent slices on Rivals, then reach 49 percent to make offers.']];
+    return card('Start here', `<ol class="steps">${steps.map(([h, b]) => `<li><b>${esc(h)}</b><span class="muted">${esc(b)}</span></li>`).join('')}</ol><button class="ghost" id="tut-done">Got it, hide this</button>`);
+  }
+
   function decisionCard() {
     const d = S.decision;
     if (!d) return '';
@@ -144,7 +150,7 @@
       <div class="start">
         ${banner('start')}
         <h1>Intelligence Tycoon</h1>
-        <p class="lede">2016 to 2035. Found an AI company and race the real ones: OpenAI, Anthropic, NVIDIA, xAI and the rest. History runs on real numbers until 2026. After that, it's up to you.</p>
+        <p class="lede">Found an AI company in 2016 and race the real ones to 2035.</p>
         <label class="name">Company name <input id="company-name" value="${esc(companyName)}" maxlength="28"></label>
         <div class="scenarios">${Object.entries(SCENARIOS).map(([id, sc]) => `<button class="scen${id === scenarioId ? ' on' : ''}" data-scenario="${id}" title="${esc(sc.blurb)}"><b>${esc(sc.name)}</b><small>${esc(sc.blurb)}</small></button>`).join('')}</div>
         <div class="paths">${Object.entries(PATHS).map(([id, p]) => `
@@ -152,15 +158,13 @@
             <h2>${p.name}</h2>
             <p class="blurb">${p.blurb}</p>
             <p class="meta">${money(p.start.cash)} cash · ${p.start.researchers} researchers · ${sumVals(p.start.fleet)} racks</p>
-            <ul class="pros">${p.pros.map(x => `<li>${x}</li>`).join('')}</ul>
-            <ul class="cons">${p.cons.map(x => `<li>${x}</li>`).join('')}</ul>
-            <p class="objs"><b>Objectives:</b> ${p.goals.map(g => esc(g.text)).join(' · ')}</p>
+            <details class="more"><summary>Strengths, weaknesses and goals</summary><ul class="pros">${p.pros.map(x => `<li>${x}</li>`).join('')}</ul><ul class="cons">${p.cons.map(x => `<li>${x}</li>`).join('')}</ul><p class="objs"><b>Goals:</b> ${p.goals.map(g => esc(g.text)).join(' · ')}</p></details>
           </div>`).join('')}
         </div>
         <div class="roll">${rolled ? `<div class="story-card"><b>${esc(rolled.name)}</b><span class="muted">${esc(rolled.founder)} · ${esc(rolled.city)}</span><p>${esc(rolled.backstory)}</p></div>` : '<p class="muted">Roll a name to get a founder, a city and a backstory.</p>'}<button class="ghost" id="roll">Roll a name</button></div>
         <button class="primary big" id="found">Found company</button>
         ${localStorage.getItem('it-save') ? '<button class="ghost" id="continue-save">Continue saved game</button>' : ''}
-        <button class="ghost" id="help-start">How it works</button>
+        <button class="ghost" id="help-start">Guide</button>
         ${runsCard()}
       </div>`;
   }
@@ -181,7 +185,7 @@
         ${chip('Index', Math.round(S.w.index), '', `rate ${S.w.rate.toFixed(1)}%`)}
         ${chip('Actions', `${S.ap} left`, '', `outflow ${money(me.revenue - me.net)}/yr`)}
       </div>
-      <button class="ghost" id="help">How it works</button>
+      <button class="ghost" id="help">Guide</button>
       <button class="ghost" id="save">Save</button>
       <button class="primary" id="end-year">End ${S.year} →</button>`;
   }
@@ -211,13 +215,12 @@
           <h3 class="sub">Products</h3><div class="tags">${me.products.length ? me.products.map(sid => `<span class="tag">${SEGMENTS[sid].name}</span>`).join('') : '<span class="muted">None launched</span>'}</div>`)}
         ${card('Last year', `${row('Revenue', money(me.revenue))}${row('Inference costs', money(me.cogs))}${row('Operating costs', money(costs))}${row('Net cash', money(me.net))}`)}
         ${card('Leaderboard', `<ol class="board">${board.slice(0, 10).map((c, i) => `<li class="${c === me ? 'me' : ''}"><span>${i + 1}. ${esc(c.name)}${c.real ? ' <small class="muted">real</small>' : ''}</span><b>${money(c.valuation)}</b></li>`).join('')}</ol>`)}
+        ${tutorialCard()}
         ${decisionCard()}
         ${foundingCard()}
         ${stakesCard()}
         ${missionsCard()}
-        ${calendarCard()}
         ${nextCard()}
-        ${achievementsCard()}
         ${card('Objectives', `<ul class="objs-list">${PATHS[S.path].goals.map((g, i) => `<li class="${i in S.goalsDone ? 'done' : ''}">${esc(g.text)}<small>${i in S.goalsDone ? `Done in ${S.goalsDone[i]}` : 'Open'}</small></li>`).join('')}</ul>`)}
         ${card('Valuation history', historyChart())}
         ${card('Latest news', `<ul class="log">${S.log.slice(-8).reverse().map(l => `<li><b>${l.year}</b>${esc(l.text)}</li>`).join('')}</ul>`)}
@@ -348,7 +351,7 @@
     }
 
     if (tab === 'log') {
-      html = card('Full log', `<ul class="log tall">${S.log.slice().reverse().map(l => `<li><b>${l.year}</b>${esc(l.text)}</li>`).join('')}</ul>`);
+      html = `<div class="grid2">${calendarCard()}${achievementsCard()}</div>` + card('Full log', `<ul class="log tall">${S.log.slice().reverse().map(l => `<li><b>${l.year}</b>${esc(l.text)}</li>`).join('')}</ul>`);
     }
 
     $('#content').innerHTML = banner(tab) + html;
@@ -423,18 +426,17 @@
 
   function showHelp() {
     $('#modal').innerHTML = `<div class="modal wide">
-      <h2>How it works</h2>
-      <ul class="help">
-        <li><b>Turns.</b> Each turn is a year. You spend action points, then end the year. Costs, revenue, training, hiring and rival moves resolve at year end.</li>
-        <li><b>Hardware.</b> Real GPU platforms from P100 (2016) to Blackwell GB200 and Vera Rubin, plus AMD MI455X and TPU v7. Racks are 72 GPUs. Each rack has a real price and power draw, so buying racks means finding megawatts. Campuses take 2 to 4 years to get grid power. Chip allocation tightens in shortages. Export controls block the newest NVIDIA parts for most buyers.</li>
-        <li><b>Models.</b> Capability is your effective compute relative to the frontier, times data, algorithms and stars. Models age, so you must retrain to keep up. Fine-tuning borrowed open weights is cheap but capped near half the frontier.</li>
-        <li><b>Custom silicon.</b> Designing your own accelerator takes three years and a strong research team. It lands near 1.8 times the current NVIDIA part at 60 percent of the rack price.</li>
-        <li><b>Power.</b> Energy is priced by region. Clean power contracts cut costs. Small modular reactors take four years.</li>
-        <li><b>Real rivals.</b> OpenAI, Anthropic, xAI, NVIDIA, Mistral, SSI and Thinking Machines follow public valuation and revenue reports through 2026. After 2026 they play by the same rules as you. Google, Meta and Microsoft AI are simulated divisions, since their AI units have no separate valuation.</li>
-        <li><b>Finance.</b> Rounds have milestones. Debt is backed by GPUs. An IPO needs a CFO, $500M revenue and a healthy market. Sovereign money brings capital and scrutiny. You can take 5 percent stakes in rivals.</li>
-        <li><b>Policy.</b> Regulation tightens over time. Binding rules need safety 50 for frontier releases. Licensing needs a permit. Copyright lawsuits follow unlicensed data. Acquisitions face antitrust review above 40 percent segment share.</li>
-        <li><b>Winning.</b> The highest valuation in ${END_YEAR} wins. Going bankrupt ends the game early.</li>
-      </ul>
+      <h2>Guide</h2>
+      <ol class="help">
+        <li><b>Each year</b> gives you actions. Spend them, then press End year.</li>
+        <li><b>Compute</b> buys racks and campuses. Power limits what you can run.</li>
+        <li><b>Team</b> hires researchers and engineers. Candidates leave at year end.</li>
+        <li><b>Capital</b> raises rounds and buys stakes. Reach 49 percent of a rival to make offers.</li>
+        <li><b>Deals</b> holds offers, acquisitions and cloud deals. Rivals answer your moves.</li>
+        <li><b>Missions</b> pay out when finished. Achievements unlock on the Log tab.</li>
+      </ol>
+      <p class="muted">E ends the year. [ and ] change tab. ? opens this guide.</p>
+      <button class="ghost" id="tut-reset">Show start tips again</button>
       <button class="primary" id="close-help">Close</button>
     </div>`;
     $('#modal').hidden = false;
@@ -500,7 +502,7 @@
   document.addEventListener('input', e => { if (e.target.id === 'company-name') companyName = e.target.value; });
 
   document.addEventListener('click', e => {
-    const t = e.target.closest('[data-path],[data-act],[data-tab],[data-scenario],#roll,#found,#end-year,#continue,#again,#help,#help-start,#close-help,#continue-save,#save,#clear-runs,#copy-share');
+    const t = e.target.closest('[data-path],[data-act],[data-tab],[data-scenario],#roll,#found,#end-year,#continue,#again,#help,#help-start,#close-help,#continue-save,#save,#clear-runs,#copy-share,#tut-done,#tut-reset');
     if (!t || t.disabled) return;
     if (t.dataset.path) { pathId = t.dataset.path; renderStart(); }
     else if (t.dataset.scenario) { scenarioId = t.dataset.scenario; renderStart(); }
@@ -515,6 +517,8 @@
     else if (t.id === 'continue') { $('#modal').hidden = true; if (S.over) renderEnd(); }
     else if (t.id === 'again') renderStart();
     else if (t.id === 'copy-share') copyShare();
+    else if (t.id === 'tut-done') { localStorage.setItem('it-tutorial', '1'); renderGame(); }
+    else if (t.id === 'tut-reset') { localStorage.removeItem('it-tutorial'); $('#modal').hidden = true; renderGame(); }
     else if (t.id === 'help' || t.id === 'help-start') showHelp();
     else if (t.id === 'close-help') $('#modal').hidden = true;
   });

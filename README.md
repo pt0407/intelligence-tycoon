@@ -47,7 +47,7 @@ The autoplay runs games across worker threads. It reports bankruptcies, median r
 ## Notes
 
 - Six pathways. Each has its own starting team, bonuses, drawbacks, and objectives.
-- The "How it works" button in the game explains the mechanics.
+- The Guide button explains the tabs in one short list. A "Start here" card on the Overview walks new players through four steps and can be hidden.
 - Smoke-tested in headless Chromium: all tabs, actions, year-ends, and the final screen run with no console errors.
 - Balance is a first pass. After 2026 OpenAI tends to run away with the market in the sim, and the naive bot finishes around fifth.
 - Google DeepMind, Meta AI, and Microsoft AI are simulated, since their AI units have no separate valuation.
