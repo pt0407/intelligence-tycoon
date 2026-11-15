@@ -18,6 +18,20 @@ MAX_ACTIONS_PER_YEAR = 6
 
 
 ACTION_TABS = ["overview", "talent", "products", "hardware", "research", "rivals", "deals", "finance"]
+CASH_RESERVE_M = 30
+# Below the reserve the bot may only take actions that are free or bring cash in.
+LOW_CASH_OK = ("decide", "raise", "borrow", "sovereign", "secondary", "repay", "equity", "strategy", "lease", "license_app", "invest")
+# The bot never changes price tiers: the free tier halves revenue per user and the bot was flipping between tiers.
+NEVER = ("tier",)
+
+
+def read_cash_m(pg):
+    """Cash in $M from the ticker, e.g. '$5.0M', '$1.2B', '-$3.0M'."""
+    text = pg.locator(".chip", has_text="Cash").locator("b").inner_text().strip()
+    sign = -1 if text.startswith("-") else 1
+    number = float(text.lstrip("-$").rstrip("MBT"))
+    scale = {"M": 1, "B": 1000, "T": 1000000}[text[-1]]
+    return sign * number * scale
 
 
 def take_actions(pg, report, year):
@@ -31,7 +45,23 @@ def take_actions(pg, report, year):
             if buttons.count() == 0:
                 break
             key = buttons.first.get_attribute("data-act")
-            buttons.first.click()
+            if key.startswith(NEVER):
+                offered = pg.locator("[data-act]:not([disabled])").evaluate_all("els => els.map(e => e.dataset.act)")
+                key = next((k for k in offered if not k.startswith(NEVER)), None)
+                if key is None:
+                    break
+                buttons = pg.locator(f"[data-act='{key}']").first
+            if not key.startswith(LOW_CASH_OK) and read_cash_m(pg) < CASH_RESERVE_M:
+                offered = pg.locator("[data-act]:not([disabled])").evaluate_all(
+                    "els => els.map(e => e.dataset.act)")
+                pick = next((k for k in offered if k.startswith(LOW_CASH_OK)), None)
+                if pick is None:
+                    break
+                buttons = pg.locator(f"[data-act='{pick}']").first
+                key = pick
+            else:
+                buttons = buttons.first
+            buttons.click()
             report["actions"].append({"year": year, "tab": tab, "key": key})
             taken += 1
             pg.wait_for_timeout(20)
@@ -59,9 +89,11 @@ def play(pg, path, scenario):
             check_layout(pg, report, year, tab)
         pg.click("[data-tab='overview']")
         take_actions(pg, report, year)
+        cash_before = read_cash_m(pg)
         pg.click("#end-year")
         pg.wait_for_selector("#modal:not([hidden])", timeout=5000)
         report["years"] += 1
+        report.setdefault("cash", []).append({"year": year, "before": cash_before, "after": pg.locator(".rrow", has_text="Cash").first.locator("b").inner_text().strip()})
         pg.click("#continue")
         if pg.is_visible("#end"):
             break
