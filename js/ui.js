@@ -120,13 +120,16 @@
     return card('Stakes', `${rows || '<p class="muted">No stakes yet. Buy 5 percent slices on the Rivals or Deals tab.</p>'}${S.lastDividend ? row('Dividends last year', `+${money(S.lastDividend)}`) : ''}`);
   }
 
+  function calendarCard() {
+    const cells = calendarCells(S);
+    return card('Season calendar', `<div class="cal">${cells.map(c => `<div class="cell ${c.state}${c.beat ? ' beat' : ''}" title="${c.year}: ${esc(c.era)}"><span>${String(c.year).slice(2)}</span>${c.beat ? '<i></i>' : ''}</div>`).join('')}</div><p class="muted">${esc(eraOf(S.year))}. Dots mark scripted history beats.</p>`);
+  }
+
   function missionsCard() {
     const list = S.missions ?? [];
     return card('Missions this year', `<ul class="missions">${list.map(m => `<li class="${m.done ? 'done' : ''}"><span class="tick" aria-hidden="true"></span><b>${esc(m.text)}</b><small>${m.done ? 'Complete' : 'Open'} · reward ${money(m.reward)}</small></li>`).join('') || '<li class="muted">No missions.</li>'}</ul>`);
   }
 
-  const ERAS = [[2016, 'The deep learning era'], [2019, 'Capped profits'], [2022, 'The chatbot boom'], [2023, 'The GPU shortage'], [2024, 'Export controls'], [2026, 'The gigawatt era'], [2028, 'The shakeout']];
-  function eraOf(y) { let name = ERAS[0][1]; for (const [from, n] of ERAS) if (y >= from) name = n; return name; }
 
   let rolled = null;
   function rollName() {
@@ -212,6 +215,7 @@
         ${foundingCard()}
         ${stakesCard()}
         ${missionsCard()}
+        ${calendarCard()}
         ${nextCard()}
         ${achievementsCard()}
         ${card('Objectives', `<ul class="objs-list">${PATHS[S.path].goals.map((g, i) => `<li class="${i in S.goalsDone ? 'done' : ''}">${esc(g.text)}<small>${i in S.goalsDone ? `Done in ${S.goalsDone[i]}` : 'Open'}</small></li>`).join('')}</ul>`)}

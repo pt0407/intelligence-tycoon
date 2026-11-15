@@ -34,3 +34,11 @@ function nextAchievement(s) {
   const a = ACHIEVEMENTS.find(x => !(x.id in done));
   return a ? { id: a.id, title: a.title, text: a.text, ...a.meter(s) } : null;
 }
+
+const ERAS = [[2016, 'The deep learning era'], [2019, 'Capped profits'], [2022, 'The chatbot boom'], [2023, 'The GPU shortage'], [2024, 'Export controls'], [2026, 'The gigawatt era'], [2028, 'The shakeout']];
+function eraOf(y) { let name = ERAS[0][1]; for (const [from, n] of ERAS) if (y >= from) name = n; return name; }
+function calendarCells(s) {
+  const out = [];
+  for (let y = START_YEAR; y <= END_YEAR; y++) out.push({ year: y, era: eraOf(y), beat: !!SCRIPTED[y], state: y < s.year ? 'past' : y === s.year ? 'now' : 'future' });
+  return out;
+}

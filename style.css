@@ -467,3 +467,9 @@ button:focus-visible, input:focus-visible, .path:focus-visible, .scen:focus-visi
 @media (prefers-reduced-motion: reduce) {
   .banner .led, .banner .pulse, .banner .bob, .banner .orbit, .banner .grow, .era { animation: none !important; }
 }
+
+.cal { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 6px; }
+.cell { position: relative; padding: 8px 6px; border-radius: 10px; border: 1px solid var(--row); text-align: center; font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.cell.past { opacity: 0.5; }
+.cell.now { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(158, 232, 255, 0.35); }
+.cell.beat i { display: block; width: 6px; height: 6px; margin: 4px auto 0; border-radius: 999px; background: var(--accent); }
