@@ -142,3 +142,21 @@ Scenario switches (game mechanics, not forecasts):
 | assets/tpu_v3.jpg | Google TPU v3 | CC BY-SA 4.0 | Zinskauf |
 
 Logos are trademarks of their owners, shown only to identify the companies.
+
+## Section photos (added 14 Nov 2026)
+
+| File | Section | License | Author | Source |
+| --- | --- | --- | --- | --- |
+| assets/sections/start.webp | start | CC0 | Derrick Coetzee from Berkeley, CA, USA | https://commons.wikimedia.org/wiki/File:Rear_of_rack_at_NERSC_data_center_-_closeup.jpg |
+| assets/sections/overview.webp | overview | Public domain | Carol M. Highsmith | https://commons.wikimedia.org/wiki/File:Trading_floor,_New_York_Stock_Exchange,_New_York,_New_York_LCCN2011630168.tif |
+| assets/sections/hardware.webp | hardware | CC BY 4.0 | Steve Jurvetson | https://commons.wikimedia.org/wiki/File:GPU_blade_with_glycol_cooling_(54685994424).jpg |
+| assets/sections/research.webp | research | CC BY-SA 4.0 | PiDatacenters | https://commons.wikimedia.org/wiki/File:Racks_Amravati_Data_Center.jpg |
+| assets/sections/talent.webp | talent | Public domain | U.S. Air Force AFRL by Keith C Lewis | https://commons.wikimedia.org/wiki/File:Dr_Emily_Heckman,_Principal_Electronics_Engineer_from_the_Sensors_Directorate_of_the_Air_Force_Research_Laboratory,_leads_a_team_of_engineers_and_scientists_in_the_development_of_new_products_for_the_warfighter_(8215691).jpg |
+| assets/sections/products.webp | products | CC0 | Markus Spiske markusspiske | https://commons.wikimedia.org/wiki/File:Code_on_computer_monitor_(Unsplash).jpg |
+| assets/sections/finance.webp | finance | Public domain | Jaclyn Nash (photographer) | https://commons.wikimedia.org/wiki/File:Thomas_Edison_stock_ticker_NMAH-JN2014-3625.jpg |
+| assets/sections/policy.webp | policy | CC BY-SA 4.0 | Thennicke | https://commons.wikimedia.org/wiki/File:Parliament_House_at_dusk,_Canberra_ACT.jpg |
+| assets/sections/rivals.webp | rivals | CC BY-SA 4.0 | Ank Kumar | https://commons.wikimedia.org/wiki/File:Frankfurt_Stock_Exchange_(Ank_Kumar)_05.jpg |
+| assets/sections/market.webp | market | CC BY-SA 3.0 | Mark H. | https://commons.wikimedia.org/wiki/File:Marktanteil_GPU-Hersteller.png |
+| assets/sections/log.webp | log | CC BY-SA 3.0 | Victorgrigas | https://commons.wikimedia.org/wiki/File:Wikimedia_Foundation_Servers-8055_13.jpg |
+
+Only CC0, public domain, CC BY, and CC BY-SA images are used. Each banner shows its credit on screen.

@@ -12,9 +12,29 @@
   const REG_NAMES = ['None', 'Voluntary guidelines', 'Binding rules', 'Licensing regime'];
   const SRC = 'docs/research.md';
 
+  const SECTION_IMG = {
+    start: { src: 'assets/sections/start.webp', alt: "Rows of server racks in a data center", credit: "Derrick Coetzee from Berkeley, CA, USA, CC0, via Wikimedia Commons" },
+    overview: { src: 'assets/sections/overview.webp', alt: "NYSE trading floor, traders at their desks", credit: "Carol M. Highsmith, Public domain, via Wikimedia Commons" },
+    hardware: { src: 'assets/sections/hardware.webp', alt: "GPU blades with liquid cooling", credit: "Steve Jurvetson, CC BY 4.0, via Wikimedia Commons" },
+    research: { src: 'assets/sections/research.webp', alt: "Rows of racks in a data center hall", credit: "PiDatacenters, CC BY-SA 4.0, via Wikimedia Commons" },
+    talent: { src: 'assets/sections/talent.webp', alt: "Engineers and scientists working as a team", credit: "U.S. Air Force AFRL by Keith C Lewis, Public domain, via Wikimedia Commons" },
+    products: { src: 'assets/sections/products.webp', alt: "Source code on a computer monitor", credit: "Markus Spiske markusspiske, CC0, via Wikimedia Commons" },
+    finance: { src: 'assets/sections/finance.webp', alt: "Antique stock ticker machine", credit: "Jaclyn Nash (photographer), Public domain, via Wikimedia Commons" },
+    policy: { src: 'assets/sections/policy.webp', alt: "Parliament building at dusk", credit: "Thennicke, CC BY-SA 4.0, via Wikimedia Commons" },
+    rivals: { src: 'assets/sections/rivals.webp', alt: "Frankfurt Stock Exchange floor", credit: "Ank Kumar, CC BY-SA 4.0, via Wikimedia Commons" },
+    market: { src: 'assets/sections/market.webp', alt: "Bar chart of GPU maker market shares", credit: "Mark H., CC BY-SA 3.0, via Wikimedia Commons" },
+    log: { src: 'assets/sections/log.webp', alt: "Server racks with blinking status lights", credit: "Victorgrigas, CC BY-SA 3.0, via Wikimedia Commons" },
+  };
+
   let S = null, pathId = 'lab', companyName = 'Your AI Co', tab = 'overview', opts = [], scenarioId = 'base';
 
   function showScreen(id) { for (const el of document.querySelectorAll('.screen')) el.hidden = el.id !== id; }
+
+  function banner(key) {
+    const b = SECTION_IMG[key];
+    if (!b) return '';
+    return `<figure class="banner"><img src="${b.src}" alt="${esc(b.alt)}" width="1280" height="800" loading="lazy" decoding="async"><figcaption><span>Photo</span> ${esc(b.credit)}</figcaption></figure>`;
+  }
 
   function runsList() { try { return JSON.parse(localStorage.getItem('it-runs') || '[]'); } catch (e) { return []; } }
 
@@ -36,6 +56,7 @@
     showScreen('start');
     $('#start').innerHTML = `
       <div class="start">
+        ${banner('start')}
         <h1>Intelligence Tycoon</h1>
         <p class="lede">2016 to 2035. Found an AI company and race the real ones: OpenAI, Anthropic, NVIDIA, xAI and the rest. History runs on real numbers until 2026. After that, it's up to you.</p>
         <label class="name">Company name <input id="company-name" value="${esc(companyName)}" maxlength="28"></label>
@@ -209,7 +230,7 @@
       html = card('Full log', `<ul class="log tall">${S.log.slice().reverse().map(l => `<li><b>${l.year}</b>${esc(l.text)}</li>`).join('')}</ul>`);
     }
 
-    $('#content').innerHTML = html;
+    $('#content').innerHTML = banner(tab) + html;
   }
 
   const LOGOS = { anthropic: 'assets/anthropic.svg', deepseek: 'assets/deepseek.svg', mistral: 'assets/mistral.svg', nvidia: 'assets/nvidia.svg' };
@@ -303,6 +324,7 @@
     recordRun();
     const v = S.verdict, ladder = realLadder(), max = Math.max(...ladder.map(x => x.value));
     $('#end').innerHTML = `<div class="end">
+      ${banner('market')}
       <h1>${esc(v.title)}</h1>
       <p class="lede">${esc(S.me.name)}: ${esc(v.text)}</p>
       <div class="share"><button class="primary" id="copy-share">Copy result</button><span id="share-status" class="muted" aria-live="polite"></span></div>
