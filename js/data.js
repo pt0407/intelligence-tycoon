@@ -138,6 +138,7 @@ const RIVAL_TEMPLATES = REAL.companies.map(c => ({
   leased: c.start.leased ?? {},
   anchors: Object.keys(c.val).length ? { val: c.val, rev: c.rev } : null,
   realRounds: c.rounds ?? [],
+  backstory: c.backstory,
 }));
 
 

@@ -97,9 +97,15 @@ const ACTIONS = [
   { id: 'repay', group: 'Finance', name: () => 'Repay 20% of debt', desc: 'Lowers interest costs.', cost: s => 0.2 * s.me.debt, check: s => (s.me.debt <= 0 ? 'No debt' : null), run: s => { s.me.debt *= 0.8; return 'Repaid a chunk of debt.'; } },
   { id: 'sovereign', group: 'Finance', name: () => 'Take sovereign fund money (6% of value)', desc: 'Cash with strings. Public trust drops a little and regulators watch closely.', cost: s => -0.06 * s.me.valuation, check: s => (s.me.valuation <= 0 ? 'No valuation yet' : s.me.rounds.length < 1 ? 'Raise a round first' : s.me.sovereign ? 'Already took sovereign money' : null), run: s => { s.me.stake *= 0.94; s.me.sovereign = true; s.w.trust = clamp(s.w.trust - 1, 0, 100); return 'Sovereign fund invests. Capital in, scrutiny up.'; } },
   {
-    id: 'invest', each: 'rival', group: 'Finance', name: (s, rid) => `Buy 5% of ${companyById(s, rid).name} (${money(0.05 * companyById(s, rid).valuation)})`, desc: 'A strategic stake. Counts toward your portfolio, not your rank.',
-    cost: (s, rid) => 0.05 * companyById(s, rid).valuation, check: (s, rid) => (companyById(s, rid).valuation <= 0 ? 'No valuation' : s.me.investments[rid] ? 'Already invested' : null),
-    run: (s, rid) => { const r = companyById(s, rid); r.cash += 0.05 * r.valuation; s.me.investments[rid] = 0.05; return `Took a 5% stake in ${r.name}.`; },
+    id: 'stake', each: 'rival', group: 'Deals', name: (s, rid) => `Buy 5% of ${companyById(s, rid).name} (${money(STAKE_SLICE * companyById(s, rid).valuation)})`,
+    desc: 'Shares come in slices, and at most 25 percent of a company can change hands a year. Reach 49 percent to make offers.',
+    cost: (s, rid) => STAKE_SLICE * companyById(s, rid).valuation,
+    check: (s, rid) => stakeBlock(s, rid),
+    run: (s, rid) => {
+      const r = companyById(s, rid), slice = STAKE_SLICE * r.valuation;
+      r.cash += slice; s.me.investments[rid] = held(s, rid) + STAKE_SLICE; stakeVol(s)[rid] = (stakeVol(s)[rid] ?? 0) + STAKE_SLICE;
+      return `Bought 5% of ${r.name}. You now hold ${Math.round(held(s, rid) * 100)}%.`;
+    },
   },
 
   { id: 'safetyTeam', group: 'Policy', name: () => 'Fund a safety team (+12 safety, $3M/yr)', desc: 'Two years of funding. Needed for frontier releases.', cost: () => 0, run: s => { bump(s.me, 'safety', 12); s.me.commitments.push({ amount: 3, until: s.year + 1 }); return 'Safety team funded.'; } },
@@ -111,24 +117,38 @@ const ACTIONS = [
     run: (s, rid) => { const r = companyById(s, rid), p = clamp(0.35 + (s.me.rep - r.rep) / 200, 0.1, 0.9); if (rand(s) >= p) return `Offers to ${r.name}'s researchers were turned down.`; s.me.researchers += 3; r.researchers -= 3; return `Poached 3 researchers from ${r.name}.`; },
   },
   {
-    id: 'acquire', each: 'rival', group: 'Deals', name: (s, rid) => `Buy ${companyById(s, rid).name} for ${money(acqPrice(s, rid))}`,
-    desc: 'Cash now, the rest in stock. Closes next year. Brings their team, racks and products, and a morale hit from integration.',
-    cost: (s, rid) => Math.min(Math.max(0, s.me.cash), acqPrice(s, rid)),
-    check: (s, rid) => dealBlock(s, rid) ?? (companyById(s, rid).valuation > 1.5 * s.me.valuation ? 'Too big to buy' : null) ?? (s.me.stake * (1 - Math.max(0, acqPrice(s, rid) - Math.max(0, s.me.cash)) / s.me.valuation) < 0.1 ? 'Would dilute you below 10%' : null),
-    run: (s, rid) => scheduleDeal(s, 'acquire', companyById(s, rid), acqPrice(s, rid)),
+    id: 'bidLow', each: 'rival', group: 'Deals', name: (s, rid) => `${'Low offer'} for ${companyById(s, rid).name}: ${money(0.85 * companyById(s, rid).valuation)}`,
+    desc: 'The company answers at year end. Accepted offers close next year. Rejections block talks for a year.',
+    cost: () => 0,
+    check: (s, rid) => bidBlock(s, rid),
+    run: (s, rid) => { const r = companyById(s, rid); s.offers.push({ target: rid, price: 0.85 * r.valuation, respondYear: s.year, status: 'open' }); return `Offered ${money(0.85 * r.valuation)} for ${r.name}. They answer at year end.`; },
+  },
+  {
+    id: 'bidFair', each: 'rival', group: 'Deals', name: (s, rid) => `${'Fair offer'} for ${companyById(s, rid).name}: ${money(1.0 * companyById(s, rid).valuation)}`,
+    desc: 'The company answers at year end. Accepted offers close next year. Rejections block talks for a year.',
+    cost: () => 0,
+    check: (s, rid) => bidBlock(s, rid),
+    run: (s, rid) => { const r = companyById(s, rid); s.offers.push({ target: rid, price: 1.0 * r.valuation, respondYear: s.year, status: 'open' }); return `Offered ${money(1.0 * r.valuation)} for ${r.name}. They answer at year end.`; },
+  },
+  {
+    id: 'bidHigh', each: 'rival', group: 'Deals', name: (s, rid) => `${'High offer'} for ${companyById(s, rid).name}: ${money(1.2 * companyById(s, rid).valuation)}`,
+    desc: 'The company answers at year end. Accepted offers close next year. Rejections block talks for a year.',
+    cost: () => 0,
+    check: (s, rid) => bidBlock(s, rid),
+    run: (s, rid) => { const r = companyById(s, rid); s.offers.push({ target: rid, price: 1.2 * r.valuation, respondYear: s.year, status: 'open' }); return `Offered ${money(1.2 * r.valuation)} for ${r.name}. They answer at year end.`; },
   },
   {
     id: 'acquihire', each: 'rival', group: 'Deals', name: (s, rid) => `Acquihire ${companyById(s, rid).name}'s team for ${money(acquihirePrice(s, rid))}`,
     desc: 'Their researchers join you next year. Products and racks stay with the company.',
-    cost: (s, rid) => Math.min(Math.max(0, s.me.cash), acquihirePrice(s, rid)),
-    check: (s, rid) => dealBlock(s, rid) ?? (companyById(s, rid).researchers < 5 ? 'Team too small to bother' : null),
+    cost: () => 0,
+    check: (s, rid) => dealBlock(s, rid) ?? (companyById(s, rid).researchers < 5 ? 'Team too small to bother' : null) ?? (s.me.cash < 1 ? 'Needs cash' : null),
     run: (s, rid) => scheduleDeal(s, 'acquihire', companyById(s, rid), acquihirePrice(s, rid)),
   },
   {
     id: 'buycompute', each: 'rival', group: 'Deals', name: (s, rid) => `Buy ${companyById(s, rid).name}'s racks for ${money(computePrice(s, rid))}`,
     desc: 'Their fleet joins you next year at 80 percent of rack value. The company keeps its team and products.',
-    cost: (s, rid) => Math.min(Math.max(0, s.me.cash), computePrice(s, rid)),
-    check: (s, rid) => dealBlock(s, rid) ?? (sumVals(companyById(s, rid).fleet) < 1 ? 'No owned racks to buy' : null) ?? (capacityMW(s.me) - ownedMW(s.me) < fleetMW(companyById(s, rid)) ? 'Needs free megawatts for these racks' : null),
+    cost: () => 0,
+    check: (s, rid) => dealBlock(s, rid) ?? (sumVals(companyById(s, rid).fleet) < 1 ? 'No owned racks to buy' : null) ?? (capacityMW(s.me) - ownedMW(s.me) < fleetMW(companyById(s, rid)) ? 'Needs free megawatts for these racks' : null) ?? (s.me.cash < 1 ? 'Needs cash' : null),
     run: (s, rid) => scheduleDeal(s, 'buycompute', companyById(s, rid), computePrice(s, rid)),
   },
 ];
@@ -173,5 +193,7 @@ function act(s, key) {
   s.ap -= 1;
   syncStars(s);
   s.log.push({ year: s.year, text: msg });
+  s.yr ??= {};
+  countAction(s, key);
   return null;
 }

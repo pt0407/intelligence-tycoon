@@ -29,6 +29,7 @@ function problems(d) {
     if (!c.start) out.push(`${w}: missing start state`);
     if (c.start && c.startStatus !== 'game-estimate') out.push(`${w}: start state must be labelled game-estimate`);
     if (c.valStatus === undefined && Object.keys(c.val).length) out.push(`${w}: valuation anchors need valStatus`);
+    if (c.real && !c.backstory) out.push(`${w}: real company needs a backstory`);
     [...Object.values(c.val), ...Object.values(c.rev || {})].forEach(v => finite(w, v));
     (c.rounds || []).forEach(r => { src(`${w} round`, r.source); finite(`${w} round`, r.year, r.amountUsdM); });
   });

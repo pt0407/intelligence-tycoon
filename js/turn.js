@@ -34,6 +34,7 @@ function endYear(s) {
   activateRivals(s, news);
   macroStep(s);
   closeDeals(s, news);
+  resolveOffers(s, news);
   for (const c of active(s)) for (const rd of c.realRounds) if (rd.year === y) { c.cash += rd.amountUsdM; news.push(`${c.name} closes a reported funding round of ${money(rd.amountUsdM)}.`); }
   runEvents(s, news);
   syncStars(s);
@@ -70,6 +71,7 @@ function endYear(s) {
     if (c === me && lost >= 1) news.push(`${Math.round(lost)} researchers quit over morale.`);
     if (c !== me && lost > 0) { const t = pickRival(s); if (t && t !== c) t.researchers += lost * 0.8; }
   }
+  payDividends(s, news);
   starMoves(s, news);
   for (const c of L) c.valuation = valuationOf(c, w);
   for (const c of L) applyHistory(s, c);
@@ -94,16 +96,17 @@ function endYear(s) {
   }
   w.frontierE = Math.max(1e-9, ...active(s).map(c => effCompute(s, c, 1)));
   PATHS[s.path].goals.forEach((gl, i) => { if (!(i in s.goalsDone) && me.status === 'active' && gl.check(s)) { s.goalsDone[i] = y; news.push(`Objective complete: ${gl.text}`); } });
+  const missionsDone = evalMissions(s, news);
   const unlocked = checkAchievements(s, news);
   s.history.push({ year: y, valuation: me.valuation, revenue: me.revenue, cap: flagCapOf(me), frontier: flagCapOf(frontierOf(s)), rank: rankOf(s), index: w.index, rate: w.rate, portfolio: portfolioValue(s) });
   s.log.push(...news.map(text => ({ year: y, text })));
   s.log = s.log.slice(-300);
   const report = {
-    year: y, news, before, unlocked,
+    year: y, news, before, unlocked, missionsDone,
     after: { valuation: me.valuation, cash: me.cash, rank: rankOf(s), revenue: me.revenue, net: me.net, cap: flagCapOf(me), frontier: flagCapOf(frontierOf(s)), frontierName: frontierOf(s).name, stake: me.stake, index: w.index, rate: w.rate, hype: w.hype, trust: w.trust },
   };
   if (me.status !== 'active' || y >= END_YEAR) { s.over = true; s.verdict = verdictFor(s); }
-  else { s.year = y + 1; s.ap = AP_PER_YEAR + me.mods.ap; }
+  else { s.year = y + 1; s.ap = AP_PER_YEAR + me.mods.ap; resetYear(s); assignMissions(s); }
   return report;
 }
 

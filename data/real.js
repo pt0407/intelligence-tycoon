@@ -4,7 +4,8 @@ const REAL = {
   "version": 1,
   "asOf": "2026-11-14",
   "note": "Public figures used by the game. Each record names a source id and a status: reported, estimate or game-estimate. Sources were retrieved by web search on 2026-11-14; figures are USD millions unless the key says otherwise. Game-estimate fields are design choices, not public figures. Refresh by hand; the game never fetches these live.",
-  "retrieved": "2026-11-14"
+  "retrieved": "2026-11-14",
+  "backstoryNote": "Backstories are short narrative summaries written for the game. Check them against the sources before relying on them."
  },
  "sources": [
   {
@@ -554,7 +555,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures. Rented cloud compute is a game estimate of each lab's cloud deals; it lets the lab train."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures. Rented cloud compute is a game estimate of each lab's cloud deals; it lets the lab train.",
+   "backstory": "Founded in 2015 as a nonprofit AI research lab. Moved to a capped-profit structure in 2019, and raised a 122 billion dollar round in 2026.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "nvidia",
@@ -608,7 +611,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures.",
+   "backstory": "Founded in 1993 as a graphics chipmaker. Its GPUs became the default hardware for training large AI models.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "anthropic",
@@ -669,7 +674,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures. Rented cloud compute is a game estimate of each lab's cloud deals; it lets the lab train."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures. Rented cloud compute is a game estimate of each lab's cloud deals; it lets the lab train.",
+   "backstory": "Founded in 2021 by former OpenAI researchers with a safety-first charter. Known for the Claude models.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "xai",
@@ -719,7 +726,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures.",
+   "backstory": "Founded in 2023 by Elon Musk. Merged into SpaceX in 2026.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "mistral",
@@ -777,7 +786,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures.",
+   "backstory": "Founded in 2023 in Paris by former researchers from large AI labs. Known for open-weights models.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "ssi",
@@ -824,7 +835,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures.",
+   "backstory": "Founded in 2024 by Ilya Sutskever after he left OpenAI. Focused on safe superintelligence, with no product planned.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "tml",
@@ -877,7 +890,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures.",
+   "backstory": "Founded in 2025 by Mira Murati, a former OpenAI executive. Raised a 2 billion dollar seed round.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "deepseek",
@@ -933,7 +948,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures.",
+   "backstory": "Founded in 2023 in Hangzhou by Liang Wenfeng, who also co-founded the quant fund High-Flyer. Known for open-weights reasoning models.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "moonshot",
@@ -983,7 +1000,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures.",
+   "backstory": "Founded in 2023 in Beijing. Makes the Kimi assistant.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "zhipu",
@@ -1027,7 +1046,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures.",
+   "backstory": "Spun out of Tsinghua University research. Listed in Hong Kong in January 2026.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "cursor",
@@ -1079,7 +1100,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures.",
+   "backstory": "Founded in 2022 by four MIT students. Makes the Cursor AI code editor.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "perplexity",
@@ -1132,7 +1155,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures.",
+   "backstory": "Founded in 2022 as an AI answer engine. Added agent products in 2026.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "cohere",
@@ -1180,7 +1205,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures.",
+   "backstory": "Founded in 2019 in Toronto. Focuses on enterprise and sovereign AI.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "coreweave",
@@ -1238,7 +1265,9 @@ const REAL = {
     "ipoYear": 2025
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures.",
+   "backstory": "Started in 2017 as a cryptocurrency mining operation before becoming a GPU cloud provider.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "gdm",
@@ -1290,7 +1319,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures.",
+   "backstory": "Simulated division of Alphabet. Its real-world counterpart built AlphaGo and the Gemini models.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "meta",
@@ -1340,7 +1371,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures.",
+   "backstory": "Simulated division of Meta. Its real-world counterpart released the open Llama model family.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   },
   {
    "id": "msft",
@@ -1392,7 +1425,9 @@ const REAL = {
     }
    },
    "startStatus": "game-estimate",
-   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures."
+   "startNote": "Starting cash, team, compute and campuses are game estimates for 2016 or founding, not reported figures.",
+   "backstory": "Simulated division of Microsoft. Its real-world counterpart partnered with OpenAI and built Copilot.",
+   "backstorySource": "narrative summary of public reporting; see sources"
   }
  ],
  "rules": {

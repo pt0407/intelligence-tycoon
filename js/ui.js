@@ -13,28 +13,12 @@
   const REG_NAMES = ['None', 'Voluntary guidelines', 'Binding rules', 'Licensing regime'];
   const SRC = 'docs/research.md';
 
-  const SECTION_IMG = {
-    start: { src: 'assets/sections/start.webp', alt: "Rows of server racks in a data center", credit: "Derrick Coetzee from Berkeley, CA, USA, CC0, via Wikimedia Commons" },
-    overview: { src: 'assets/sections/overview.webp', alt: "NYSE trading floor, traders at their desks", credit: "Carol M. Highsmith, Public domain, via Wikimedia Commons" },
-    hardware: { src: 'assets/sections/hardware.webp', alt: "GPU blades with liquid cooling", credit: "Steve Jurvetson, CC BY 4.0, via Wikimedia Commons" },
-    research: { src: 'assets/sections/research.webp', alt: "Rows of racks in a data center hall", credit: "PiDatacenters, CC BY-SA 4.0, via Wikimedia Commons" },
-    talent: { src: 'assets/sections/talent.webp', alt: "Engineers and scientists working as a team", credit: "U.S. Air Force AFRL by Keith C Lewis, Public domain, via Wikimedia Commons" },
-    products: { src: 'assets/sections/products.webp', alt: "Source code on a computer monitor", credit: "Markus Spiske markusspiske, CC0, via Wikimedia Commons" },
-    finance: { src: 'assets/sections/finance.webp', alt: "Antique stock ticker machine", credit: "Jaclyn Nash (photographer), Public domain, via Wikimedia Commons" },
-    policy: { src: 'assets/sections/policy.webp', alt: "Parliament building at dusk", credit: "Thennicke, CC BY-SA 4.0, via Wikimedia Commons" },
-    rivals: { src: 'assets/sections/rivals.webp', alt: "Frankfurt Stock Exchange floor", credit: "Ank Kumar, CC BY-SA 4.0, via Wikimedia Commons" },
-    market: { src: 'assets/sections/market.webp', alt: "Bar chart of GPU maker market shares", credit: "Mark H., CC BY-SA 3.0, via Wikimedia Commons" },
-    log: { src: 'assets/sections/log.webp', alt: "Server racks with blinking status lights", credit: "Victorgrigas, CC BY-SA 3.0, via Wikimedia Commons" },
-  };
-
   let S = null, pathId = 'lab', companyName = 'Your AI Co', tab = 'overview', opts = [], scenarioId = 'base';
 
   function showScreen(id) { for (const el of document.querySelectorAll('.screen')) el.hidden = el.id !== id; }
 
   function banner(key) {
-    const b = SECTION_IMG[key];
-    if (!b) return '';
-    return `<figure class="banner"><img src="${b.src}" alt="${esc(b.alt)}" width="1280" height="800" loading="lazy" decoding="async"><figcaption><span>Photo</span> ${esc(b.credit)}</figcaption></figure>`;
+    return `<div class="banner" aria-hidden="true">${artFor(key, S)}</div>`;
   }
 
   function runsList() { try { return JSON.parse(localStorage.getItem('it-runs') || '[]'); } catch (e) { return []; } }
@@ -118,6 +102,26 @@
     return card(`Achievements ${n} of ${ACHIEVEMENTS.length}`, `<ul class="achs">${ACHIEVEMENTS.map(a => `<li class="${a.id in got ? 'on' : ''}"><b>${esc(a.title)}</b><small>${esc(a.text)}</small></li>`).join('')}</ul>`);
   }
 
+  function foundingCard() {
+    const m = S.me;
+    return card('Founding story', `<div class="story-card"><b>${esc(m.name)}</b><span class="muted">${esc(m.founder ?? 'Founder')}${m.city ? ` · ${esc(m.city)}` : ''}</span><p>${esc(m.backstory ?? '')}</p></div>`);
+  }
+
+  function missionsCard() {
+    const list = S.missions ?? [];
+    return card('Missions this year', `<ul class="missions">${list.map(m => `<li class="${m.done ? 'done' : ''}"><span class="tick" aria-hidden="true"></span><b>${esc(m.text)}</b><small>${m.done ? 'Complete' : 'Open'} · reward ${money(m.reward)}</small></li>`).join('') || '<li class="muted">No missions.</li>'}</ul>`);
+  }
+
+  const ERAS = [[2016, 'The deep learning era'], [2019, 'Capped profits'], [2022, 'The chatbot boom'], [2023, 'The GPU shortage'], [2024, 'Export controls'], [2026, 'The gigawatt era'], [2028, 'The shakeout']];
+  function eraOf(y) { let name = ERAS[0][1]; for (const [from, n] of ERAS) if (y >= from) name = n; return name; }
+
+  let rolled = null;
+  function rollName() {
+    rolled = rollIdentity(Math.floor(Math.random() * 1e9) + 1);
+    companyName = rolled.name;
+    renderStart();
+  }
+
   function renderStart() {
     showScreen('start');
     $('#start').innerHTML = `
@@ -137,6 +141,7 @@
             <p class="objs"><b>Objectives:</b> ${p.goals.map(g => esc(g.text)).join(' · ')}</p>
           </div>`).join('')}
         </div>
+        <div class="roll">${rolled ? `<div class="story-card"><b>${esc(rolled.name)}</b><span class="muted">${esc(rolled.founder)} · ${esc(rolled.city)}</span><p>${esc(rolled.backstory)}</p></div>` : '<p class="muted">Roll a name to get a founder, a city and a backstory.</p>'}<button class="ghost" id="roll">Roll a name</button></div>
         <button class="primary big" id="found">Found company</button>
         ${localStorage.getItem('it-save') ? '<button class="ghost" id="continue-save">Continue saved game</button>' : ''}
         <button class="ghost" id="help-start">How it works</button>
@@ -190,6 +195,8 @@
           <h3 class="sub">Products</h3><div class="tags">${me.products.length ? me.products.map(sid => `<span class="tag">${SEGMENTS[sid].name}</span>`).join('') : '<span class="muted">None launched</span>'}</div>`)}
         ${card('Last year', `${row('Revenue', money(me.revenue))}${row('Inference costs', money(me.cogs))}${row('Operating costs', money(costs))}${row('Net cash', money(me.net))}`)}
         ${card('Leaderboard', `<ol class="board">${board.slice(0, 10).map((c, i) => `<li class="${c === me ? 'me' : ''}"><span>${i + 1}. ${esc(c.name)}${c.real ? ' <small class="muted">real</small>' : ''}</span><b>${money(c.valuation)}</b></li>`).join('')}</ol>`)}
+        ${foundingCard()}
+        ${missionsCard()}
         ${nextCard()}
         ${achievementsCard()}
         ${card('Objectives', `<ul class="objs-list">${PATHS[S.path].goals.map((g, i) => `<li class="${i in S.goalsDone ? 'done' : ''}">${esc(g.text)}<small>${i in S.goalsDone ? `Done in ${S.goalsDone[i]}` : 'Open'}</small></li>`).join('')}</ul>`)}
@@ -212,7 +219,6 @@
         ${card('Hardware catalog', `<div class="catalog"><table><tr><th>Platform</th><th>Year</th><th>TFLOPS/GPU</th><th>HBM GB</th><th>Rack $M</th><th>kW</th><th>Source</th></tr>
           ${PLATFORMS.map(p => `<tr class="${p.year <= S.year ? '' : 'future'}"><td>${esc(p.name)}${p.cloudOnly ? ' <small class="muted">cloud only</small>' : ''}</td><td>${p.year}</td><td>${p.tf.toLocaleString()}</td><td>${p.mem}</td><td>${p.rackM}</td><td>${p.kw}</td><td class="muted">${esc(p.src)}</td></tr>`).join('')}
           </table><p class="muted">A rack is 72 GPUs. Rack prices are compute and networking only. Rubin and later numbers are estimates or roadmap, see ${SRC}.</p></div>`)}
-        ${card('Photos', `<div class="credits">${[['assets/tpu_v4.png', 'Google TPU v4', 'CC BY 4.0, Jouppi et al., via Wikimedia Commons'], ['assets/tpu_v3.jpg', 'Google TPU v3', 'CC BY-SA 4.0, Zinskauf, via Wikimedia Commons']].map(([src, n, l]) => `<figure class="photo"><img src="${src}" alt="${n}"><figcaption><b>${n}</b><small>${l}</small></figcaption></figure>`).join('')}</div>`)}
         ${card('Campus economics', `<p class="muted">Campus build cost is $${facilityPerMW(S.year)}M per MW at today's rates (AI-optimized, Turner and Townsend 2025 benchmark $20M+). A 100 MW campus costs about $${facilityPerMW(S.year) * MW_PER_BLOCK}M before chips. Grid queues are 2 to 4 years.</p>
           ${REGIONS.map(r => row(r.name, `$${r.price}/MWh, queue ${queueYears(S, r)} yrs, build $${dcCost(r, S).toFixed(0)}M`)).join('')}`)}
         ${card('Buy, rent and build', acts(mine))}
@@ -284,16 +290,19 @@
     if (tab === 'deals') {
       const kind = { acquire: 'Acquisition', acquihire: 'Acquihire', buycompute: 'Racks' };
       const pend = S.deals.filter(d => d.status === 'pending'), past = S.deals.filter(d => d.status !== 'pending').slice(-10).reverse();
+      const offers = (S.offers ?? []).slice(-6).reverse();
+      const held = Object.entries(S.me.investments).filter(([, v]) => v > 0);
       html = `<div class="grid2">
-        ${card('In flight', pend.map(d => row(`${esc(d.name)} · ${kind[d.type]}`, `closes ${d.closeYear} · ${money(d.price)}`)).join('') || '<p class="muted">No deals in flight. Sign one below.</p>')}
+        ${card('Path to control', held.map(([rid, v]) => { const r = companyById(S, rid); return `<div class="control wide"><span>${esc(r?.name ?? rid)} · ${Math.round(v * 100)}%</span><div class="bar good"><i style="width:${clamp(v / CONTROL * 100, 0, 100)}%"></i></div><small class="muted">${v >= CONTROL ? 'Control reached. Offers unlocked.' : `${Math.round((CONTROL - v) * 100)} points to control`}</small></div>`; }).join('') || '<p class="muted">Buy 5 percent slices to start. Reach 49 percent to make offers.</p>')}
+        ${card('Offers', offers.map(o => row(esc(companyById(S, o.target)?.name ?? o.target), `${money(o.price)} · ${o.status}`)).join('') || '<p class="muted">No offers yet.</p>')}
+        ${card('In flight', pend.map(d => row(`${esc(d.name)} · ${kind[d.type]}`, `closes ${d.closeYear} · ${money(d.price)}`)).join('') || '<p class="muted">No deals in flight.</p>')}
         ${card('Closed and failed', past.map(d => row(`${esc(d.name)} · ${kind[d.type]}`, `${d.status} ${d.closeYear}`)).join('') || '<p class="muted">Nothing has closed yet.</p>')}
-        ${card('Deal options', `<p class="muted">Each deal is paid now and closes next year. Antitrust review blocks a deal when you and the target both sell in the same segment and hold more than 40 percent of it.</p>${acts(mine)}`)}
+        ${card('Deal options', `<p class="muted">Stakes come in 5 percent slices, and at most 25 percent of a company changes hands a year. Offers are answered at year end. Accepted offers close next year. Antitrust review blocks a deal where you and the target both sell in the same segment and hold more than 40 percent of it.</p>${acts(mine)}`)}
       </div>`;
     }
 
     if (tab === 'market') {
       html = `<div class="grid2">
-        ${card('Logos and credits', `<div class="credits">${[['anthropic', 'Anthropic', 'Public domain, via Wikimedia Commons'], ['deepseek', 'DeepSeek', 'MIT, via Wikimedia Commons'], ['mistral', 'Mistral AI', 'Public domain, via Wikimedia Commons'], ['nvidia', 'NVIDIA', 'Apache-2.0, per Wikimedia Commons metadata']].map(([k, n, l]) => `<div class="credit"><img src="${LOGOS[k]}" alt="${n} logo"><small>${n}. ${l}.</small></div>`).join('')}</div><p class="muted">Logos are trademarks of their owners and are shown only to identify the companies.</p>`)}
         ${card('Capex and supply (public reports)', `${[
           ['Amazon 2026 capex', money(REAL.capex.amazon2026Usd)],
           ['Alphabet 2026 capex', `${money(REAL.capex.alphabet2026Usd)} (${REAL.capex.alphabetNote})`],
@@ -325,18 +334,23 @@
     $('#content').innerHTML = banner(tab) + html;
   }
 
-  const LOGOS = { anthropic: 'assets/anthropic.svg', deepseek: 'assets/deepseek.svg', mistral: 'assets/mistral.svg', nvidia: 'assets/nvidia.svg' };
+  function monoBadge(c) {
+    return `<span class="mono" style="--h:${hueOf(c.name)}">${esc(monogram(c.name))}</span>`;
+  }
 
   function rivalRow(c) {
     const by = Object.fromEntries(opts.map(o => [o.key, o]));
-    const po = by[`poach:${c.id}`], ac = by[`acquire:${c.id}`], inv = by[`invest:${c.id}`];
+    const st = by[`stake:${c.id}`], po = by[`poach:${c.id}`], of = by[`bidFair:${c.id}`];
     const b = o => (o ? `${o.locked ? 'disabled' : ''} title="${esc(o.locked || o.name)}"` : 'disabled');
+    const held = S.me.investments[c.id] ?? 0;
     return `<div class="rival">
-      <div>${LOGOS[c.id] ? `<img class="logo" src="${LOGOS[c.id]}" alt="">` : ''}<b>${esc(c.name)}</b>${c.real ? ' <small class="muted">real</small>' : ''}<small>${esc(c.type)} · ${money(c.valuation)} · cap ${Math.round(flagCapOf(c))} · ${totalRacksOf(c)} racks · ${c.products.length} products${c.public ? ' · public' : ''}</small></div>
+      <div class="rhead">${monoBadge(c)}<div><b>${esc(c.name)}</b>${c.real ? ' <small class="muted">real</small>' : ''}<small>${esc(c.type)} · ${money(c.valuation)} · cap ${Math.round(flagCapOf(c))} · ${totalRacksOf(c)} racks${c.public ? ' · public' : ''}</small>
+        ${c.backstory ? `<small class="story">${esc(c.backstory)}</small>` : ''}
+        ${held > 0 ? `<div class="control"><span>${Math.round(held * 100)}% held · control at ${Math.round(CONTROL * 100)}%</span><div class="bar good"><i style="width:${clamp(held / CONTROL * 100, 0, 100)}%"></i></div></div>` : ''}</div></div>
       <div class="rbtns">
-        <button data-act="invest:${c.id}" ${b(inv)}>Stake 5%</button>
+        <button data-act="stake:${c.id}" ${b(st)}>Stake 5%</button>
         <button data-act="poach:${c.id}" ${b(po)}>Poach</button>
-        <button data-act="acquire:${c.id}" ${b(ac)}>${ac ? esc(ac.name.replace('Acquire for ', '')) : 'Acquire'}</button>
+        <button data-act="bidFair:${c.id}" ${b(of)}>Offer</button>
       </div></div>`;
   }
 
@@ -371,6 +385,7 @@
     const b = r.before, a = r.after;
     const row2 = (label, from, to) => `<div class="rrow"><span>${label}</span><b>${from ? `${from} → ${to}` : to}</b></div>`;
     $('#modal').innerHTML = `<div class="modal">
+      <p class="era">${esc(eraOf(r.year))}</p>
       <h2>${r.year} in review</h2>
       ${row2('Valuation', money(b.valuation), money(a.valuation))}
       ${row2('Cash', money(b.cash), money(a.cash))}
@@ -425,7 +440,7 @@
     recordRun();
     const v = S.verdict, ladder = realLadder(), max = Math.max(...ladder.map(x => x.value));
     $('#end').innerHTML = `<div class="end">
-      ${banner('market')}
+      ${banner('end')}
       <h1>${esc(v.title)}</h1>
       <p class="lede">${esc(S.me.name)}: ${esc(v.text)}</p>
       <div class="share"><button class="primary" id="copy-share">Copy result</button><span id="share-status" class="muted" aria-live="polite"></span></div>
@@ -456,7 +471,8 @@
   function newGame() {
     resetFx();
     const seed = Math.floor(Math.random() * 1e9) + 1;
-    S = Engine.newGame(pathId, (companyName || '').trim().slice(0, 28) || 'Untitled AI', seed, scenarioId);
+    const name = (companyName || '').trim().slice(0, 28) || 'Untitled AI';
+    S = Engine.newGame(pathId, name, seed, scenarioId, rolled && rolled.name === name ? rolled : null);
     tab = 'overview';
     renderGame();
   }
@@ -464,11 +480,12 @@
   document.addEventListener('input', e => { if (e.target.id === 'company-name') companyName = e.target.value; });
 
   document.addEventListener('click', e => {
-    const t = e.target.closest('[data-path],[data-act],[data-tab],[data-scenario],#found,#end-year,#continue,#again,#help,#help-start,#close-help,#continue-save,#save,#clear-runs,#copy-share');
+    const t = e.target.closest('[data-path],[data-act],[data-tab],[data-scenario],#roll,#found,#end-year,#continue,#again,#help,#help-start,#close-help,#continue-save,#save,#clear-runs,#copy-share');
     if (!t || t.disabled) return;
     if (t.dataset.path) { pathId = t.dataset.path; renderStart(); }
     else if (t.dataset.scenario) { scenarioId = t.dataset.scenario; renderStart(); }
     else if (t.id === 'found') newGame();
+    else if (t.id === 'roll') rollName();
     else if (t.id === 'continue-save') loadGame();
     else if (t.id === 'clear-runs') { localStorage.removeItem('it-runs'); renderStart(); }
     else if (t.id === 'save') { saveGame(); t.textContent = 'Saved'; }

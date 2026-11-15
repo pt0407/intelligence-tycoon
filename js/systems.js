@@ -53,8 +53,55 @@ function attrition(c) {
   return lost;
 }
 
+const CONTROL = 0.49, VOLUME_CAP = 0.25, STAKE_SLICE = 0.05, DIVIDEND_SHARE = 0.3;
+const held = (s, rid) => s.me.investments[rid] ?? 0;
+const stakeVol = s => (s.yr.stakeVol ??= {});
+
+function stakeBlock(s, rid) {
+  const r = companyById(s, rid);
+  if (!r || r.status !== 'active' || r.valuation <= 0) return 'Not for sale';
+  if ((stakeVol(s)[rid] ?? 0) + STAKE_SLICE > VOLUME_CAP + 1e-9) return 'This year\'s shares are sold out';
+  return null;
+}
+
+function bidBlock(s, rid) {
+  const r = companyById(s, rid);
+  if (held(s, rid) < CONTROL - 1e-9) return `Needs ${Math.round(CONTROL * 100)} percent of ${r.name} first`;
+  if ((r.blockedUntil ?? 0) > s.year) return `${r.name} is not talking this year`;
+  if (s.offers.some(o => o.target === rid && o.status === 'open')) return 'An offer is already on the table';
+  return dealBlock(s, rid);
+}
+
+function resolveOffers(s, news) {
+  for (const o of s.offers.filter(x => x.status === 'open' && x.respondYear <= s.year)) {
+    const r = companyById(s, o.target);
+    if (!r || r.status !== 'active') { o.status = 'void'; continue; }
+    r.ask ??= 0.9 + rand(s) * 0.25;
+    if (o.price >= r.valuation * r.ask && s.me.cash > 0) {
+      o.status = 'accepted';
+      scheduleDeal(s, 'acquire', r, o.price);
+      news.push(`${r.name} accepts your offer of ${money(o.price)}. Closes next year.`);
+    } else {
+      o.status = 'rejected';
+      r.blockedUntil = s.year + 1;
+      news.push(`${r.name} rejects your offer of ${money(o.price)} and will not talk this year.`);
+    }
+  }
+}
+
+function payDividends(s, news) {
+  let total = 0;
+  for (const [rid, pct] of Object.entries(s.me.investments)) {
+    const r = companyById(s, rid);
+    if (!r || r.status !== 'active' || r.net <= 0) continue;
+    total += pct * r.net * DIVIDEND_SHARE;
+  }
+  if (total > 0) { s.me.cash += total; news.push(`Dividends from your stakes: +${money(total)}.`); }
+}
+
 function scheduleDeal(s, type, r, price) {
   const paid = Math.min(Math.max(0, s.me.cash), price);
+  s.me.cash -= paid;
   if (type === 'acquire') s.me.stake *= 1 - (price - paid) / s.me.valuation;
   r.status = 'pending';
   s.deals.push({ type, target: r.id, name: r.name, price, paid, closeYear: s.year + 1, status: 'pending' });

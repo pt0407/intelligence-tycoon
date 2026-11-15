@@ -38,7 +38,7 @@ function makeCompany(o) {
     fleet: { ...(o.fleet ?? {}) }, rented: { ...(o.rented ?? {}) }, leased: { ...(o.leased ?? {}) }, realRounds: o.realRounds ?? [], boughtYear: 0, dcs: (o.dcs ?? []).map(d => ({ ...d })), pendingDC: [],
     customPlatforms: [], asic: null, ppa: false, ads: false, sovereign: false, investments: {},
     data: { q: o.data, licensed: 0 }, rep: o.rep, safety: o.safety, dist: o.dist,
-    flagship: null, training: null, algo: 1, licensed: false,
+    flagship: null, training: null, algo: 1, licensed: false, founder: o.founder ?? null, city: o.city ?? null, backstory: o.backstory ?? null,
     products: [], pricing: 'standard', gov: 0, lobbyUntil: 0, lawsuits: 0,
     rounds: [], raisedYear: -1, debt: 0, public: !!o.public, ipoYear: o.ipoYear ?? 0, lossYears: 0, open: false, partner: 0,
     commitments: [], growth: o.growth ?? 0, growthRes: o.growthRes ?? 0, targets: [...(o.targets ?? [])], discount: 1,
